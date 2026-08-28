@@ -444,6 +444,11 @@
         } catch (e) {}
     }
 
+    function switchAccount(accountId) {
+        if (!accountId) return;
+        window.location.href = `/trading?account_id=${accountId}&symbol=${activeSymbol}`;
+    }
+
     async function pollAccountState() {
         if (!activeAccountId) return;
         try {
