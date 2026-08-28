@@ -8,7 +8,7 @@ from pathlib import Path
 from app.database import get_db
 from app.models import User
 from app.security import hash_password, verify_password, create_session_token, get_optional_user, require_auth
-from app.config import SESSION_COOKIE_NAME, APP_NAME, APP_TAGLINE, RESEND_API_KEY
+from app.config import SESSION_COOKIE_NAME, APP_NAME, APP_TAGLINE, RESEND_API_KEY, RESEND_FROM_EMAIL
 import random
 import resend
 
@@ -217,15 +217,15 @@ async def handle_register(
     resend.api_key = RESEND_API_KEY or os.getenv("RESEND_API_KEY", "")
     try:
         resend.Emails.send({
-            "from": "onboarding@resend.dev",
+            "from": RESEND_FROM_EMAIL,
             "to": email_clean,
             "subject": "Verify your MyFundedDesk Account",
             "html": f"""
-            <div style="font-family: sans-serif; max-width: 500px; margin: 0 auto;">
-                <h2>Welcome to MyFundedDesk!</h2>
-                <p>Your verification code is:</p>
-                <h1 style="background: #f4f4f5; padding: 10px; text-align: center; letter-spacing: 5px;">{verification_code}</h1>
-                <p>Enter this code on the verification page to activate your account.</p>
+            <div style="font-family: sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; rounded: 12px;">
+                <h2 style="color: #0f172a;">Welcome to MyFundedDesk!</h2>
+                <p style="color: #475569;">Your verification code is:</p>
+                <h1 style="background: #f1f5f9; padding: 15px; text-align: center; letter-spacing: 8px; color: #2563eb; font-size: 32px; border-radius: 8px;">{verification_code}</h1>
+                <p style="color: #64748b; font-size: 14px;">Enter this 6-digit code on the verification page to activate your trader portal.</p>
             </div>
             """
         })
@@ -246,18 +246,48 @@ async def handle_logout(request: Request):
 
 
 @router.get("/verify-email", response_class=HTMLResponse)
-async def verify_page(request: Request, email: str = ""):
+async def verify_page(request: Request, email: str = "", resent: bool = False):
     return templates.TemplateResponse(
         request=request,
         name="verify.html",
-        context={"app_name": APP_NAME, "email": email, "error": None}
+        context={"app_name": APP_NAME, "email": email, "error": None, "resent": resent}
     )
+
+@router.get("/resend-verification")
+@router.post("/resend-verification")
+async def handle_resend_verification(request: Request, email: str = "", db: Session = Depends(get_db)):
+    email_clean = email.strip().lower()
+    user = db.query(User).filter(User.email == email_clean).first()
+    if user and not user.is_email_verified:
+        verification_code = str(random.randint(100000, 999999))
+        user.verification_code = verification_code
+        db.commit()
+        
+        resend.api_key = RESEND_API_KEY or os.getenv("RESEND_API_KEY", "")
+        try:
+            resend.Emails.send({
+                "from": RESEND_FROM_EMAIL,
+                "to": email_clean,
+                "subject": "Your Verification Code - MyFundedDesk",
+                "html": f"""
+                <div style="font-family: sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px;">
+                    <h2 style="color: #0f172a;">MyFundedDesk Verification</h2>
+                    <p style="color: #475569;">Here is your new 6-digit verification code:</p>
+                    <h1 style="background: #f1f5f9; padding: 15px; text-align: center; letter-spacing: 8px; color: #2563eb; font-size: 32px; border-radius: 8px;">{verification_code}</h1>
+                    <p style="color: #64748b; font-size: 14px;">Enter this code on the verification page to activate your account.</p>
+                </div>
+                """
+            })
+        except Exception as e:
+            print("Resend Error:", e)
+            
+    return RedirectResponse(url=f"/verify-email?email={email_clean}&resent=1", status_code=303)
 
 @router.post("/verify-email", response_class=HTMLResponse)
 async def handle_verify(request: Request, email: str = Form(...), code: str = Form(...), db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == email.strip().lower()).first()
     if not user:
-        return templates.TemplateResponse(request=request, name="verify.html", context={"app_name": APP_NAME, "email": email, "error": "User not found."})
+        return templates.TemplateResponse(request=request, name="verify.html", context={"app_name": APP_NAME, "email": email, "error": "User not found.", "resent": False})
     
     if user.verification_code == code.strip():
         user.is_email_verified = True
@@ -269,7 +299,7 @@ async def handle_verify(request: Request, email: str = Form(...), code: str = Fo
         response.set_cookie(key=SESSION_COOKIE_NAME, value=token, httponly=True, max_age=86400 * 30, samesite="lax")
         return response
     else:
-        return templates.TemplateResponse(request=request, name="verify.html", context={"app_name": APP_NAME, "email": email, "error": "Invalid verification code."})
+        return templates.TemplateResponse(request=request, name="verify.html", context={"app_name": APP_NAME, "email": email, "error": "Invalid verification code.", "resent": False})
 
 
 @router.get("/forgot-password", response_class=HTMLResponse)
@@ -292,15 +322,15 @@ async def handle_forgot_password(request: Request, email: str = Form(...), db: S
         resend.api_key = RESEND_API_KEY or os.getenv("RESEND_API_KEY", "")
         try:
             resend.Emails.send({
-                "from": "onboarding@resend.dev",
+                "from": RESEND_FROM_EMAIL,
                 "to": email_clean,
                 "subject": "Password Reset - MyFundedDesk",
                 "html": f"""
-                <div style="font-family: sans-serif; max-width: 500px; margin: 0 auto;">
-                    <h2>Password Reset Request</h2>
-                    <p>Your password reset code is:</p>
-                    <h1 style="background: #f4f4f5; padding: 10px; text-align: center; letter-spacing: 5px;">{verification_code}</h1>
-                    <p>Enter this code on the reset page to create a new password. If you didn't request this, ignore this email.</p>
+                <div style="font-family: sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px;">
+                    <h2 style="color: #0f172a;">Password Reset Request</h2>
+                    <p style="color: #475569;">Your password reset code is:</p>
+                    <h1 style="background: #f1f5f9; padding: 15px; text-align: center; letter-spacing: 8px; color: #2563eb; font-size: 32px; border-radius: 8px;">{verification_code}</h1>
+                    <p style="color: #64748b; font-size: 14px;">Enter this code on the reset page to create a new password. If you didn't request this, ignore this email.</p>
                 </div>
                 """
             })

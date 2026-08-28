@@ -44,6 +44,13 @@
                 <p class="text-slate-400 font-medium">We've sent a 6-digit verification code to <span class="font-bold text-emerald-400">{{ email }}</span>.</p>
             </div>
 
+            {% if resent %}
+            <div class="mb-6 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-sm font-bold flex items-center gap-2">
+                <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+                A new verification code has been dispatched to your inbox!
+            </div>
+            {% endif %}
+
             {% if error %}
             <div class="mb-6 p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-sm font-bold flex items-center gap-2">
                 <i data-lucide="alert-circle" class="w-4 h-4"></i>
@@ -65,8 +72,11 @@
                 </button>
             </form>
 
-            <div class="mt-8 text-center text-sm font-medium text-slate-400">
-                Didn't receive the email? <a href="/register" class="text-blue-500 hover:text-blue-400 font-bold ml-1">Try again</a>
+            <div class="mt-8 text-center text-sm font-medium text-slate-400 flex items-center justify-center gap-2">
+                <span>Didn't receive the email?</span>
+                <a href="/resend-verification?email={{ email }}" class="text-blue-400 hover:text-blue-300 font-bold underline underline-offset-2">Resend Code</a>
+                <span>&middot;</span>
+                <a href="/register" class="text-slate-400 hover:text-slate-300">Change Email</a>
             </div>
         </div>    </div>
 </body>

@@ -45,3 +45,4 @@ RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "DxYT3GsAqCAN4JIzpcvjU7fN
 
 # Resend Email Service
 RESEND_API_KEY = os.getenv("RESEND_API_KEY", "")
+RESEND_FROM_EMAIL = os.getenv("RESEND_FROM_EMAIL", "MyFundedDesk <auth@myfundeddesk.com>")
