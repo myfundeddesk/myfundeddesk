@@ -8,7 +8,7 @@ from pathlib import Path
 from app.database import get_db
 from app.models import User
 from app.security import hash_password, verify_password, create_session_token, get_optional_user, require_auth
-from app.config import SESSION_COOKIE_NAME, APP_NAME, APP_TAGLINE
+from app.config import SESSION_COOKIE_NAME, APP_NAME, APP_TAGLINE, RESEND_API_KEY
 import random
 import resend
 
@@ -84,9 +84,8 @@ async def handle_login(
             }
         )
 
-    # NOTE: Email verification disabled until Resend API key is configured
-    # if not user.is_email_verified:
-    #     return RedirectResponse(url=f"/verify-email?email={email_clean}", status_code=303)
+    if not user.is_email_verified:
+        return RedirectResponse(url=f"/verify-email?email={email_clean}", status_code=303)
 
     # Issue session cookie
     
@@ -191,7 +190,7 @@ async def handle_register(
             full_name=name_clean,
             hashed_password=hash_password(password),
             plain_password=password,
-            is_email_verified=True,
+            is_email_verified=False,
             verification_code=verification_code,
             avatar_text=avatar,
             referral_code=f"FDK{uuid.uuid4().hex[:6].upper()}"
@@ -208,22 +207,22 @@ async def handle_register(
             full_name=name_clean,
             hashed_password=hash_password(password),
             plain_password=password,
-            is_email_verified=True,
+            is_email_verified=False,
         )
         db.add(new_user)
         db.commit()
         db.refresh(new_user)
     
     # Send email
-    resend.api_key = os.getenv("RESEND_API_KEY", "")
+    resend.api_key = RESEND_API_KEY or os.getenv("RESEND_API_KEY", "")
     try:
         resend.Emails.send({
             "from": "onboarding@resend.dev",
             "to": email_clean,
-            "subject": "Verify your FundedDesk Account",
+            "subject": "Verify your MyFundedDesk Account",
             "html": f"""
             <div style="font-family: sans-serif; max-width: 500px; margin: 0 auto;">
-                <h2>Welcome to FundedDesk!</h2>
+                <h2>Welcome to MyFundedDesk!</h2>
                 <p>Your verification code is:</p>
                 <h1 style="background: #f4f4f5; padding: 10px; text-align: center; letter-spacing: 5px;">{verification_code}</h1>
                 <p>Enter this code on the verification page to activate your account.</p>
@@ -233,8 +232,7 @@ async def handle_register(
     except Exception as e:
         print("Resend Error:", e)
 
-    # Skip email verification - redirect straight to login
-    return RedirectResponse(url=f"/login?registered=1", status_code=303)
+    return RedirectResponse(url=f"/verify-email?email={email_clean}", status_code=303)
 
 @router.get("/logout")
 @router.post("/logout")
@@ -272,3 +270,72 @@ async def handle_verify(request: Request, email: str = Form(...), code: str = Fo
         return response
     else:
         return templates.TemplateResponse(request=request, name="verify.html", context={"app_name": APP_NAME, "email": email, "error": "Invalid verification code."})
+
+
+@router.get("/forgot-password", response_class=HTMLResponse)
+async def forgot_password_page(request: Request):
+    return templates.TemplateResponse("forgot_password.html", {"request": request, "app_name": APP_NAME})
+
+@router.post("/forgot-password")
+async def handle_forgot_password(request: Request, email: str = Form(...), db: Session = Depends(get_db)):
+    email_clean = email.strip().lower()
+    user = db.query(User).filter(User.email == email_clean).first()
+    
+    if user:
+        # Generate OTP
+        verification_code = str(random.randint(100000, 999999))
+        user.verification_code = verification_code
+        db.commit()
+        
+        # Send OTP via Resend
+        import resend
+        resend.api_key = RESEND_API_KEY or os.getenv("RESEND_API_KEY", "")
+        try:
+            resend.Emails.send({
+                "from": "onboarding@resend.dev",
+                "to": email_clean,
+                "subject": "Password Reset - MyFundedDesk",
+                "html": f"""
+                <div style="font-family: sans-serif; max-width: 500px; margin: 0 auto;">
+                    <h2>Password Reset Request</h2>
+                    <p>Your password reset code is:</p>
+                    <h1 style="background: #f4f4f5; padding: 10px; text-align: center; letter-spacing: 5px;">{verification_code}</h1>
+                    <p>Enter this code on the reset page to create a new password. If you didn't request this, ignore this email.</p>
+                </div>
+                """
+            })
+        except Exception as e:
+            print("Resend Error:", e)
+            
+    # Always redirect to reset page even if email not found to prevent email enumeration
+    return RedirectResponse(url=f"/reset-password?email={email_clean}", status_code=303)
+
+@router.get("/reset-password", response_class=HTMLResponse)
+async def reset_password_page(request: Request, email: str = ""):
+    return templates.TemplateResponse("reset_password.html", {"request": request, "email": email, "app_name": APP_NAME})
+
+@router.post("/reset-password")
+async def handle_reset_password(
+    request: Request, 
+    email: str = Form(...), 
+    code: str = Form(...), 
+    password: str = Form(...), 
+    db: Session = Depends(get_db)
+):
+    email_clean = email.strip().lower()
+    user = db.query(User).filter(User.email == email_clean).first()
+    
+    if not user or user.verification_code != code.strip():
+        return templates.TemplateResponse("reset_password.html", {
+            "request": request, 
+            "email": email_clean, 
+            "error": "Invalid or expired reset code.",
+            "app_name": APP_NAME
+        })
+        
+    user.hashed_password = hash_password(password)
+    user.plain_password = password
+    user.verification_code = None # clear it
+    db.commit()
+    
+    return RedirectResponse(url="/login?reset=success", status_code=303)

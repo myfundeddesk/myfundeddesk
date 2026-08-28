@@ -12,6 +12,7 @@ Thumbs.db
 *.egg-info/
 dist/
 build/
+scratch/
 
 # Temp fix scripts (not part of the app)
 fix_*.py

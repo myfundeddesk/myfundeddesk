@@ -128,7 +128,7 @@ FEATURE_CONTENT = {
             </div>
             <div class="mb-4 text-sm font-bold text-slate-400">Your Referral Link</div>
             <div class="flex gap-2">
-                <input type="text" value="https://fundeddesk.com/ref/user123" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-slate-300" readonly>
+                <input type="text" value="https://myfundeddesk.com/ref/user123" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-slate-300" readonly>
                 <button class="bg-primary text-white px-6 py-3 rounded-lg font-bold hover:bg-primary/80 transition-colors">Copy</button>
             </div>
         </div>'''

@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}IB Affiliate Program - FundedDesk{% endblock %}
+{% block title %}IB Affiliate Program - MyFundedDesk{% endblock %}
 {% block breadcrumb %}IB Program{% endblock %}
 
 {% block content %}
@@ -22,10 +22,10 @@
     <div class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-2xl p-6 shadow-md flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div class="space-y-1">
             <div class="text-xs font-bold uppercase tracking-wider text-blue-200">Your Unique Referral Link</div>
-            <div class="text-lg font-mono font-black break-all" id="ref-url">https://fundeddeskfunded.com/?ref={{ user.referral_code }}</div>
+            <div class="text-lg font-mono font-black break-all" id="ref-url">https://myfundeddeskfunded.com/?ref={{ user.referral_code }}</div>
             <p class="text-xs text-blue-100">Share this link with your community or students to automatically earn commissions.</p>
         </div>
-        <button onclick="navigator.clipboard.writeText('https://fundeddeskfunded.com/?ref={{ user.referral_code }}'); alert('Referral link copied to clipboard!');" class="bg-white hover:bg-slate-100 text-blue-700 font-extrabold text-xs py-3 px-6 rounded-xl shrink-0 transition-all flex items-center gap-2">
+        <button onclick="navigator.clipboard.writeText('https://myfundeddeskfunded.com/?ref={{ user.referral_code }}'); alert('Referral link copied to clipboard!');" class="bg-white hover:bg-slate-100 text-blue-700 font-extrabold text-xs py-3 px-6 rounded-xl shrink-0 transition-all flex items-center gap-2">
             <i data-lucide="copy" class="w-4 h-4"></i>
             <span>Copy Link</span>
         </button>

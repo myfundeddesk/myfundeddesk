@@ -12,10 +12,10 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String(50), unique=True, index=True, default="trader")
-    email = Column(String(100), unique=True, index=True, default="trader@fundeddesk.in")
+    email = Column(String(100), unique=True, index=True, default="trader@myfundeddesk.in")
     hashed_password = Column(String(255), nullable=True)
     plain_password = Column(String(255), nullable=True)
-    full_name = Column(String(100), default="FundedDesk Trader")
+    full_name = Column(String(100), default="MyFundedDesk Trader")
     is_email_verified = Column(Boolean, default=False)
     verification_code = Column(String(10), nullable=True)
     is_super_admin = Column(Boolean, default=False)

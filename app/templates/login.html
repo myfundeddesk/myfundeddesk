@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign In - FundedDesk | Institutional Prop Firm</title>
+    <title>Sign In - MyFundedDesk | Institutional Prop Firm</title>
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -29,7 +29,7 @@
                     ▲
                 </div>
                 <div class="text-left">
-                    <div class="font-black text-white tracking-wider text-base leading-none">FundedDesk</div>
+                    <div class="font-black text-white tracking-wider text-base leading-none">MyFundedDesk</div>
                     <div class="text-[9px] tracking-widest uppercase font-bold text-emerald-400">Funded Traders</div>
                 </div>
             </div>
@@ -66,7 +66,7 @@
                 <div>
                     <div class="flex justify-between items-center mb-1.5">
                         <label class="text-xs font-bold text-slate-300 block">Password</label>
-                        <a href="#" onclick="alert('Password reset link has been dispatched to your email.'); return false;" class="text-[11px] font-semibold text-blue-400 hover:text-blue-300">Forgot?</a>
+                        <a href="/forgot-password" class="text-[11px] font-semibold text-blue-400 hover:text-blue-300">Forgot?</a>
                     </div>
                     <div class="relative">
                         <input type="password" id="password" name="password" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm font-medium text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
@@ -89,20 +89,7 @@
                 </div>
             </form>
 
-            <!-- Quick Demo Credentials Fill -->
-            <div class="mt-6 pt-5 border-t border-slate-800/80 text-center">
-                <div class="text-[11px] font-semibold text-slate-500 mb-2">Quick Test Login:</div>
-                <button type="button" onclick="fillTestAccount()" class="text-xs font-mono font-bold text-slate-300 bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 px-3 py-1.5 rounded-lg transition-colors">
-                    alien@fundeddesk.com (Pass: trader123)
-                </button>
-            </div>
-
-            <!-- Register Link -->
-            <div class="mt-6 text-center text-xs text-slate-400 font-medium">
-                Don't have an account yet? 
-                <a href="/register{% if next %}?next={{ next }}{% endif %}" class="text-blue-400 hover:text-blue-300 font-bold ml-1">Create Account</a>
-            </div>
-        </div>
+            
 
         <!-- Security Footer -->
         <div class="text-center mt-6 text-[11px] text-slate-500 font-medium flex items-center justify-center gap-2">
@@ -113,10 +100,7 @@
 
     <script>
         lucide.createIcons();
-        function fillTestAccount() {
-            document.getElementById('email').value = 'alien@fundeddesk.com';
-            document.getElementById('password').value = 'trader123';
-        }
+        
     </script>
 </body>
 </html>

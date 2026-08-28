@@ -4,16 +4,15 @@ from app.models import User, ChallengePackage, TradingAccount, TradePosition, Or
 from app.security import hash_password
 
 def seed_database():
-    return
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
 
     # Seed or update default test user with password "trader123"
-    user = db.query(User).filter(User.email == "demo@fundeddesk.in").first()
+    user = db.query(User).filter(User.email == "demo@myfundeddesk.in").first()
     if not user:
         user = User(
             username="trader",
-            email="demo@fundeddesk.in",
+            email="demo@myfundeddesk.in",
             full_name="Rajesh Kumar",
             hashed_password=hash_password("trader123"),
             is_email_verified=True,
@@ -31,6 +30,33 @@ def seed_database():
     # Seed challenge packages if empty
     if db.query(ChallengePackage).count() == 0:
         packages = [
+
+            ChallengePackage(
+                name="Starter 2-Step", model_type="2-Step", account_size=100000, 
+                profit_target_p1=8.0, profit_target_p2=5.0, max_daily_loss=5.0, max_total_loss=10.0, 
+                min_trading_days=3, price=499, description="2-Step 1L Evaluation"
+            ),
+            ChallengePackage(
+                name="Standard 2-Step", model_type="2-Step", account_size=500000, 
+                profit_target_p1=8.0, profit_target_p2=5.0, max_daily_loss=5.0, max_total_loss=10.0, 
+                min_trading_days=3, price=3499, description="2-Step 5L Evaluation"
+            ),
+            ChallengePackage(
+                name="Pro 2-Step", model_type="2-Step", account_size=1000000, 
+                profit_target_p1=8.0, profit_target_p2=5.0, max_daily_loss=5.0, max_total_loss=10.0, 
+                min_trading_days=3, price=6499, description="2-Step 10L Evaluation"
+            ),
+            ChallengePackage(
+                name="Elite 2-Step", model_type="2-Step", account_size=5000000, 
+                profit_target_p1=8.0, profit_target_p2=5.0, max_daily_loss=5.0, max_total_loss=10.0, 
+                min_trading_days=3, price=29999, description="2-Step 50L Evaluation", is_popular=True
+            ),
+            ChallengePackage(
+                name="Instant Starter", model_type="Instant", account_size=100000, 
+                profit_target_p1=0.0, profit_target_p2=0.0, max_daily_loss=3.0, max_total_loss=6.0, 
+                min_trading_days=0, price=2499, description="Trade live instantly"
+            ),
+
             ChallengePackage(
                 name="Starter", 
                 model_type="1-Step", 
@@ -161,11 +187,12 @@ def seed_database():
             trader_name="Rajesh Kumar",
             account_size=5000000.0,
             challenge_type="₹50,00,000 2-Step Evaluation",
-            phase_passed="Official FundedDesk Trader",
+            phase_passed="Official MyFundedDesk Trader",
             profit_achieved=420000.0,
             issue_date=utc_now() - timedelta(days=2)
         )
-        db.add(cert)
+        if not db.query(Certificate).filter_by(cert_id=cert.cert_id).first():
+            db.add(cert)
 
         ord1 = Order(
             order_id="ORD-882190",

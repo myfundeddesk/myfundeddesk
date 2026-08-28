@@ -73,7 +73,7 @@ async def request_deletion(request: Request, reason: str = Form(""), user: User 
     db.commit()
     
     response = RedirectResponse(url="/login?msg=Account%20deletion%20requested.%20You%20have%20been%20logged%20out.", status_code=303)
-    response.delete_cookie(key="fundeddesk_session")
+    response.delete_cookie(key="myfundeddesk_session")
     return response
 
     

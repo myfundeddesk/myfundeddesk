@@ -50,7 +50,7 @@ seed_database()
 
 
 app = FastAPI(
-    title="FundedDesk - India's Premier Quantitative Prop Firm",
+    title="MyFundedDesk - India's Premier Quantitative Prop Firm",
     description="Production-Ready Proprietary Trading Evaluation & Capital Funding Platform",
     version="2.0.0"
 )

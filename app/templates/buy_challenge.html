@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Acquire Capital - FundedDesk{% endblock %}
+{% block title %}Acquire Capital - MyFundedDesk{% endblock %}
 {% block breadcrumb %}Buy Challenge{% endblock %}
 
 {% block content %}
@@ -166,6 +166,11 @@
         updateSummary();
     }
 
+    document.addEventListener("DOMContentLoaded", () => {
+        selectModel(currentModel);
+    });
+
+
     function selectPlatform(input) {
         document.querySelectorAll('.platform-option').forEach(p => {
             p.classList.remove('border-blue-600', 'bg-blue-50/50 dark:bg-blue-900/20');
@@ -177,7 +182,7 @@
     function applyCoupon() {
         const val = document.getElementById('coupon-input').value.trim().toUpperCase();
         const msg = document.getElementById('coupon-msg');
-        if (val === 'SAVE20' || val === 'FundedDesk20' || val === 'TRADER20') {
+        if (val === 'SAVE20' || val === 'MyFundedDesk20' || val === 'TRADER20') {
             discountPercent = 0.20;
             msg.innerText = '✓ Promo Code applied (20% OFF)!';
             msg.className = 'text-xs mt-1.5 font-semibold text-emerald-400 block';
@@ -196,6 +201,11 @@
         }
         updateSummary();
     }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        selectModel(currentModel);
+    });
+
 
     function getSelectedPackage() {
         const selected = document.querySelector('input[name="package_id"]:checked');
@@ -296,7 +306,7 @@
                 "key": data.key_id,
                 "amount": data.amount_paise,
                 "currency": data.currency,
-                "name": "FundedDesk",
+                "name": "MyFundedDesk",
                 "description": data.package_name + " Evaluation",
                 "order_id": data.order_id,
                 "prefill": {
