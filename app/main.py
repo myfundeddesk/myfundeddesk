@@ -46,7 +46,6 @@ with engine.connect() as conn:
                 except Exception as e:
                     print(f"[Migration] Column {col_name} skipped: {e}")
 
-seed_database()
 
 
 app = FastAPI(
@@ -221,6 +220,17 @@ async def startup_event():
             db.rollback()
             print("Notification migration failed:", e)
 
+    try:
+        db.execute(text("ALTER TABLE users ADD COLUMN session_version INTEGER DEFAULT 1"))
+        db.commit()
+    except Exception:
+        db.rollback()
+
+    try:
+        seed_database()
+    except Exception as e:
+        print(f"Seed database failed: {e}")
+        
     finally:
         db.close()
     

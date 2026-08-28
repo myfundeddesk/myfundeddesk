@@ -24,10 +24,11 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     except Exception:
         return False
 
-def create_session_token(user_id: int, expires_in_seconds: int = 86400 * 7) -> str:
+def create_session_token(user_id: int, session_version: int = 1, expires_in_seconds: int = 86400 * 7) -> str:
     """Create a tamper-proof cryptographically signed session token"""
     payload = {
         "user_id": user_id,
+        "v": session_version,
         "exp": int(time.time()) + expires_in_seconds
     }
     payload_json = json.dumps(payload)
@@ -35,8 +36,8 @@ def create_session_token(user_id: int, expires_in_seconds: int = 86400 * 7) -> s
     signature = hmac.new(SECRET_KEY.encode('utf-8'), payload_b64.encode('utf-8'), hashlib.sha256).hexdigest()
     return f"{payload_b64}.{signature}"
 
-def verify_session_token(token: str) -> int | None:
-    """Verify signed session token and return user_id if valid"""
+def verify_session_token(token: str) -> dict | None:
+    """Verify signed session token and return payload if valid"""
     if not token or "." not in token:
         return None
     try:
@@ -51,19 +52,29 @@ def verify_session_token(token: str) -> int | None:
         if payload.get("exp", 0) < time.time():
             return None # Expired
             
-        return payload.get("user_id")
+        return payload
     except Exception:
         return None
 
 def get_current_user_from_request(request: Request, db: Session) -> User | None:
-    """Extract authenticated user from request cookie"""
+    """Extract authenticated user from request cookie and strictly check session concurrency"""
     token = request.cookies.get(SESSION_COOKIE_NAME)
     if not token:
         return None
-    user_id = verify_session_token(token)
-    if not user_id:
+    
+    payload = verify_session_token(token)
+    if not payload or not payload.get("user_id"):
         return None
-    return db.query(User).filter(User.id == user_id).first()
+        
+    user = db.query(User).filter(User.id == payload["user_id"]).first()
+    
+    if user:
+        token_version = payload.get("v", 1)
+        # If the user's current session_version is newer than the token's, the token is dead
+        if user.session_version and token_version < user.session_version:
+            return None
+            
+    return user
 
 class LoginRequiredRedirect(Exception):
     def __init__(self, redirect_url: str):

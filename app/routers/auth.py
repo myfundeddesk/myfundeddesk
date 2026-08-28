@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from pathlib import Path
 from app.database import get_db
 from app.models import User
+from app.email_service import send_activity_email
 from app.security import hash_password, verify_password, create_session_token, get_optional_user, require_auth
 from app.config import SESSION_COOKIE_NAME, APP_NAME, APP_TAGLINE, RESEND_API_KEY, RESEND_FROM_EMAIL
 import random
@@ -73,6 +74,18 @@ async def handle_login(
         user.plain_password = password
         db.commit()
     elif not verify_password(password, user.hashed_password):
+        # Failed login email
+        req_info = {
+            "IP Address": request.client.host if request.client else "Unknown",
+            "Device/Browser": request.headers.get("user-agent", "Unknown")
+        }
+        send_activity_email(
+            user.email,
+            subject="Failed Login Attempt - MyFundedDesk",
+            headline="Security Alert: Failed Login Attempt",
+            message="We detected a failed login attempt on your account. If this was you, you can safely ignore this email.",
+            request_info=req_info
+        )
         return templates.TemplateResponse(
             request=request,
             name="login.html",
@@ -87,13 +100,30 @@ async def handle_login(
     if not user.is_email_verified:
         return RedirectResponse(url=f"/verify-email?email={email_clean}", status_code=303)
 
+    # Secure Single Session Mode
+    user.session_version = (user.session_version or 1) + 1
+    db.commit()
+
+    # Success Login Email
+    req_info = {
+        "IP Address": request.client.host if request.client else "Unknown",
+        "Device/Browser": request.headers.get("user-agent", "Unknown")
+    }
+    send_activity_email(
+        user.email,
+        subject="New Login to Your Account - MyFundedDesk",
+        headline="New Login Detected",
+        message="A new login was successfully made to your MyFundedDesk account. For your security, any other active sessions on other devices have been automatically logged out.",
+        request_info=req_info
+    )
+
     # Issue session cookie
     
     if remember_me == "true":
-        token = create_session_token(user.id, expires_in_seconds=86400 * 30) # 30 days
+        token = create_session_token(user.id, session_version=user.session_version, expires_in_seconds=86400 * 30) # 30 days
         max_age = 86400 * 30
     else:
-        token = create_session_token(user.id, expires_in_seconds=86400 * 7) # 7 days
+        token = create_session_token(user.id, session_version=user.session_version, expires_in_seconds=86400) # 24 hours
         max_age = None # Session cookie (expires when browser closes)
 
     target_url = next if next and not next.startswith("/login") else "/dashboard"

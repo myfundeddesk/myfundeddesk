@@ -6,6 +6,7 @@ from pathlib import Path
 import random
 from app.database import get_db
 from app.models import User, ChallengePackage, TradingAccount, Order, utc_now
+from app.email_service import send_activity_email
 from app.security import require_auth
 from app.engine.razorpay_client import create_razorpay_order, verify_razorpay_signature
 from app.config import APP_NAME, RAZORPAY_KEY_ID
@@ -97,6 +98,17 @@ async def api_verify_razorpay_payment(
     # Verify cryptographic signature
     is_valid = verify_razorpay_signature(razorpay_order_id, razorpay_payment_id, razorpay_signature)
     if not is_valid:
+        req_info = {
+            "IP Address": request.client.host if request.client else "Unknown",
+            "Order ID": razorpay_order_id
+        }
+        send_activity_email(
+            user.email,
+            subject="Failed Payment Attempt - MyFundedDesk",
+            headline="Failed Payment Transaction",
+            message="A payment attempt on your account failed verification. If this was not you, please secure your account.",
+            request_info=req_info
+        )
         return JSONResponse(status_code=400, content={"error": "Razorpay payment verification failed. Signature mismatch."})
 
     package = db.query(ChallengePackage).filter(ChallengePackage.id == package_id).first()

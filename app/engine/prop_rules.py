@@ -1,6 +1,8 @@
 from datetime import datetime, timezone
 from sqlalchemy.orm import Session
-from app.models import TradingAccount, TradePosition, Certificate, utc_now
+from app.models import TradingAccount, TradePosition, Certificate, User
+from app.email_service import send_activity_email
+from app.models import utc_now
 from app.engine.market_data import market_engine
 import uuid
 
@@ -68,6 +70,15 @@ def evaluate_account_and_trades(db: Session, account: TradingAccount) -> dict:
         if daily_loss_pct >= account.max_daily_loss_pct:
             account.status = "BREACHED"
             account.breach_reason = f"Max Daily Loss Exceeded: {daily_loss_pct:.2f}% (Limit: {account.max_daily_loss_pct:.1f}%)"
+            user = db.query(User).filter(User.id == account.user_id).first()
+            if user:
+                send_activity_email(
+                    user.email,
+                    subject="Account Breached - Max Daily Loss",
+                    headline="Challenge Evaluation Breached",
+                    message="Unfortunately, your trading account has violated the Daily Loss Limit.",
+                    request_info={"Account": account.account_number, "Reason": account.breach_reason, "Equity": f"INR {account.current_equity:,.2f}"}
+                )
             # Close remaining positions
             for trade in open_trades:
                 if trade.status == "OPEN":
@@ -83,6 +94,15 @@ def evaluate_account_and_trades(db: Session, account: TradingAccount) -> dict:
         if total_loss_pct >= account.max_total_loss_pct and account.status != "BREACHED":
             account.status = "BREACHED"
             account.breach_reason = f"Max Overall Drawdown Exceeded: {total_loss_pct:.2f}% (Limit: {account.max_total_loss_pct:.1f}%)"
+            user = db.query(User).filter(User.id == account.user_id).first()
+            if user:
+                send_activity_email(
+                    user.email,
+                    subject="Account Breached - Max Overall Drawdown",
+                    headline="Challenge Evaluation Breached",
+                    message="Unfortunately, your trading account has violated the Maximum Overall Loss Limit.",
+                    request_info={"Account": account.account_number, "Reason": account.breach_reason, "Equity": f"INR {account.current_equity:,.2f}"}
+                )
             # Close remaining positions
             for trade in open_trades:
                 if trade.status == "OPEN":

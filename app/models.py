@@ -24,6 +24,7 @@ class User(Base):
     deletion_requested = Column(Boolean, default=False)
     deletion_reason = Column(String(500), nullable=True)
     deletion_requested_at = Column(DateTime, nullable=True)
+    session_version = Column(Integer, default=1)
     created_at = Column(DateTime, default=utc_now)
 
     accounts = relationship("TradingAccount", back_populates="user")
