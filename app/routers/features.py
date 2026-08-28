@@ -7,7 +7,7 @@ from sqlalchemy import desc
 from app.models import User, TradingAccount, ChatMessage
 from app.security import require_auth, get_current_user_from_request
 from app.database import get_db
-from app.config import APP_NAME
+from app.config import BASE_DIR, APP_NAME
 
 router = APIRouter()
 
@@ -292,7 +292,7 @@ async def view_feature(request: Request, name: str, user: User = Depends(require
     page_key = f"page_{name}"
     
     # Fetch from pages.json
-    db_file = "data/pages.json"
+    db_file = BASE_DIR / "data" / "pages.json"
     if os.path.exists(db_file):
         try:
             with open(db_file, "r", encoding="utf-8") as f:

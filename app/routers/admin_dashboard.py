@@ -1,3 +1,4 @@
+from app.config import BASE_DIR
 from fastapi import APIRouter, Depends, Request, Form, HTTPException, status
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
@@ -383,7 +384,7 @@ import json
 import os
 from fastapi import Body
 
-PAGES_DB_FILE = "data/pages.json"
+PAGES_DB_FILE = BASE_DIR / "data" / "pages.json"
 
 @router.get("/admin/api/pages/{page_id}")
 async def get_page_content(request: Request, page_id: str):

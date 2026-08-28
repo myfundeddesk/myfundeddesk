@@ -250,9 +250,6 @@
         </div>
     </div>
 
-
-    </div>
-
 <div id="tab-chat" class="tab-content">
 
         <div class="window-header">
@@ -296,13 +293,7 @@
         </div>
     </div>
 
-<!-- Modals -->
-
-    </div>
-
-
-    
-        <div id="tab-content" class="tab-content space-y-6">
+<div id="tab-content" class="tab-content space-y-6">
             <div class="window-header">
                 <h2 class="text-sm font-bold flex items-center gap-2 text-white"><i data-lucide="edit-3" class="w-4 h-4 text-pink-400"></i> Content Management</h2>
                 <div class="flex gap-2">
@@ -335,6 +326,21 @@
                 </div>
             </div>
         </div>
+
+
+
+
+    </div>
+
+
+
+<!-- Modals -->
+
+    </div>
+
+
+    
+        
 
     <div id="window-overlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden"></div>
     <div id="notify-user-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
@@ -778,8 +784,8 @@
             'overview': 'Platform Overview',
             'users': 'User Management',
             'accounts': 'Trading Accounts',
-            'trades': 'Live Market Positions',
-            'rules': 'Prop Firm Rules Engine',
+            'trades': 'Live Market Trades',
+            'rules': 'Prop Firm Rules',
             'payouts': 'Payout Requests',
             'ops': 'Market Operations & Risk',
             'settings': 'Platform Settings',
@@ -788,6 +794,10 @@
             'content': 'Content Management'
         };
         document.getElementById('page-title').innerText = titles[tab];
+        
+        if (tab === 'content') {
+            loadDynamicPage();
+        }
     }
     
     function openEditUserModal(id, name, email, password) {
@@ -1037,8 +1047,7 @@ async function saveDynamicPage() {
     }
 }
 
-// Load initial page on tab click
-document.querySelector('button[onclick*="tab-content"]').addEventListener('click', loadDynamicPage);
+
 </script>
 
 
