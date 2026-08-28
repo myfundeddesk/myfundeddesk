@@ -304,7 +304,7 @@ async def handle_verify(request: Request, email: str = Form(...), code: str = Fo
 
 @router.get("/forgot-password", response_class=HTMLResponse)
 async def forgot_password_page(request: Request):
-    return templates.TemplateResponse("forgot_password.html", {"request": request, "app_name": APP_NAME})
+    return templates.TemplateResponse(request=request, name="forgot_password.html", context={"app_name": APP_NAME})
 
 @router.post("/forgot-password")
 async def handle_forgot_password(request: Request, email: str = Form(...), db: Session = Depends(get_db)):
@@ -342,7 +342,7 @@ async def handle_forgot_password(request: Request, email: str = Form(...), db: S
 
 @router.get("/reset-password", response_class=HTMLResponse)
 async def reset_password_page(request: Request, email: str = ""):
-    return templates.TemplateResponse("reset_password.html", {"request": request, "email": email, "app_name": APP_NAME})
+    return templates.TemplateResponse(request=request, name="reset_password.html", context={"email": email, "app_name": APP_NAME})
 
 @router.post("/reset-password")
 async def handle_reset_password(
@@ -356,8 +356,7 @@ async def handle_reset_password(
     user = db.query(User).filter(User.email == email_clean).first()
     
     if not user or user.verification_code != code.strip():
-        return templates.TemplateResponse("reset_password.html", {
-            "request": request, 
+        return templates.TemplateResponse(request=request, name="reset_password.html", context={
             "email": email_clean, 
             "error": "Invalid or expired reset code.",
             "app_name": APP_NAME
