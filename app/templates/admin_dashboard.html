@@ -161,171 +161,11 @@
     </div>
 
     <!-- Notify User Modal -->
-    <div id="tab-packages" class="tab-content">
-
-        <div class="window-header">
-            <h2 class="text-sm font-bold flex items-center gap-2 text-white"><i data-lucide="package" class="w-4 h-4 text-purple-400"></i> Challenge Packages</h2>
-            <div class="flex gap-2">
-                <button onclick="this.closest('.tab-content').classList.remove('window-mode'); document.getElementById('window-overlay').classList.add('hidden')" title="Minimize" class="w-3.5 h-3.5 rounded-full bg-amber-500 hover:bg-amber-400 flex items-center justify-center"></button>
-                <button onclick="this.closest('.tab-content').classList.toggle('window-mode')" title="Maximize" class="w-3.5 h-3.5 rounded-full bg-emerald-500 hover:bg-emerald-400 flex items-center justify-center"></button>
-                <button onclick="this.closest('.tab-content').classList.remove('window-mode'); document.getElementById('window-overlay').classList.add('hidden')" title="Close" class="w-3.5 h-3.5 rounded-full bg-rose-500 hover:bg-rose-400 flex items-center justify-center"></button>
-            </div>
-        </div>
     
-<!-- Challenge Packages Management -->
-    <div class="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden shadow-2xl mb-8 mt-12 max-w-7xl mx-auto">
-        <div class="p-6 border-b border-slate-800 bg-slate-800/50 flex justify-between items-center">
-            <h3 class="text-xl font-bold text-white flex items-center gap-2">
-                <i data-lucide="package" class="w-6 h-6 text-emerald-500"></i> Capital Prices & Packages Configurator
-            </h3>
-            <button onclick="document.getElementById('addPackageForm').classList.toggle('hidden')" class="bg-emerald-600 text-white px-4 py-2 rounded-xl font-bold text-sm hover:bg-emerald-500 transition-colors">
-                + Add Package
-            </button>
-        </div>
-        
-        <div id="addPackageForm" class="p-6 bg-slate-800/20 border-b border-slate-800 hidden">
-            <form action="/admin/api/package" method="POST" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div><label class="text-xs text-slate-400">Name</label><input type="text" name="name" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" required placeholder="₹50,000 Instant"></div>
-                <div>
-                    <label class="text-xs text-slate-400">Model Type</label>
-                    <select name="model_type" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" required>
-                        <option value="1-Step">1-Step</option>
-                        <option value="2-Step">2-Step</option>
-                        <option value="Instant">Instant</option>
-                    </select>
-                </div>
-                <div><label class="text-xs text-slate-400">Account Size (₹)</label><input type="number" name="account_size" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" required></div>
-                <div><label class="text-xs text-slate-400">Price (₹)</label><input type="number" name="price" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" required></div>
-                
-                <div><label class="text-xs text-slate-400">Profit Target P1 (%)</label><input type="number" step="0.1" name="profit_target_p1" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" value="8.0" required></div>
-                <div><label class="text-xs text-slate-400">Profit Target P2 (%)</label><input type="number" step="0.1" name="profit_target_p2" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" value="5.0" required></div>
-                <div><label class="text-xs text-slate-400">Max Daily Loss (%)</label><input type="number" step="0.1" name="max_daily_loss" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" value="5.0" required></div>
-                <div><label class="text-xs text-slate-400">Max Total Loss (%)</label><input type="number" step="0.1" name="max_total_loss" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" value="10.0" required></div>
-                
-                <div><label class="text-xs text-slate-400">Min Trading Days</label><input type="number" name="min_trading_days" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" value="0" required></div>
-                <div><label class="text-xs text-slate-400">Leverage</label><input type="text" name="leverage" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" value="1:100" required></div>
-                <div><label class="text-xs text-slate-400">Profit Split</label><input type="text" name="profit_split" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" value="80/20" required></div>
-                
-                <div class="flex items-end"><button type="submit" class="w-full bg-emerald-500 text-white rounded-lg p-2 font-bold hover:bg-emerald-600 transition-colors">Save Package</button></div>
-            </form>
-        </div>
 
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm whitespace-nowrap">
-                <thead class="bg-slate-800/50 border-b border-slate-700">
-                    <tr>
-                        <th class="px-4 py-3 font-bold text-slate-400">ID</th>
-                        <th class="px-4 py-3 font-bold text-slate-400">Name</th>
-                        <th class="px-4 py-3 font-bold text-slate-400">Type</th>
-                        <th class="px-4 py-3 font-bold text-slate-400">Size</th>
-                        <th class="px-4 py-3 font-bold text-slate-400">Price</th>
-                        <th class="px-4 py-3 font-bold text-slate-400">Targets</th>
-                        <th class="px-4 py-3 font-bold text-slate-400">Loss Limits</th>
-                        <th class="px-4 py-3 font-bold text-slate-400 text-right">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-800 text-slate-300">
-                    {% for pkg in packages %}
-                    <tr class="hover:bg-slate-800/50 transition-colors">
-                        <td class="px-4 py-3 text-slate-400">#{{ pkg.id }}</td>
-                        <td class="px-4 py-3 font-bold text-white">{{ pkg.name }}</td>
-                        <td class="px-4 py-3 text-slate-300">
-                            <span class="bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded text-xs font-bold">{{ pkg.model_type }}</span>
-                        </td>
-                        <td class="px-4 py-3 font-mono text-emerald-400">₹{{ "{:,.0f}".format(pkg.account_size) }}</td>
-                        <td class="px-4 py-3 font-mono text-white">₹{{ "{:,.2f}".format(pkg.price) }}</td>
-                        <td class="px-4 py-3 text-slate-400 text-xs">P1: {{ pkg.profit_target_p1 }}% | P2: {{ pkg.profit_target_p2 }}%</td>
-                        <td class="px-4 py-3 text-rose-400 text-xs">Daily: {{ pkg.max_daily_loss }}% | Max: {{ pkg.max_total_loss }}%</td>
-                        <td class="px-4 py-3 text-right">
-                            <form action="/admin/api/package/{{ pkg.id }}/delete" method="POST" onsubmit="return confirm('Delete this package?');" class="inline">
-                                
-                            <button type="button" onclick="openPackageEditModal({{ pkg.id }}, '{{ pkg.price }}')" class="text-indigo-400 hover:text-indigo-300 mr-2"><i data-lucide="edit" class="w-4 h-4"></i></button>
-<button type="submit" class="text-rose-400 hover:text-rose-300"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                            </form>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
 
-<div id="tab-chat" class="tab-content">
 
-        <div class="window-header">
-            <h2 class="text-sm font-bold flex items-center gap-2 text-white"><i data-lucide="message-square" class="w-4 h-4 text-blue-500"></i> Live Support Chat</h2>
-            <div class="flex gap-2">
-                <button onclick="this.closest('.tab-content').classList.remove('window-mode'); document.getElementById('window-overlay').classList.add('hidden')" title="Minimize" class="w-3.5 h-3.5 rounded-full bg-amber-500 hover:bg-amber-400 flex items-center justify-center"></button>
-                <button onclick="this.closest('.tab-content').classList.toggle('window-mode')" title="Maximize" class="w-3.5 h-3.5 rounded-full bg-emerald-500 hover:bg-emerald-400 flex items-center justify-center"></button>
-                <button onclick="this.closest('.tab-content').classList.remove('window-mode'); document.getElementById('window-overlay').classList.add('hidden')" title="Close" class="w-3.5 h-3.5 rounded-full bg-rose-500 hover:bg-rose-400 flex items-center justify-center"></button>
-            </div>
-        </div>
-    
-<!-- Admin Live Support Chat -->
-    <div class="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden shadow-2xl mb-8 mt-12 max-w-7xl mx-auto flex flex-col h-[500px]" x-data="{ messages: [], newMessage: '', fetchChat() { fetch('/api/chat').then(r=>r.json()).then(d=> { this.messages = d; setTimeout(()=>$refs.adminchatbox.scrollTop = $refs.adminchatbox.scrollHeight, 100); }); } }" x-init="fetchChat(); setInterval(()=>fetchChat(), 3000);">
-        <div class="p-6 border-b border-slate-800 bg-slate-800/50 flex justify-between items-center">
-            <h3 class="text-xl font-bold text-white flex items-center gap-2">
-                <i data-lucide="message-square" class="w-6 h-6 text-blue-500"></i> Global Live Support Chat
-            </h3>
-            <span class="text-xs text-slate-400">Showing all user messages</span>
-        </div>
-        
-        <div x-ref="adminchatbox" class="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-800/20">
-            <template x-for="m in messages" :key="m.id">
-                <div class="flex flex-col" :class="m.is_admin ? 'items-end' : 'items-start'">
-                    <div class="max-w-[80%] p-3 rounded-2xl" :class="m.is_admin ? 'bg-blue-600 text-white rounded-tr-none shadow-md shadow-blue-500/20' : 'bg-slate-800 text-white rounded-tl-none border border-slate-700'">
-                        <div class="text-xs font-bold mb-1 opacity-50" x-text="m.is_admin ? 'You (Admin)' : ('User ID: ' + m.user_id)"></div>
-                        <p class="text-sm" x-text="m.message"></p>
-                    </div>
-                    <div class="text-[10px] text-slate-500 mt-1" x-text="new Date(m.created_at).toLocaleTimeString()"></div>
-                </div>
-            </template>
-            <div x-show="messages.length === 0" class="text-center text-slate-500 text-sm mt-10">No chat messages yet.</div>
-        </div>
-        
-        <div class="p-4 border-t border-slate-800 bg-slate-900">
-            <form @submit.prevent="if(newMessage){ let fd = new FormData(); fd.append('message', newMessage); fetch('/api/chat', {method:'POST', body:fd}).then(()=>{ newMessage=''; fetchChat(); }); }">
-                <div class="flex gap-2">
-                    <input type="text" x-model="newMessage" placeholder="Reply as Admin..." class="flex-1 bg-slate-800 border-none rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none text-white">
-                    <button type="submit" class="bg-blue-600 text-white p-2 rounded-xl hover:bg-blue-500 transition-colors"><i data-lucide="send" class="w-5 h-5"></i></button>
-                </div>
-            </form>
-        </div>
-    </div>
 
-<div id="tab-content" class="tab-content space-y-6">
-            <div class="window-header">
-                <h2 class="text-sm font-bold flex items-center gap-2 text-white"><i data-lucide="edit-3" class="w-4 h-4 text-pink-400"></i> Content Management</h2>
-                <div class="flex gap-2">
-                    <button onclick="this.closest('.tab-content').classList.remove('window-mode'); document.getElementById('window-overlay').classList.add('hidden')" title="Minimize" class="w-3.5 h-3.5 rounded-full bg-amber-500 hover:bg-amber-400 flex items-center justify-center"></button>
-                    <button onclick="this.closest('.tab-content').classList.toggle('window-mode')" title="Maximize" class="w-3.5 h-3.5 rounded-full bg-emerald-500 hover:bg-emerald-400 flex items-center justify-center"></button>
-                    <button onclick="this.closest('.tab-content').classList.remove('window-mode'); document.getElementById('window-overlay').classList.add('hidden')" title="Close" class="w-3.5 h-3.5 rounded-full bg-rose-500 hover:bg-rose-400 flex items-center justify-center"></button>
-                </div>
-            </div>
-            <div class="p-6 h-full flex flex-col">
-                <h3 class="text-xl font-bold text-white mb-4">Edit Dynamic Pages</h3>
-                <div class="grid grid-cols-1 gap-4 mb-4">
-                    <select id="content-page-select" onchange="loadDynamicPage()" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:border-pink-500 outline-none">
-                        <option value="page_affiliate">Affiliate Program</option>
-                        <option value="page_support">Support Center</option>
-                        <option value="page_coupons">Coupon Codes</option>
-                        <option value="page_giveaway">FundedFirm Giveaway</option>
-                        <option value="page_comparison">Account Comparison</option>
-                        <option value="page_rules">Trading Rules</option>
-                        <option value="page_privacy">Data & Privacy</option>
-                    </select>
-                </div>
-                <div class="flex-1 flex flex-col gap-4">
-                    <input type="text" id="content-title" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:border-pink-500 outline-none" placeholder="Page Title (e.g. Trading Rules)">
-                    <input type="text" id="content-desc" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:border-pink-500 outline-none" placeholder="Description">
-                    <input type="text" id="content-icon" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:border-pink-500 outline-none" placeholder="Lucide Icon name (e.g. clipboard-list)">
-                    <textarea id="content-html" class="flex-1 w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:border-pink-500 outline-none font-mono text-xs" placeholder="HTML Widget Code..."></textarea>
-                </div>
-                <div class="mt-4 flex justify-end">
-                    <button onclick="saveDynamicPage()" class="bg-pink-600 hover:bg-pink-500 text-white font-bold py-3 px-6 rounded-lg transition-colors">Save Page Content</button>
-                </div>
-            </div>
-        </div>
 
 
 
@@ -676,6 +516,174 @@
                     </form>
                 </div>
             </div>
+
+<div id="tab-packages" class="tab-content">
+
+        <div class="window-header">
+            <h2 class="text-sm font-bold flex items-center gap-2 text-white"><i data-lucide="package" class="w-4 h-4 text-purple-400"></i> Challenge Packages</h2>
+            <div class="flex gap-2">
+                <button onclick="this.closest('.tab-content').classList.remove('window-mode'); document.getElementById('window-overlay').classList.add('hidden')" title="Minimize" class="w-3.5 h-3.5 rounded-full bg-amber-500 hover:bg-amber-400 flex items-center justify-center"></button>
+                <button onclick="this.closest('.tab-content').classList.toggle('window-mode')" title="Maximize" class="w-3.5 h-3.5 rounded-full bg-emerald-500 hover:bg-emerald-400 flex items-center justify-center"></button>
+                <button onclick="this.closest('.tab-content').classList.remove('window-mode'); document.getElementById('window-overlay').classList.add('hidden')" title="Close" class="w-3.5 h-3.5 rounded-full bg-rose-500 hover:bg-rose-400 flex items-center justify-center"></button>
+            </div>
+        </div>
+    
+<!-- Challenge Packages Management -->
+    <div class="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden shadow-2xl mb-8 mt-12 max-w-7xl mx-auto">
+        <div class="p-6 border-b border-slate-800 bg-slate-800/50 flex justify-between items-center">
+            <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                <i data-lucide="package" class="w-6 h-6 text-emerald-500"></i> Capital Prices & Packages Configurator
+            </h3>
+            <button onclick="document.getElementById('addPackageForm').classList.toggle('hidden')" class="bg-emerald-600 text-white px-4 py-2 rounded-xl font-bold text-sm hover:bg-emerald-500 transition-colors">
+                + Add Package
+            </button>
+        </div>
+        
+        <div id="addPackageForm" class="p-6 bg-slate-800/20 border-b border-slate-800 hidden">
+            <form action="/admin/api/package" method="POST" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div><label class="text-xs text-slate-400">Name</label><input type="text" name="name" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" required placeholder="₹50,000 Instant"></div>
+                <div>
+                    <label class="text-xs text-slate-400">Model Type</label>
+                    <select name="model_type" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" required>
+                        <option value="1-Step">1-Step</option>
+                        <option value="2-Step">2-Step</option>
+                        <option value="Instant">Instant</option>
+                    </select>
+                </div>
+                <div><label class="text-xs text-slate-400">Account Size (₹)</label><input type="number" name="account_size" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" required></div>
+                <div><label class="text-xs text-slate-400">Price (₹)</label><input type="number" name="price" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" required></div>
+                
+                <div><label class="text-xs text-slate-400">Profit Target P1 (%)</label><input type="number" step="0.1" name="profit_target_p1" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" value="8.0" required></div>
+                <div><label class="text-xs text-slate-400">Profit Target P2 (%)</label><input type="number" step="0.1" name="profit_target_p2" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" value="5.0" required></div>
+                <div><label class="text-xs text-slate-400">Max Daily Loss (%)</label><input type="number" step="0.1" name="max_daily_loss" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" value="5.0" required></div>
+                <div><label class="text-xs text-slate-400">Max Total Loss (%)</label><input type="number" step="0.1" name="max_total_loss" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" value="10.0" required></div>
+                
+                <div><label class="text-xs text-slate-400">Min Trading Days</label><input type="number" name="min_trading_days" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" value="0" required></div>
+                <div><label class="text-xs text-slate-400">Leverage</label><input type="text" name="leverage" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" value="1:100" required></div>
+                <div><label class="text-xs text-slate-400">Profit Split</label><input type="text" name="profit_split" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" value="80/20" required></div>
+                
+                <div class="flex items-end"><button type="submit" class="w-full bg-emerald-500 text-white rounded-lg p-2 font-bold hover:bg-emerald-600 transition-colors">Save Package</button></div>
+            </form>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm whitespace-nowrap">
+                <thead class="bg-slate-800/50 border-b border-slate-700">
+                    <tr>
+                        <th class="px-4 py-3 font-bold text-slate-400">ID</th>
+                        <th class="px-4 py-3 font-bold text-slate-400">Name</th>
+                        <th class="px-4 py-3 font-bold text-slate-400">Type</th>
+                        <th class="px-4 py-3 font-bold text-slate-400">Size</th>
+                        <th class="px-4 py-3 font-bold text-slate-400">Price</th>
+                        <th class="px-4 py-3 font-bold text-slate-400">Targets</th>
+                        <th class="px-4 py-3 font-bold text-slate-400">Loss Limits</th>
+                        <th class="px-4 py-3 font-bold text-slate-400 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800 text-slate-300">
+                    {% for pkg in packages %}
+                    <tr class="hover:bg-slate-800/50 transition-colors">
+                        <td class="px-4 py-3 text-slate-400">#{{ pkg.id }}</td>
+                        <td class="px-4 py-3 font-bold text-white">{{ pkg.name }}</td>
+                        <td class="px-4 py-3 text-slate-300">
+                            <span class="bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded text-xs font-bold">{{ pkg.model_type }}</span>
+                        </td>
+                        <td class="px-4 py-3 font-mono text-emerald-400">₹{{ "{:,.0f}".format(pkg.account_size) }}</td>
+                        <td class="px-4 py-3 font-mono text-white">₹{{ "{:,.2f}".format(pkg.price) }}</td>
+                        <td class="px-4 py-3 text-slate-400 text-xs">P1: {{ pkg.profit_target_p1 }}% | P2: {{ pkg.profit_target_p2 }}%</td>
+                        <td class="px-4 py-3 text-rose-400 text-xs">Daily: {{ pkg.max_daily_loss }}% | Max: {{ pkg.max_total_loss }}%</td>
+                        <td class="px-4 py-3 text-right">
+                            <form action="/admin/api/package/{{ pkg.id }}/delete" method="POST" onsubmit="return confirm('Delete this package?');" class="inline">
+                                
+                            <button type="button" onclick="openPackageEditModal({{ pkg.id }}, '{{ pkg.price }}')" class="text-indigo-400 hover:text-indigo-300 mr-2"><i data-lucide="edit" class="w-4 h-4"></i></button>
+<button type="submit" class="text-rose-400 hover:text-rose-300"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+<div id="tab-chat" class="tab-content">
+
+        <div class="window-header">
+            <h2 class="text-sm font-bold flex items-center gap-2 text-white"><i data-lucide="message-square" class="w-4 h-4 text-blue-500"></i> Live Support Chat</h2>
+            <div class="flex gap-2">
+                <button onclick="this.closest('.tab-content').classList.remove('window-mode'); document.getElementById('window-overlay').classList.add('hidden')" title="Minimize" class="w-3.5 h-3.5 rounded-full bg-amber-500 hover:bg-amber-400 flex items-center justify-center"></button>
+                <button onclick="this.closest('.tab-content').classList.toggle('window-mode')" title="Maximize" class="w-3.5 h-3.5 rounded-full bg-emerald-500 hover:bg-emerald-400 flex items-center justify-center"></button>
+                <button onclick="this.closest('.tab-content').classList.remove('window-mode'); document.getElementById('window-overlay').classList.add('hidden')" title="Close" class="w-3.5 h-3.5 rounded-full bg-rose-500 hover:bg-rose-400 flex items-center justify-center"></button>
+            </div>
+        </div>
+    
+<!-- Admin Live Support Chat -->
+    <div class="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden shadow-2xl mb-8 mt-12 max-w-7xl mx-auto flex flex-col h-[500px]" x-data="{ messages: [], newMessage: '', fetchChat() { fetch('/api/chat').then(r=>r.json()).then(d=> { this.messages = d; setTimeout(()=>$refs.adminchatbox.scrollTop = $refs.adminchatbox.scrollHeight, 100); }); } }" x-init="fetchChat(); setInterval(()=>fetchChat(), 3000);">
+        <div class="p-6 border-b border-slate-800 bg-slate-800/50 flex justify-between items-center">
+            <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                <i data-lucide="message-square" class="w-6 h-6 text-blue-500"></i> Global Live Support Chat
+            </h3>
+            <span class="text-xs text-slate-400">Showing all user messages</span>
+        </div>
+        
+        <div x-ref="adminchatbox" class="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-800/20">
+            <template x-for="m in messages" :key="m.id">
+                <div class="flex flex-col" :class="m.is_admin ? 'items-end' : 'items-start'">
+                    <div class="max-w-[80%] p-3 rounded-2xl" :class="m.is_admin ? 'bg-blue-600 text-white rounded-tr-none shadow-md shadow-blue-500/20' : 'bg-slate-800 text-white rounded-tl-none border border-slate-700'">
+                        <div class="text-xs font-bold mb-1 opacity-50" x-text="m.is_admin ? 'You (Admin)' : ('User ID: ' + m.user_id)"></div>
+                        <p class="text-sm" x-text="m.message"></p>
+                    </div>
+                    <div class="text-[10px] text-slate-500 mt-1" x-text="new Date(m.created_at).toLocaleTimeString()"></div>
+                </div>
+            </template>
+            <div x-show="messages.length === 0" class="text-center text-slate-500 text-sm mt-10">No chat messages yet.</div>
+        </div>
+        
+        <div class="p-4 border-t border-slate-800 bg-slate-900">
+            <form @submit.prevent="if(newMessage){ let fd = new FormData(); fd.append('message', newMessage); fetch('/api/chat', {method:'POST', body:fd}).then(()=>{ newMessage=''; fetchChat(); }); }">
+                <div class="flex gap-2">
+                    <input type="text" x-model="newMessage" placeholder="Reply as Admin..." class="flex-1 bg-slate-800 border-none rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none text-white">
+                    <button type="submit" class="bg-blue-600 text-white p-2 rounded-xl hover:bg-blue-500 transition-colors"><i data-lucide="send" class="w-5 h-5"></i></button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+<div id="tab-content" class="tab-content space-y-6">
+            <div class="window-header">
+                <h2 class="text-sm font-bold flex items-center gap-2 text-white"><i data-lucide="edit-3" class="w-4 h-4 text-pink-400"></i> Content Management</h2>
+                <div class="flex gap-2">
+                    <button onclick="this.closest('.tab-content').classList.remove('window-mode'); document.getElementById('window-overlay').classList.add('hidden')" title="Minimize" class="w-3.5 h-3.5 rounded-full bg-amber-500 hover:bg-amber-400 flex items-center justify-center"></button>
+                    <button onclick="this.closest('.tab-content').classList.toggle('window-mode')" title="Maximize" class="w-3.5 h-3.5 rounded-full bg-emerald-500 hover:bg-emerald-400 flex items-center justify-center"></button>
+                    <button onclick="this.closest('.tab-content').classList.remove('window-mode'); document.getElementById('window-overlay').classList.add('hidden')" title="Close" class="w-3.5 h-3.5 rounded-full bg-rose-500 hover:bg-rose-400 flex items-center justify-center"></button>
+                </div>
+            </div>
+            <div class="p-6 h-full flex flex-col">
+                <h3 class="text-xl font-bold text-white mb-4">Edit Dynamic Pages</h3>
+                <div class="grid grid-cols-1 gap-4 mb-4">
+                    <select id="content-page-select" onchange="loadDynamicPage()" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:border-pink-500 outline-none">
+                        <option value="page_affiliate">Affiliate Program</option>
+                        <option value="page_support">Support Center</option>
+                        <option value="page_coupons">Coupon Codes</option>
+                        <option value="page_giveaway">FundedFirm Giveaway</option>
+                        <option value="page_comparison">Account Comparison</option>
+                        <option value="page_rules">Trading Rules</option>
+                        <option value="page_privacy">Data & Privacy</option>
+                    </select>
+                </div>
+                <div class="flex-1 flex flex-col gap-4">
+                    <input type="text" id="content-title" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:border-pink-500 outline-none" placeholder="Page Title (e.g. Trading Rules)">
+                    <input type="text" id="content-desc" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:border-pink-500 outline-none" placeholder="Description">
+                    <input type="text" id="content-icon" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:border-pink-500 outline-none" placeholder="Lucide Icon name (e.g. clipboard-list)">
+                    <textarea id="content-html" class="flex-1 w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:border-pink-500 outline-none font-mono text-xs" placeholder="HTML Widget Code..."></textarea>
+                </div>
+                <div class="mt-4 flex justify-end">
+                    <button onclick="saveDynamicPage()" class="bg-pink-600 hover:bg-pink-500 text-white font-bold py-3 px-6 rounded-lg transition-colors">Save Page Content</button>
+                </div>
+            </div>
+        </div>
+
+
 
         </div>
     </div>
