@@ -27,9 +27,8 @@ def seed_database():
             user.hashed_password = hash_password("trader123")
             db.commit()
 
-    # Seed challenge packages if empty
-    if db.query(ChallengePackage).count() == 0:
-        packages = [
+    # Seed challenge packages if missing
+    packages = [
 
             ChallengePackage(
                 name="Starter 2-Step", model_type="2-Step", account_size=100000, 
@@ -95,8 +94,10 @@ def seed_database():
                 description="Profit Target: 8% | Daily Loss Limit: 4% | Max Drawdown: 10% | VIP Priority Support"
             )
         ]
-        db.add_all(packages)
-        db.commit()
+    for pkg in packages:
+        if not db.query(ChallengePackage).filter(ChallengePackage.name == pkg.name, ChallengePackage.model_type == pkg.model_type).first():
+            db.add(pkg)
+    db.commit()
 
     # Seed sample account if none exist
     if db.query(TradingAccount).filter(TradingAccount.user_id == user.id).count() == 0:

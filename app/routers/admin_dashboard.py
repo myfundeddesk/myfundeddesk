@@ -379,3 +379,39 @@ async def admin_chat_users(_ = Depends(require_super_admin), db: Session = Depen
         for u in users
     ])
 
+import json
+import os
+from fastapi import Body
+
+PAGES_DB_FILE = "data/pages.json"
+
+@router.get("/admin/api/pages/{page_id}")
+async def get_page_content(request: Request, page_id: str):
+    require_super_admin(request)
+    if os.path.exists(PAGES_DB_FILE):
+        with open(PAGES_DB_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            if page_id in data:
+                return JSONResponse(data[page_id])
+    return JSONResponse({"title": "", "desc": "", "icon": "", "html": ""})
+
+@router.post("/admin/api/pages/{page_id}")
+async def save_page_content(request: Request, page_id: str, payload: dict = Body(...)):
+    require_super_admin(request)
+    data = {}
+    if os.path.exists(PAGES_DB_FILE):
+        with open(PAGES_DB_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    
+    data[page_id] = {
+        "title": payload.get("title", ""),
+        "desc": payload.get("desc", ""),
+        "icon": payload.get("icon", ""),
+        "html": payload.get("html", "")
+    }
+    
+    os.makedirs(os.path.dirname(PAGES_DB_FILE), exist_ok=True)
+    with open(PAGES_DB_FILE, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=4)
+        
+    return JSONResponse({"success": True, "message": "Page content saved permanently!"})

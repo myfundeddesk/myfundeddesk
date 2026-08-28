@@ -302,7 +302,7 @@
 
 
     
-        <div id="tab-content" class="tab-content window-mode space-y-6">
+        <div id="tab-content" class="tab-content space-y-6">
             <div class="window-header">
                 <h2 class="text-sm font-bold flex items-center gap-2 text-white"><i data-lucide="edit-3" class="w-4 h-4 text-pink-400"></i> Content Management</h2>
                 <div class="flex gap-2">
@@ -997,6 +997,48 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 });
+
+async function loadDynamicPage() {
+    const pageId = document.getElementById('content-page-select').value;
+    try {
+        const res = await fetch(`/admin/api/pages/${pageId}`);
+        const data = await res.json();
+        document.getElementById('content-title').value = data.title || '';
+        document.getElementById('content-desc').value = data.desc || '';
+        document.getElementById('content-icon').value = data.icon || '';
+        document.getElementById('content-html').value = data.html || '';
+    } catch(err) {
+        console.error("Failed to load page:", err);
+    }
+}
+
+async function saveDynamicPage() {
+    const pageId = document.getElementById('content-page-select').value;
+    const payload = {
+        title: document.getElementById('content-title').value,
+        desc: document.getElementById('content-desc').value,
+        icon: document.getElementById('content-icon').value,
+        html: document.getElementById('content-html').value
+    };
+    try {
+        const res = await fetch(`/admin/api/pages/${pageId}`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if(data.success) {
+            alert(data.message);
+        } else {
+            alert("Failed to save: " + data.error);
+        }
+    } catch(err) {
+        alert("Error saving page");
+    }
+}
+
+// Load initial page on tab click
+document.querySelector('button[onclick*="tab-content"]').addEventListener('click', loadDynamicPage);
 </script>
 
 
