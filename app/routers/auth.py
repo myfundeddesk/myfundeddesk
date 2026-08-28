@@ -9,7 +9,7 @@ from app.database import get_db
 from app.models import User
 from app.email_service import send_activity_email
 from app.security import hash_password, verify_password, create_session_token, get_optional_user, require_auth
-from app.config import SESSION_COOKIE_NAME, APP_NAME, APP_TAGLINE, RESEND_API_KEY, RESEND_FROM_EMAIL
+from app.config import SESSION_COOKIE_NAME, APP_NAME, APP_TAGLINE, RESEND_API_KEY, RESEND_FROM_EMAIL, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI
 import random
 import resend
 
@@ -398,3 +398,99 @@ async def handle_reset_password(
     db.commit()
     
     return RedirectResponse(url="/login?reset=success", status_code=303)
+
+import requests
+import urllib.parse
+
+@router.get("/auth/google/login")
+async def google_login():
+    params = {
+        "client_id": GOOGLE_CLIENT_ID,
+        "response_type": "code",
+        "redirect_uri": GOOGLE_REDIRECT_URI,
+        "scope": "openid email profile",
+        "access_type": "offline",
+        "prompt": "consent"
+    }
+    url = f"https://accounts.google.com/o/oauth2/v2/auth?{urllib.parse.urlencode(params)}"
+    return RedirectResponse(url)
+
+@router.get("/auth/google/callback")
+async def google_callback(request: Request, code: str = None, error: str = None, db: Session = Depends(get_db)):
+    if error or not code:
+        return RedirectResponse(url="/login?error=Google authentication failed")
+
+    # Exchange code for token
+    token_url = "https://oauth2.googleapis.com/token"
+    data = {
+        "code": code,
+        "client_id": GOOGLE_CLIENT_ID,
+        "client_secret": GOOGLE_CLIENT_SECRET,
+        "redirect_uri": GOOGLE_REDIRECT_URI,
+        "grant_type": "authorization_code"
+    }
+    r = requests.post(token_url, data=data)
+    if not r.ok:
+        return RedirectResponse(url="/login?error=Failed to retrieve Google token")
+        
+    access_token = r.json().get("access_token")
+    
+    # Get user info
+    user_info_url = "https://www.googleapis.com/oauth2/v3/userinfo"
+    r = requests.get(user_info_url, headers={"Authorization": f"Bearer {access_token}"})
+    if not r.ok:
+        return RedirectResponse(url="/login?error=Failed to retrieve Google user info")
+        
+    user_info = r.json()
+    email = user_info.get("email")
+    name = user_info.get("name", "Trader")
+    
+    if not email:
+        return RedirectResponse(url="/login?error=Google account has no email")
+        
+    email_clean = email.strip().lower()
+    user = db.query(User).filter(User.email == email_clean).first()
+    
+    if not user:
+        # Create new user
+        user = User(
+            full_name=name,
+            email=email_clean,
+            is_email_verified=True, # Trusted from Google
+            avatar_text="".join([n[0] for n in name.split()[:2]]).upper() or "FD"
+        )
+        db.add(user)
+        db.commit()
+    else:
+        # If user existed but wasn't verified, verify them since Google verified the email
+        if not user.is_email_verified:
+            user.is_email_verified = True
+            
+        user.session_version = (user.session_version or 1) + 1
+        db.commit()
+        
+    # Send login email
+    req_info = {
+        "IP Address": request.client.host if request.client else "Unknown",
+        "Method": "Google Single Sign-On"
+    }
+    send_activity_email(
+        user.email,
+        subject="New Login to Your Account - MyFundedDesk",
+        headline="New Login Detected",
+        message="A new login was successfully made to your MyFundedDesk account via Google. For your security, any other active sessions on other devices have been automatically logged out.",
+        request_info=req_info
+    )
+
+    # Issue session cookie
+    token = create_session_token(user.id, session_version=user.session_version, expires_in_seconds=86400 * 30)
+    response = RedirectResponse(url="/dashboard", status_code=303)
+    response.set_cookie(
+        key=SESSION_COOKIE_NAME,
+        value=token,
+        httponly=True,
+        secure=True, # Must be true in production HTTPS
+        samesite="lax",
+        max_age=86400 * 30
+    )
+    return response

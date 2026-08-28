@@ -286,16 +286,28 @@ FEATURE_CONTENT = {
 @router.get("/feature/{name}", response_class=HTMLResponse)
 async def view_feature(request: Request, name: str, user: User = Depends(require_auth), db: Session = Depends(get_db)):
     import json
-    from app.models import AppSetting
+    import os
     
     feature = None
-    # Try fetching from DB first
-    setting = db.query(AppSetting).filter(AppSetting.key == f"page_{name}").first()
-    if setting and setting.value:
+    page_key = f"page_{name}"
+    
+    # Fetch from pages.json
+    db_file = "data/pages.json"
+    if os.path.exists(db_file):
         try:
-            feature = json.loads(setting.value)
-        except:
-            pass
+            with open(db_file, "r", encoding="utf-8") as f:
+                pages_data = json.load(f)
+                if page_key in pages_data:
+                    # Map the saved fields to what the template expects
+                    saved = pages_data[page_key]
+                    feature = {
+                        "title": saved.get("title", ""),
+                        "desc": saved.get("desc", ""),
+                        "icon": saved.get("icon", "box"),
+                        "widget": saved.get("html", "")
+                    }
+        except Exception as e:
+            print("Error loading dynamic page:", e)
 
     # Fallback to hardcoded defaults
     if not feature:

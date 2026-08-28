@@ -47,3 +47,4 @@ def send_activity_email(user_email: str, subject: str, headline: str, message: s
     except Exception as e:
         print(f"[Email Error] {e}")
         return False
+

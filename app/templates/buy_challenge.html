@@ -140,13 +140,13 @@
     function selectModel(model) {
         currentModel = model;
         document.querySelectorAll('.model-btn').forEach(b => {
-            b.classList.remove('border-blue-600', 'bg-blue-50/50 dark:bg-blue-900/20');
-            b.classList.add('border-slate-200 dark:border-slate-700');
+            b.classList.remove('border-blue-600', 'bg-blue-50/50', 'dark:bg-blue-900/20');
+            b.classList.add('border-slate-200', 'dark:border-slate-700');
         });
         const activeBtn = document.getElementById('btn-model-' + model);
         if (activeBtn) {
-            activeBtn.classList.remove('border-slate-200 dark:border-slate-700');
-            activeBtn.classList.add('border-blue-600', 'bg-blue-50/50 dark:bg-blue-900/20');
+            activeBtn.classList.remove('border-slate-200', 'dark:border-slate-700');
+            activeBtn.classList.add('border-blue-600', 'bg-blue-50/50', 'dark:bg-blue-900/20');
         }
 
         let firstPkgFound = false;
@@ -155,7 +155,7 @@
                 card.style.display = 'block';
                 if (!firstPkgFound) {
                     const input = card.querySelector('input');
-                    input.checked = true;
+                    if(input) input.checked = true;
                     firstPkgFound = true;
                 }
             } else {
@@ -170,13 +170,12 @@
         selectModel(currentModel);
     });
 
-
     function selectPlatform(input) {
         document.querySelectorAll('.platform-option').forEach(p => {
-            p.classList.remove('border-blue-600', 'bg-blue-50/50 dark:bg-blue-900/20');
-            p.classList.add('border-slate-200 dark:border-slate-700');
+            p.classList.remove('border-blue-600', 'bg-blue-50/50', 'dark:bg-blue-900/20');
+            p.classList.add('border-slate-200', 'dark:border-slate-700');
         });
-        input.closest('.platform-option').classList.add('border-blue-600', 'bg-blue-50/50 dark:bg-blue-900/20');
+        input.closest('.platform-option').classList.add('border-blue-600', 'bg-blue-50/50', 'dark:bg-blue-900/20');
     }
 
     function applyCoupon() {
@@ -202,9 +201,7 @@
         updateSummary();
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
-        selectModel(currentModel);
-    });
+
 
 
     function getSelectedPackage() {
@@ -227,8 +224,9 @@
 
         document.querySelectorAll('.package-card').forEach(c => {
             c.classList.remove('border-blue-600', 'bg-blue-50/40');
-            c.classList.add('border-slate-200 dark:border-slate-700');
+            c.classList.add('border-slate-200', 'dark:border-slate-700');
         });
+        card.classList.remove('border-slate-200', 'dark:border-slate-700');
         card.classList.add('border-blue-600', 'bg-blue-50/40');
 
         const basePrice = parseFloat(card.getAttribute('data-price'));
