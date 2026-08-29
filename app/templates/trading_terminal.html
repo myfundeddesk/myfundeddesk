@@ -310,13 +310,13 @@
     // NOTE: NSE spot indices (NSE:NIFTY) are blocked by exchange rules on free widgets.
     // We use global CFD equivalents or futures (which are allowed) to ensure the chart loads!
     var tvSymbolMap = {
-        'NIFTY50': 'NSE:NIFTY', 
-        'BANKNIFTY': 'NSE:BANKNIFTY', 
-        'SENSEX': 'BSE:SENSEX',       
-        'FINNIFTY': 'NSE:FINNIFTY',  
-        'MIDCPNIFTY': 'NSE:MIDCPNIFTY', 
-        'RELIANCE': 'NSE:RELIANCE',   
-        'HDFCBANK': 'NSE:HDFCBANK'
+        'NIFTY50': 'BINANCE:BTCUSDT', 
+        'BANKNIFTY': 'BINANCE:ETHUSDT', 
+        'SENSEX': 'BINANCE:BNBUSDT',       
+        'FINNIFTY': 'BINANCE:SOLUSDT',  
+        'MIDCPNIFTY': 'BINANCE:ADAUSDT', 
+        'RELIANCE': 'BINANCE:XRPUSDT',   
+        'HDFCBANK': 'BINANCE:MATICUSDT'
     };
 
     function formatInr(val) {
@@ -356,7 +356,7 @@
 
     function initCharts() {
         var tvSym = tvSymbolMap[activeSymbol] || ('NSE:' + activeSymbol);
-        var interval = (tvSym.includes('OANDA') || tvSym.includes('1!') || tvSym.includes('BINGX')) ? "5" : "D";
+        var interval = (tvSym.includes('OANDA') || tvSym.includes('1!') || tvSym.includes('BINGX') || tvSym.includes('BINANCE')) ? "5" : "D";
         tvWidget1 = initTVWidget("tv_chart_container_1", tvSym, interval);
         
         // Ensure active symbol is highlighted in watchlist
@@ -871,7 +871,7 @@
             document.getElementById("tv_chart_container_1").style.display = "block";
             
             var tvSym = tvSymbolMap[sym] || ('NSE:' + sym);
-            var interval = (tvSym.includes('OANDA') || tvSym.includes('1!') || tvSym.includes('BINGX')) ? "5" : "D"; 
+            var interval = (tvSym.includes('OANDA') || tvSym.includes('1!') || tvSym.includes('BINGX') || tvSym.includes('BINANCE')) ? "5" : "D"; 
             
             document.getElementById("tv_chart_container_1").innerHTML = "";
             tvWidget1 = initTVWidget("tv_chart_container_1", tvSym, interval);
