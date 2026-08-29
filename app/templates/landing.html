@@ -160,8 +160,8 @@
             </div>
             
             <h1 data-aos="zoom-in" data-aos-duration="1200" class="text-6xl md:text-8xl lg:text-[110px] font-display font-black tracking-tighter leading-[1.05] mb-8 drop-shadow-2xl">
-                Built for <span class="text-white">Traders.</span><br>
-                <span class="text-gradient">Funded by Us.</span>
+                {{ landing_data.hero_title_1.replace('Traders.', '<span class="text-white">Traders.</span>') | safe }}<br>
+                <span class="text-gradient">{{ landing_data.hero_title_2 }}</span>
             </h1>
             
             <p data-aos="fade-up" data-aos-duration="1200" data-aos-delay="200" class="text-lg md:text-2xl text-slate-300 max-w-3xl mx-auto mb-12 font-medium leading-relaxed">
@@ -676,7 +676,7 @@
 </html>
     <!-- Top Announcement Bar -->
     <div class="bg-emerald-500 text-black text-center py-2 text-sm font-bold tracking-wide">
-        ?? Update 2.0: 100k Instant account
+        {{ landing_data.announcement_text }}
     </div>
 
     <!-- Navigation -->
@@ -768,8 +768,8 @@
             </div>
             
             <h1 data-aos="zoom-in" data-aos-duration="1200" class="text-6xl md:text-8xl lg:text-[110px] font-display font-black tracking-tighter leading-[1.05] mb-8 drop-shadow-2xl">
-                Built for <span class="text-white">Traders.</span><br>
-                <span class="text-gradient">Funded by Us.</span>
+                {{ landing_data.hero_title_1.replace('Traders.', '<span class="text-white">Traders.</span>') | safe }}<br>
+                <span class="text-gradient">{{ landing_data.hero_title_2 }}</span>
             </h1>
             
             <p data-aos="fade-up" data-aos-duration="1200" data-aos-delay="200" class="text-lg md:text-2xl text-slate-300 max-w-3xl mx-auto mb-12 font-medium leading-relaxed">
