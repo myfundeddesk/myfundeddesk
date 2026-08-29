@@ -31,12 +31,15 @@
 
         <form action="/admin/login" method="POST" class="space-y-5">
             <div>
-                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Admin Username</label>
-                <input type="text" name="username" required class="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-4 py-3 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-colors" placeholder="Enter username">
+                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Admin Email</label>
+                <input type="text" name="username" required class="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-4 py-3 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-colors" placeholder="myfundeddesk@gmail.com">
             </div>
             
             <div>
-                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Secure Password</label>
+                                <div class="flex justify-between items-center mb-2">
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider">Secure Password</label>
+                    <a href="#" onclick="adminForgotPassword()" class="text-xs text-indigo-400 hover:text-indigo-300">Forgot Password?</a>
+                </div>
                 <input type="password" name="password" required class="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-4 py-3 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-colors" placeholder="Enter password">
             </div>
             
