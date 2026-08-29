@@ -52,7 +52,7 @@ async def admin_login_post(
         admin_otp_store["latest"] = {"otp": otp, "expires": time.time() + 300}
         
         # Send OTP email
-        send_email(ADMIN_EMAIL, "Admin Login Verification Code", f"<h2>Admin Security</h2><p>Your one-time password is: <strong>{otp}</strong></p><p>This code expires in 5 minutes.</p>")
+        send_email(ADMIN_USERNAME, "Admin Login Verification Code", f"<h2>Admin Security</h2><p>Your one-time password is: <strong>{otp}</strong></p><p>This code expires in 5 minutes.</p>")
         
         response = RedirectResponse(url="/admin/otp", status_code=303)
         return response
@@ -524,7 +524,7 @@ async def save_customizer(
 @router.post("/admin/forgot-password")
 async def admin_forgot_password(request: Request):
     try:
-        from app.core.email import send_admin_otp_email
+        from app.core.email import send_email
         # We reuse the SMTP setup from send_admin_otp_email to send the password.
         # But wait, send_admin_otp_email takes (to_email, otp). We can just pass the password as the "OTP" 
         # or craft a specific email. Let's just use it to send the password!
