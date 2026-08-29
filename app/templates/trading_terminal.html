@@ -312,9 +312,9 @@
     var tvSymbolMap = {
         'NIFTY50':    'BINGX:NIFTY50USDT.P', 
         'BANKNIFTY':  'BINGX:NIFTYBANKUSDT.P', 
-        'SENSEX':     'BINGX:NIFTY50USDT.P',       
-        'FINNIFTY':   'BINGX:NIFTY50USDT.P',  
-        'MIDCPNIFTY': 'BINGX:NIFTY50USDT.P', 
+        'SENSEX':     'BSE:SENSEX',       
+        'FINNIFTY':   'NSE:FINNIFTY1!',  
+        'MIDCPNIFTY': 'NSE:MIDCPNIFTY1!', 
         'RELIANCE':   'NSE:RELIANCE',   
         'HDFCBANK':   'NSE:HDFCBANK'
     };
@@ -355,7 +355,7 @@
     }
 
     function initCharts() {
-        if (activeSymbol === 'FINNIFTY' || activeSymbol === 'MIDCPNIFTY' || activeSymbol.endsWith("CE") || activeSymbol.endsWith("PE")) {
+        if (activeSymbol.endsWith("CE") || activeSymbol.endsWith("PE") || activeSymbol.includes("24") || activeSymbol.includes("25") || activeSymbol.includes("26")) {
             renderOptionChart(activeSymbol);
         } else {
             var tvSym = tvSymbolMap[activeSymbol] || ('NSE:' + activeSymbol);
@@ -867,7 +867,7 @@
         
         document.getElementById('order-symbol-title').innerText = sym;
         
-        if (sym.endsWith("CE") || sym.endsWith("PE")) {
+        if (sym.endsWith("CE") || sym.endsWith("PE") || sym.includes("24") || sym.includes("25") || sym.includes("26")) {
             renderOptionChart(sym);
         } else {
             document.getElementById("lw_chart_container_1").style.display = "none";
