@@ -400,7 +400,6 @@
         if (!el) return null;
         var ch = klinecharts.init(containerId);
         ch.setStyles(chartTheme);
-        klinecharts.extension.addCrosshairSync && klinecharts.extension.addCrosshairSync(ch); // if extension exists
         return ch;
     }
 
