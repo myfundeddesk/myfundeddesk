@@ -310,11 +310,11 @@
     // NOTE: NSE spot indices (NSE:NIFTY) are blocked by exchange rules on free widgets.
     // We use global CFD equivalents or futures (which are allowed) to ensure the chart loads!
     var tvSymbolMap = {
-        'NIFTY50': 'BINGX:NIFTY50USDT.P', 
-        'BANKNIFTY': 'BINGX:BTCUSDT', 
+        'NIFTY50': 'NSE:NIFTY', 
+        'BANKNIFTY': 'NSE:BANKNIFTY', 
         'SENSEX': 'BSE:SENSEX',       
-        'FINNIFTY': 'BINGX:ETHUSDT',  
-        'MIDCPNIFTY': 'BINGX:SOLUSDT', 
+        'FINNIFTY': 'NSE:FINNIFTY',  
+        'MIDCPNIFTY': 'NSE:MIDCPNIFTY', 
         'RELIANCE': 'NSE:RELIANCE',   
         'HDFCBANK': 'NSE:HDFCBANK'
     };
@@ -343,14 +343,11 @@
             "style": "1",
             "locale": "in",
             "enable_publishing": false,
-            "backgroundColor": "#ffffff",
-            "gridColor": "#f1f5f9",
             "hide_top_toolbar": false,
             "hide_side_toolbar": false,
             "hide_legend": true,
             "save_image": false,
             "container_id": containerId,
-            "toolbar_bg": "#ffffff",
             "allow_symbol_change": false,
             "disabled_features": ["header_symbol_search", "header_compare"],
             "studies": ["Volume@tv-basicstudies"]
