@@ -188,32 +188,32 @@
                     <!-- Advanced Drawing Toolbar -->
                     <div class="w-12 bg-[#131722] border-r border-[#2a2e39] flex flex-col items-center py-2 gap-1 overflow-y-auto custom-scrollbar shrink-0 z-10" id="drawing-toolbar">
                         <!-- Line Tools -->
-                        <button onclick="setDrawingTool('segment')" title="Trend Line" class="text-slate-400 hover:text-[#26a69a] p-2 rounded hover:bg-[#1e2230]"><i data-lucide="minus" class="w-4 h-4 origin-center -rotate-45"></i></button>
-                        <button onclick="setDrawingTool('rayLine')" title="Ray Line" class="text-slate-400 hover:text-[#26a69a] p-2 rounded hover:bg-[#1e2230]"><i data-lucide="arrow-up-right" class="w-4 h-4"></i></button>
-                        <button onclick="setDrawingTool('arrow')" title="Arrow Line" class="text-slate-400 hover:text-[#26a69a] p-2 rounded hover:bg-[#1e2230]"><i data-lucide="arrow-right" class="w-4 h-4 origin-center -rotate-45"></i></button>
-                        <button onclick="setDrawingTool('horizontalLine')" title="Horizontal Line" class="text-slate-400 hover:text-[#26a69a] p-2 rounded hover:bg-[#1e2230]"><i data-lucide="minus" class="w-4 h-4"></i></button>
-                        <button onclick="setDrawingTool('verticalLine')" title="Vertical Line" class="text-slate-400 hover:text-[#26a69a] p-2 rounded hover:bg-[#1e2230]"><i data-lucide="minus" class="w-4 h-4 origin-center rotate-90"></i></button>
-                        <button onclick="setDrawingTool('priceChannel')" title="Parallel Channel" class="text-slate-400 hover:text-[#26a69a] p-2 rounded hover:bg-[#1e2230]"><i data-lucide="equal" class="w-4 h-4 origin-center -rotate-45"></i></button>
+                        <button onclick="setDrawingTool('segment', this)" title="Trend Line" class="text-slate-400 hover:text-[#26a69a] p-2 rounded hover:bg-[#1e2230]"><i data-lucide="minus" class="w-4 h-4 origin-center -rotate-45"></i></button>
+                        <button onclick="setDrawingTool('rayLine', this)" title="Ray Line" class="text-slate-400 hover:text-[#26a69a] p-2 rounded hover:bg-[#1e2230]"><i data-lucide="arrow-up-right" class="w-4 h-4"></i></button>
+                        <button onclick="setDrawingTool('arrow', this)" title="Arrow Line" class="text-slate-400 hover:text-[#26a69a] p-2 rounded hover:bg-[#1e2230]"><i data-lucide="arrow-right" class="w-4 h-4 origin-center -rotate-45"></i></button>
+                        <button onclick="setDrawingTool('horizontalLine', this)" title="Horizontal Line" class="text-slate-400 hover:text-[#26a69a] p-2 rounded hover:bg-[#1e2230]"><i data-lucide="minus" class="w-4 h-4"></i></button>
+                        <button onclick="setDrawingTool('verticalLine', this)" title="Vertical Line" class="text-slate-400 hover:text-[#26a69a] p-2 rounded hover:bg-[#1e2230]"><i data-lucide="minus" class="w-4 h-4 origin-center rotate-90"></i></button>
+                        <button onclick="setDrawingTool('priceChannel', this)" title="Parallel Channel" class="text-slate-400 hover:text-[#26a69a] p-2 rounded hover:bg-[#1e2230]"><i data-lucide="equal" class="w-4 h-4 origin-center -rotate-45"></i></button>
                         
                         <div class="w-6 h-px bg-[#2a2e39] my-1"></div>
                         
                         <!-- Fibonacci & Gann -->
-                        <button onclick="setDrawingTool('fibonacciLine')" title="Fibonacci Retracement" class="text-slate-400 hover:text-[#26a69a] p-2 rounded hover:bg-[#1e2230]"><i data-lucide="align-justify" class="w-4 h-4"></i></button>
-                        <button onclick="setDrawingTool('fibonacciExtension')" title="Trend-Based Fib Extension" class="text-slate-400 hover:text-[#26a69a] p-2 rounded hover:bg-[#1e2230]"><i data-lucide="bar-chart-2" class="w-4 h-4"></i></button>
-                        <button onclick="setDrawingTool('gannBox')" title="Gann Box" class="text-slate-400 hover:text-[#26a69a] p-2 rounded hover:bg-[#1e2230]"><i data-lucide="grid" class="w-4 h-4"></i></button>
+                        <button onclick="setDrawingTool('fibonacciLine', this)" title="Fibonacci Retracement" class="text-slate-400 hover:text-[#26a69a] p-2 rounded hover:bg-[#1e2230]"><i data-lucide="align-justify" class="w-4 h-4"></i></button>
+                        <button onclick="setDrawingTool('fibonacciExtension', this)" title="Trend-Based Fib Extension" class="text-slate-400 hover:text-[#26a69a] p-2 rounded hover:bg-[#1e2230]"><i data-lucide="bar-chart-2" class="w-4 h-4"></i></button>
+                        <button onclick="setDrawingTool('gannBox', this)" title="Gann Box" class="text-slate-400 hover:text-[#26a69a] p-2 rounded hover:bg-[#1e2230]"><i data-lucide="grid" class="w-4 h-4"></i></button>
 
                         <div class="w-6 h-px bg-[#2a2e39] my-1"></div>
 
                         <!-- Shapes & Text -->
-                        <button onclick="setDrawingTool('rect')" title="Rectangle / Zone" class="text-slate-400 hover:text-[#26a69a] p-2 rounded hover:bg-[#1e2230]"><i data-lucide="square" class="w-4 h-4"></i></button>
-                        <button onclick="setDrawingTool('circle')" title="Circle" class="text-slate-400 hover:text-[#26a69a] p-2 rounded hover:bg-[#1e2230]"><i data-lucide="circle" class="w-4 h-4"></i></button>
-                        <button onclick="setDrawingTool('triangle')" title="Triangle" class="text-slate-400 hover:text-[#26a69a] p-2 rounded hover:bg-[#1e2230]"><i data-lucide="triangle" class="w-4 h-4"></i></button>
-                        <button onclick="setDrawingTool('text')" title="Text" class="text-slate-400 hover:text-[#26a69a] p-2 rounded hover:bg-[#1e2230]"><i data-lucide="type" class="w-4 h-4"></i></button>
+                        <button onclick="setDrawingTool('rect', this)" title="Rectangle / Zone" class="text-slate-400 hover:text-[#26a69a] p-2 rounded hover:bg-[#1e2230]"><i data-lucide="square" class="w-4 h-4"></i></button>
+                        <button onclick="setDrawingTool('circle', this)" title="Circle" class="text-slate-400 hover:text-[#26a69a] p-2 rounded hover:bg-[#1e2230]"><i data-lucide="circle" class="w-4 h-4"></i></button>
+                        <button onclick="setDrawingTool('triangle', this)" title="Triangle" class="text-slate-400 hover:text-[#26a69a] p-2 rounded hover:bg-[#1e2230]"><i data-lucide="triangle" class="w-4 h-4"></i></button>
+                        <button onclick="setDrawingTool('text', this)" title="Text" class="text-slate-400 hover:text-[#26a69a] p-2 rounded hover:bg-[#1e2230]"><i data-lucide="type" class="w-4 h-4"></i></button>
                         
                         <div class="w-6 h-px bg-[#2a2e39] my-1"></div>
 
                         <!-- Measurement -->
-                        <button onclick="setDrawingTool('measure')" title="Measure (Price/Date Range)" class="text-slate-400 hover:text-[#26a69a] p-2 rounded hover:bg-[#1e2230]"><i data-lucide="ruler" class="w-4 h-4"></i></button>
+                        <button onclick="setDrawingTool('measure', this)" title="Measure (Price/Date Range)" class="text-slate-400 hover:text-[#26a69a] p-2 rounded hover:bg-[#1e2230]"><i data-lucide="ruler" class="w-4 h-4"></i></button>
                         
                         <div class="w-6 h-px bg-[#2a2e39] my-1"></div>
                         <button onclick="clearDrawings()" title="Clear All Drawings" class="text-slate-400 hover:text-rose-400 p-2 rounded hover:bg-[#1e2230]"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
@@ -481,9 +481,35 @@
     }
 
     // ─── DRAWING & INDICATORS ──────────────────────────────────────────────────
-    function setDrawingTool(toolName) {
-        if(chart1) chart1.createOverlay({ name: toolName, lock: false });
-        if(chart2) chart2.createOverlay({ name: toolName, lock: false });
+    var currentActiveToolBtn = null;
+    function setDrawingTool(toolName, btnElement) {
+        if (currentActiveToolBtn) {
+            currentActiveToolBtn.classList.remove('text-[#26a69a]', 'bg-[#1e2230]');
+            currentActiveToolBtn.classList.add('text-slate-400');
+        }
+        if (btnElement) {
+            btnElement.classList.remove('text-slate-400');
+            btnElement.classList.add('text-[#26a69a]', 'bg-[#1e2230]');
+            currentActiveToolBtn = btnElement;
+        }
+
+        var overlayObj = { 
+            name: toolName, 
+            lock: false,
+            onDrawEnd: function() {
+                if (currentActiveToolBtn) {
+                    currentActiveToolBtn.classList.remove('text-[#26a69a]', 'bg-[#1e2230]');
+                    currentActiveToolBtn.classList.add('text-slate-400');
+                    currentActiveToolBtn = null;
+                }
+            }
+        };
+
+        if(chart1) chart1.createOverlay(overlayObj);
+        if(chart2) chart2.createOverlay(overlayObj);
+        
+        // Let the user know they need to click the chart!
+        showToast('Click on the chart to draw ' + toolName, 'success');
     }
     
     function clearDrawings() {
