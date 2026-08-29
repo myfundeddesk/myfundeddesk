@@ -852,7 +852,28 @@
         }, 3000);
     }
 
-    ;
+    function switchTab(tab) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('nav button').forEach(el => {
+            el.classList.remove('bg-slate-800/50', 'text-white');
+            el.classList.add('text-slate-400');
+        });
+        
+        document.getElementById('tab-' + tab).classList.add('active');
+        const navBtn = document.getElementById('nav-' + tab);
+        navBtn.classList.remove('text-slate-400');
+        navBtn.classList.add('bg-slate-800/50', 'text-white');
+        
+        const titles = {
+            'overview': 'Platform Overview',
+            'users': 'User Management',
+            'accounts': 'Trading Accounts',
+            'trades': 'Live Market Positions',
+            'rules': 'Prop Firm Rules Engine',
+            'payouts': 'Payout Requests',
+            'ops': 'Market Operations & Risk',
+            'settings': 'Platform Settings'
+        };
         document.getElementById('page-title').innerText = titles[tab];
     }
     
