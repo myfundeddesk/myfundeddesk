@@ -87,7 +87,7 @@
                         <svg class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M4 4h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4zM4 10h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4zM4 16h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4z" />
                         </svg>
-                        FUNDED <span class="font-medium text-slate-300">FIRM</span>
+                        MYFUNDED <span class="font-medium text-slate-300">DESK</span>
                     </div>
                 </a>
 
@@ -132,13 +132,13 @@
                 <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
                 {
                 "symbols": [
-                    { "description": "Bitcoin", "proName": "BINANCE:BTCINRT" },
-                    { "description": "Ethereum", "proName": "BINANCE:ETHINRT" },
-                    { "description": "SENSEX", "proName": "BSE:SENSEX" },
-                    { "description": "Reliance", "proName": "BSE:RELIANCE" },
-                    { "proName": "FOREXCOM:SPXINR", "title": "S&P 500" },
+                    { "title": "Bitcoin", "proName": "BINANCE:BTCUSDT" },
+                    { "title": "Ethereum", "proName": "BINANCE:ETHUSDT" },
+                    { "title": "SENSEX", "proName": "BSE:SENSEX" },
+                    { "title": "Reliance", "proName": "BSE:RELIANCE" },
+                    { "proName": "SP:SPX", "title": "S&P 500" },
                     { "proName": "FX_IDC:EURINR", "title": "EUR/INR" },
-                    { "description": "Gold", "proName": "OANDA:XAUINR" }
+                    { "title": "Gold", "proName": "OANDA:XAUUSD" }
                 ],
                 "showSymbolLogo": true,
                 "isTransparent": true,
@@ -313,7 +313,7 @@
                         new TradingView.widget(
                         {
                         "autosize": true,
-                        "symbol": "BINANCE:BTCINRT",
+                        "symbol": "BSE:SENSEX",
                         "interval": "5",
                         "timezone": "Asia/Kolkata",
                         "theme": "dark",
