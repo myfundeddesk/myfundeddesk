@@ -1,0 +1,37 @@
+<div id="tab-trades" class="admin-tab" style="display: none;">
+                <div class="glass-panel rounded-xl overflow-hidden border border-slate-700">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm whitespace-nowrap">
+                            <thead class="bg-slate-900/80 text-slate-400 text-[11px] uppercase tracking-wider font-bold">
+                                <tr>
+                                    <th class="px-4 py-4">Ticket</th>
+                                    <th class="px-4 py-4">Account</th>
+                                    <th class="px-4 py-4">Symbol</th>
+                                    <th class="px-4 py-4">Type</th>
+                                    <th class="px-4 py-4">Lots</th>
+                                    <th class="px-4 py-4 text-right">Open Price</th>
+                                    <th class="px-4 py-4 text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800/50 text-slate-300">
+                                {% for pos in positions %}
+                                <tr class="hover:bg-slate-800/30 transition-colors">
+                                    <td class="px-4 py-4 font-mono text-slate-500">#{{ pos.ticket }}</td>
+                                    <td class="px-4 py-4 font-mono font-bold text-white">{{ pos.account_id }}</td>
+                                    <td class="px-4 py-4 font-bold">{{ pos.symbol }}</td>
+                                    <td class="px-4 py-4 font-black {{ 'text-emerald-400' if pos.order_type == 'BUY' else 'text-rose-400' }}">{{ pos.order_type }}</td>
+                                    <td class="px-4 py-4 font-mono">{{ pos.volume_lots }}</td>
+                                    <td class="px-4 py-4 font-mono text-right">{{ pos.open_price }}</td>
+                                    <td class="px-4 py-4 text-right">
+                                        <button onclick="adminAction('position', {{ pos.id }}, 'close')" class="text-[10px] bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-white px-3 py-1.5 rounded transition-colors font-bold uppercase tracking-wider border border-rose-500/20">Force Close</button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RULES CONFIGURATION TAB -->
+            
