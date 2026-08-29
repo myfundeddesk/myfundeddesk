@@ -86,7 +86,7 @@ class MarketDataEngine:
         self.candle_cache: Dict[str, List[Dict[str, Any]]] = {}
         self.lock = threading.Lock()
         self._initialize_prices()
-        self._sync_live_crypto()
+        self._sync_live_prices()
 
     def _initialize_prices(self):
         for symbol, cfg in INSTRUMENTS.items():
@@ -102,37 +102,82 @@ class MarketDataEngine:
             }
             self.candle_cache[symbol] = self._generate_initial_candles(symbol, count=120)
 
-    def _sync_live_crypto(self):
-        """Fetch live crypto market prices in background thread if internet is connected"""
+    def _sync_live_prices(self):
+        """Fetch REAL live Indian market prices from Yahoo Finance every 5 seconds."""
+        # Yahoo Finance symbol mapping for NSE indices & stocks
+        YAHOO_MAP = {
+            "NIFTY50":    "^NSEI",
+            "BANKNIFTY":  "^NSEBANK",
+            "SENSEX":     "^BSESN",
+            "FINNIFTY":   "NIFTY_FIN_SERVICE.NS",
+            "MIDCPNIFTY": "^NSEMDCP50",
+            "RELIANCE":   "RELIANCE.NS",
+            "HDFCBANK":   "HDFCBANK.NS",
+        }
+
         def fetch_worker():
-            try:
-                with httpx.Client(timeout=3.0) as client:
-                    res = client.get("https://api.binance.com/api/v3/ticker/24hr")
-                    if res.status_code == 200:
-                        data = res.json()
-                        crypto_map = {"BTCINRT": "BTCINR", "ETHINRT": "ETHINR", "SOLINRT": "SOLINR"}
-                        with self.lock:
-                            for item in data:
-                                sym = item.get("symbol")
-                                if sym in crypto_map:
-                                    target_sym = crypto_map[sym]
-                                    last_p = float(item.get("lastPrice", 0))
-                                    change = float(item.get("priceChangePercent", 0))
-                                    high = float(item.get("highPrice", 0))
-                                    low = float(item.get("lowPrice", 0))
-                                    if last_p > 0 and target_sym in self.prices:
-                                        cfg = INSTRUMENTS[target_sym]
-                                        self.prices[target_sym]["mid"] = round(last_p, cfg["digits"])
-                                        self.prices[target_sym]["bid"] = round(last_p - cfg["spread"] / 2, cfg["digits"])
-                                        self.prices[target_sym]["ask"] = round(last_p + cfg["spread"] / 2, cfg["digits"])
-                                        self.prices[target_sym]["change_24h"] = round(change, 2)
-                                        self.prices[target_sym]["high_24h"] = round(high, cfg["digits"])
-                                        self.prices[target_sym]["low_24h"] = round(low, cfg["digits"])
-            except Exception:
-                pass # Silently proceed with local stochastic generation if offline
+            while True:
+                try:
+                    import yfinance as yf
+                    tickers = list(YAHOO_MAP.values())
+                    data = yf.download(tickers, period="1d", interval="1m", progress=False, threads=True)
+                    
+                    if data is not None and not data.empty:
+                        close_data = data["Close"] if "Close" in data.columns else None
+                        if close_data is not None:
+                            with self.lock:
+                                for sym, yticker in YAHOO_MAP.items():
+                                    if sym not in INSTRUMENTS:
+                                        continue
+                                    try:
+                                        cfg = INSTRUMENTS[sym]
+                                        # Get the latest close price for this ticker
+                                        if yticker in close_data.columns:
+                                            series = close_data[yticker].dropna()
+                                        else:
+                                            series = close_data.dropna()
+                                        
+                                        if len(series) == 0:
+                                            continue
+                                        
+                                        last_p = float(series.iloc[-1])
+                                        if last_p <= 0:
+                                            continue
+                                        
+                                        spread = cfg["spread"]
+                                        self.prices[sym]["mid"] = round(last_p, cfg["digits"])
+                                        self.prices[sym]["bid"] = round(last_p - spread / 2, cfg["digits"])
+                                        self.prices[sym]["ask"] = round(last_p + spread / 2, cfg["digits"])
+                                        
+                                        # Update candle cache with live price
+                                        if sym in self.candle_cache and self.candle_cache[sym]:
+                                            now_ts = int(time.time())
+                                            last_c = self.candle_cache[sym][-1]
+                                            if now_ts - last_c["time"] < 60:
+                                                last_c["close"] = round(last_p, cfg["digits"])
+                                                last_c["high"] = max(last_c["high"], round(last_p, cfg["digits"]))
+                                                last_c["low"] = min(last_c["low"], round(last_p, cfg["digits"]))
+                                            else:
+                                                self.candle_cache[sym].append({
+                                                    "time": now_ts,
+                                                    "open": round(last_p, cfg["digits"]),
+                                                    "high": round(last_p, cfg["digits"]),
+                                                    "low":  round(last_p, cfg["digits"]),
+                                                    "close": round(last_p, cfg["digits"]),
+                                                    "volume": 100
+                                                })
+                                                if len(self.candle_cache[sym]) > 500:
+                                                    self.candle_cache[sym].pop(0)
+                                    except Exception:
+                                        pass
+                except Exception:
+                    pass  # Silently fall back to stochastic generation if offline
+                
+                time.sleep(5)  # Refresh every 5 seconds
 
         t = threading.Thread(target=fetch_worker, daemon=True)
         t.start()
+
 
     def _generate_initial_candles(self, symbol: str, count: int = 120) -> List[Dict[str, Any]]:
         is_option = symbol.endswith("CE") or symbol.endswith("PE")

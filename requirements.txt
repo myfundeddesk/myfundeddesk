@@ -7,6 +7,7 @@ python-multipart==0.0.32
 bcrypt==5.0.0
 pyjwt==2.13.0
 razorpay==2.0.1
+yfinance==0.2.44
 
 psycopg[binary]
 pg8000
