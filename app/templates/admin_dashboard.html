@@ -13,7 +13,7 @@
     
     <style>
         /* Hide TinyMCE API Key Warning */
-        .tox-notifications-container { display: none !important; }
+        .tox-notifications-container, .tox-notification, .tox-notification--warning { display: none !important; visibility: hidden !important; opacity: 0 !important; z-index: -9999 !important; }
 
         .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
@@ -24,6 +24,7 @@
         .badge--success { background-color: rgba(40, 199, 111, 0.12); color: #28c76f; padding: 4px 8px; border-radius: 4px; font-weight: 600; }
         .badge--danger { background-color: rgba(234, 84, 85, 0.12); color: #ea5455; padding: 4px 8px; border-radius: 4px; font-weight: 600; }
     </style>
+<style id="tinymce-override">.tox-notifications-container, .tox-notification { display: none !important; }</style>
 </head>
 <body>
     <div class="page-wrapper default-version">

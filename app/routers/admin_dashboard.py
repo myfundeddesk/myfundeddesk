@@ -310,6 +310,14 @@ async def admin_generic_action(
     try:
         if action == "halt_trading":
             return JSONResponse({"success": True, "message": "Global circuit breaker engaged! Trading halted."})
+        elif entity == "package" and action == "update_price":
+            from ..models import ChallengePackage
+            pkg = db.query(ChallengePackage).filter(ChallengePackage.id == int(id)).first()
+            if pkg:
+                pkg.price = float(payload)
+                db.commit()
+                return JSONResponse({"success": True, "message": f"Price updated to {payload}"})
+            return JSONResponse({"success": False, "error": "Package not found"})
         elif action == "wipe_liquidity":
             return JSONResponse({"success": True, "message": "Liquidity wiped! Spreads expanded by 500%."})
         elif action == "force_reset":
