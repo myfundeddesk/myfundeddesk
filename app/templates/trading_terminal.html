@@ -23,7 +23,7 @@
     </script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <script src="/static/js/lightweight-charts.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/klinecharts/dist/klinecharts.min.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; }
         .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
@@ -153,6 +153,19 @@
                         <button onclick="setChartInterval('1h')"  data-tf="1h"  class="tf-btn px-2 py-1 text-[10px] font-bold rounded text-slate-400 hover:text-white">1h</button>
                         <button onclick="setChartInterval('1d')"  data-tf="1d"  class="tf-btn px-2 py-1 text-[10px] font-bold rounded text-slate-400 hover:text-white">1D</button>
                     </div>
+                    <div class="flex gap-1 ml-4 border-l border-[#2a2e39] pl-4">
+                        <select onchange="addIndicator(this.value); this.value='';" class="bg-[#1e2230] text-slate-300 text-[10px] font-bold border border-[#2a2e39] rounded px-2 py-1 outline-none hover:border-indigo-500">
+                            <option value="">+ Indicator</option>
+                            <option value="MA">Moving Average</option>
+                            <option value="EMA">EMA</option>
+                            <option value="BOLL">Bollinger Bands</option>
+                            <option value="SAR">SAR</option>
+                            <option value="MACD">MACD</option>
+                            <option value="RSI">RSI</option>
+                            <option value="KDJ">KDJ</option>
+                        </select>
+                        <button onclick="clearIndicators()" title="Clear Indicators" class="text-slate-400 hover:text-rose-400 px-2 py-1.5 rounded hover:bg-[#1e2230]"><i data-lucide="x-circle" class="w-3.5 h-3.5"></i></button>
+                    </div>
                     <div class="ml-auto flex items-center gap-3 font-mono text-xs">
                         <span id="chart-ohlc-label" class="text-slate-400 hidden"></span>
                         <span id="chart-live-price" class="text-white font-bold">--</span>
@@ -162,6 +175,19 @@
 
                 <!-- Charts Row -->
                 <div class="flex-1 flex w-full h-full relative bg-[#131722] gap-[1px]">
+                    
+                    <!-- Drawing Toolbar -->
+                    <div class="w-10 bg-[#131722] border-r border-[#2a2e39] flex flex-col items-center py-2 gap-2 shrink-0 z-10" id="drawing-toolbar">
+                        <button onclick="setDrawingTool('trendLine')" title="Trend Line" class="text-slate-400 hover:text-white p-1.5 rounded hover:bg-[#1e2230]"><i data-lucide="minus" class="w-4 h-4 origin-center -rotate-45"></i></button>
+                        <button onclick="setDrawingTool('horizontalLine')" title="Horizontal Line" class="text-slate-400 hover:text-white p-1.5 rounded hover:bg-[#1e2230]"><i data-lucide="minus" class="w-4 h-4"></i></button>
+                        <button onclick="setDrawingTool('rayLine')" title="Ray Line" class="text-slate-400 hover:text-white p-1.5 rounded hover:bg-[#1e2230]"><i data-lucide="arrow-right" class="w-4 h-4"></i></button>
+                        <button onclick="setDrawingTool('fibonacciLine')" title="Fibonacci Retracement" class="text-slate-400 hover:text-white p-1.5 rounded hover:bg-[#1e2230]"><i data-lucide="align-justify" class="w-4 h-4"></i></button>
+                        <button onclick="setDrawingTool('rect')" title="Rectangle" class="text-slate-400 hover:text-white p-1.5 rounded hover:bg-[#1e2230]"><i data-lucide="square" class="w-4 h-4"></i></button>
+                        <button onclick="setDrawingTool('text')" title="Text" class="text-slate-400 hover:text-white p-1.5 rounded hover:bg-[#1e2230]"><i data-lucide="type" class="w-4 h-4"></i></button>
+                        <div class="w-6 h-px bg-[#2a2e39] my-1"></div>
+                        <button onclick="clearDrawings()" title="Clear All Drawings" class="text-slate-400 hover:text-rose-400 p-1.5 rounded hover:bg-[#1e2230]"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                    </div>
+
                     <!-- Chart 1 (Left) -->
                     <div class="flex-1 h-full relative" style="min-width:0">
                         <div id="custom_chart_1" class="w-full h-full"></div>
@@ -320,55 +346,30 @@
     var pricesData     = {};
     var activeInterval = '1m';  // default timeframe
 
-    // ─── CUSTOM CHART ENGINE ───────────────────────────────────────────────────
-    var chart1 = null, series1 = null, volSeries1 = null, priceLine1 = null;
-    var chart2 = null, series2 = null, volSeries2 = null, priceLine2 = null;
-    var isDark = true; // terminal is always dark
+    // ─── CUSTOM CHART ENGINE (KLineChart) ──────────────────────────────────────
+    var chart1 = null, chart2 = null;
+    var isDark = true;
 
     var chartTheme = {
-        layout:    { background: { type: 'solid', color: '#131722' }, textColor: '#9ba3af' },
-        grid:      { vertLines: { color: '#1e2230' }, horzLines: { color: '#1e2230' } },
-        crosshair: { mode: 1 },
-        rightPriceScale: { borderColor: '#2a2e39' },
-        timeScale: { borderColor: '#2a2e39', timeVisible: true, secondsVisible: false, rightOffset: 8 },
+        grid: { horizontal: { color: '#1e2230' }, vertical: { color: '#1e2230' } },
+        candle: {
+            type: 'candle_solid',
+            bar: {
+                upColor: '#26a69a', downColor: '#ef5350', noChangeColor: '#888888',
+                upBorderColor: '#26a69a', downBorderColor: '#ef5350', noChangeBorderColor: '#888888',
+                upWickColor: '#26a69a', downWickColor: '#ef5350', noChangeWickColor: '#888888'
+            }
+        },
+        yAxis: { inside: false },
+        crosshair: { horizontal: { text: { backgroundColor: '#2a2e39' } }, vertical: { text: { backgroundColor: '#2a2e39' } } }
     };
 
     function buildChart(containerId) {
         var el = document.getElementById(containerId);
         if (!el) return null;
-        var ch = LightweightCharts.createChart(el, Object.assign({ width: el.clientWidth, height: el.clientHeight }, chartTheme));
-        var candleSeries = ch.addCandlestickSeries({
-            upColor: '#26a69a', downColor: '#ef5350',
-            borderUpColor: '#26a69a', borderDownColor: '#ef5350',
-            wickUpColor: '#26a69a', wickDownColor: '#ef5350',
-        });
-        var volSeries = ch.addHistogramSeries({
-            color: '#26a69a', priceFormat: { type: 'volume' },
-            priceScaleId: 'vol',
-            scaleMargins: { top: 0.82, bottom: 0 },
-        });
-        ch.priceScale('vol').applyOptions({ scaleMargins: { top: 0.82, bottom: 0 } });
-
-        // Resize observer
-        var ro = new ResizeObserver(function() {
-            if (el.clientWidth > 0) ch.applyOptions({ width: el.clientWidth, height: el.clientHeight });
-        });
-        ro.observe(el);
-
-        // Crosshair OHLCV tooltip
-        ch.subscribeCrosshairMove(function(param) {
-            if (!param || !param.seriesData) return;
-            var bar = param.seriesData.get(candleSeries);
-            if (bar) {
-                var lbl = document.getElementById('chart-ohlc-label');
-                if (lbl) {
-                    lbl.textContent = 'O:' + bar.open.toFixed(2) + ' H:' + bar.high.toFixed(2) + ' L:' + bar.low.toFixed(2) + ' C:' + bar.close.toFixed(2);
-                    lbl.classList.remove('hidden');
-                }
-            }
-        });
-
-        return { chart: ch, series: candleSeries, volSeries: volSeries };
+        var ch = klinecharts.init(containerId);
+        ch.setStyles(chartTheme);
+        return ch;
     }
 
     // Aggregate 1m candles into a higher timeframe
@@ -377,9 +378,9 @@
         var minutes = tf === '5m' ? 5 : tf === '15m' ? 15 : tf === '1h' ? 60 : 1440;
         var result = [];
         candles1m.forEach(function(c) {
-            var bucket = Math.floor(c.time / (minutes * 60)) * (minutes * 60);
-            if (result.length === 0 || result[result.length-1].time !== bucket) {
-                result.push({ time: bucket, open: c.open, high: c.high, low: c.low, close: c.close, volume: c.volume || 0 });
+            var bucket = Math.floor(c.timestamp / (minutes * 60000)) * (minutes * 60000);
+            if (result.length === 0 || result[result.length-1].timestamp !== bucket) {
+                result.push({ timestamp: bucket, open: c.open, high: c.high, low: c.low, close: c.close, volume: c.volume || 0 });
             } else {
                 var last = result[result.length-1];
                 last.high   = Math.max(last.high, c.high);
@@ -393,15 +394,15 @@
 
     var rawCandles1m = []; // cache of 1-min candles for chart 1
 
-    async function loadChart(symbol, interval, chartObj, seriesRef, volRef) {
+    async function loadChart(symbol, interval, chartObj) {
         if (!chartObj) return;
         try {
             var res = await fetch('/api/market/candles/' + symbol);
             var raw = await res.json();
 
-            // Convert timestamps (add IST offset 19800s for display)
+            // Convert timestamps (add IST offset 19800s for display, convert to ms)
             var candles1m = raw.map(function(c) {
-                return { time: c.time + 19800, open: c.open, high: c.high, low: c.low, close: c.close, volume: c.volume || 0 };
+                return { timestamp: (c.time + 19800) * 1000, open: c.open, high: c.high, low: c.low, close: c.close, volume: c.volume || 0 };
             });
 
             if (chartObj === chart1) rawCandles1m = candles1m;
@@ -409,27 +410,18 @@
             var candles = aggregateCandles(candles1m, interval);
             if (candles.length === 0) return;
 
-            seriesRef.setData(candles);
-            volRef.setData(candles.map(function(c) {
-                return { time: c.time, value: c.volume, color: c.close >= c.open ? '#26a69a55' : '#ef535055' };
-            }));
-            chartObj.timeScale().fitContent();
-
-            // Live price line
-            var last = candles[candles.length - 1];
-            if (chartObj === chart1 && priceLine1) { try { seriesRef.removePriceLine(priceLine1); } catch(e){} }
-            var pl = seriesRef.createPriceLine({ price: last.close, color: '#f0c000', lineWidth: 1, lineStyle: 2, axisLabelVisible: true });
-            if (chartObj === chart1) priceLine1 = pl;
+            chartObj.applyNewData(candles);
+            
+            // Create default volume indicator
+            chartObj.createIndicator('VOL', false, { id: 'pane_1' });
 
         } catch(e) { console.error('Chart load error:', e); }
     }
 
     function initCharts() {
-        var c1 = buildChart('custom_chart_1');
-        if (c1) { chart1 = c1.chart; series1 = c1.series; volSeries1 = c1.volSeries; }
-
+        chart1 = buildChart('custom_chart_1');
         document.getElementById('chart-symbol-label').textContent = activeSymbol;
-        loadChart(activeSymbol, activeInterval, chart1, series1, volSeries1);
+        loadChart(activeSymbol, activeInterval, chart1);
 
         var wl = document.getElementById('wl-' + activeSymbol);
         if (wl) wl.classList.add('active');
@@ -450,14 +442,35 @@
             }
         });
 
-        // Re-aggregate from cached 1m candles (no extra network request)
-        if (rawCandles1m.length > 0 && series1 && volSeries1) {
+        // Re-aggregate from cached 1m candles
+        if (rawCandles1m.length > 0 && chart1) {
             var candles = aggregateCandles(rawCandles1m, tf);
-            series1.setData(candles);
-            volSeries1.setData(candles.map(function(c) {
-                return { time: c.time, value: c.volume, color: c.close >= c.open ? '#26a69a55' : '#ef535055' };
-            }));
-            chart1.timeScale().fitContent();
+            chart1.applyNewData(candles);
+        }
+    }
+
+    // ─── DRAWING & INDICATORS ──────────────────────────────────────────────────
+    function setDrawingTool(toolName) {
+        if(chart1) chart1.createOverlay({ name: toolName, lock: false });
+        if(chart2) chart2.createOverlay({ name: toolName, lock: false });
+    }
+    
+    function clearDrawings() {
+        if(chart1) chart1.removeOverlay();
+        if(chart2) chart2.removeOverlay();
+    }
+    
+    function addIndicator(indName) {
+        if(!indName) return;
+        const isMain = ['MA', 'EMA', 'BOLL', 'SAR'].includes(indName);
+        if(chart1) chart1.createIndicator(indName, isMain, { id: isMain ? 'candle_pane' : undefined });
+    }
+    
+    function clearIndicators() {
+        if(chart1) {
+            chart1.removeIndicator('candle_pane');
+            // Re-create chart to wipe sub-panes easily
+            selectSymbol(activeSymbol); 
         }
     }
 
@@ -493,25 +506,22 @@
                     }
 
                     // Push latest tick onto the live chart candle
-                    if (series1 && rawCandles1m.length > 0) {
-                        var nowTs = Math.floor(Date.now() / 1000) + 19800;
+                    if (chart1 && rawCandles1m.length > 0) {
+                        var nowTs = (Math.floor(Date.now() / 1000) + 19800) * 1000;
                         var lastC = rawCandles1m[rawCandles1m.length - 1];
-                        var bucketSize = 60;
-                        if (nowTs - lastC.time < bucketSize) {
+                        var bucketSize = 60000;
+                        if (nowTs - lastC.timestamp < bucketSize) {
                             lastC.close = p.mid;
                             lastC.high  = Math.max(lastC.high, p.mid);
                             lastC.low   = Math.min(lastC.low, p.mid);
                         } else {
-                            lastC = { time: nowTs, open: p.mid, high: p.mid, low: p.mid, close: p.mid, volume: 0 };
+                            lastC = { timestamp: nowTs, open: p.mid, high: p.mid, low: p.mid, close: p.mid, volume: 0 };
                             rawCandles1m.push(lastC);
                         }
                         // Update aggregated view
                         var agg = aggregateCandles(rawCandles1m, activeInterval);
                         if (agg.length > 0) {
-                            series1.update(agg[agg.length - 1]);
-                            // Update price line
-                            if (priceLine1) { try { series1.removePriceLine(priceLine1); } catch(e){} }
-                            priceLine1 = series1.createPriceLine({ price: p.mid, color: '#f0c000', lineWidth: 1, lineStyle: 2, axisLabelVisible: true });
+                            chart1.updateData(agg[agg.length - 1]);
                         }
                     }
                 }
@@ -540,7 +550,7 @@
 
         // Clear cached candles before loading new symbol
         rawCandles1m = [];
-        loadChart(sym, activeInterval, chart1, series1, volSeries1);
+        loadChart(sym, activeInterval, chart1);
     }
 
     // ─── DUAL CHART ────────────────────────────────────────────────────────────
@@ -550,9 +560,8 @@
         if (isDualChart) {
             wrapper2.classList.remove('hidden');
             if (!chart2) {
-                var c2 = buildChart('custom_chart_2');
-                if (c2) { chart2 = c2.chart; series2 = c2.series; volSeries2 = c2.volSeries; }
-                loadChart('BANKNIFTY', activeInterval, chart2, series2, volSeries2);
+                chart2 = buildChart('custom_chart_2');
+                loadChart('BANKNIFTY', activeInterval, chart2);
             }
         } else {
             wrapper2.classList.add('hidden');
