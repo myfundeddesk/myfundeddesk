@@ -156,13 +156,22 @@
                     <div class="flex gap-1 ml-4 border-l border-[#2a2e39] pl-4">
                         <select onchange="addIndicator(this.value); this.value='';" class="bg-[#1e2230] text-slate-300 text-[10px] font-bold border border-[#2a2e39] rounded px-2 py-1 outline-none hover:border-indigo-500">
                             <option value="">+ Indicator</option>
-                            <option value="MA">Moving Average</option>
-                            <option value="EMA">EMA</option>
-                            <option value="BOLL">Bollinger Bands</option>
-                            <option value="SAR">SAR</option>
-                            <option value="MACD">MACD</option>
-                            <option value="RSI">RSI</option>
-                            <option value="KDJ">KDJ</option>
+                            <optgroup label="Main Chart">
+                                <option value="MA">Moving Average (MA)</option>
+                                <option value="EMA">Exp Moving Average (EMA)</option>
+                                <option value="SMA">Smoothed MA (SMA)</option>
+                                <option value="BOLL">Bollinger Bands (BOLL)</option>
+                                <option value="SAR">Parabolic SAR</option>
+                            </optgroup>
+                            <optgroup label="Oscillators">
+                                <option value="MACD">MACD</option>
+                                <option value="RSI">RSI</option>
+                                <option value="KDJ">KDJ</option>
+                                <option value="OBV">On Balance Volume (OBV)</option>
+                                <option value="WR">Williams %R</option>
+                                <option value="ATR">ATR</option>
+                                <option value="CCI">CCI</option>
+                            </optgroup>
                         </select>
                         <button onclick="clearIndicators()" title="Clear Indicators" class="text-slate-400 hover:text-rose-400 px-2 py-1.5 rounded hover:bg-[#1e2230]"><i data-lucide="x-circle" class="w-3.5 h-3.5"></i></button>
                     </div>
@@ -176,16 +185,38 @@
                 <!-- Charts Row -->
                 <div class="flex-1 flex w-full h-full relative bg-[#131722] gap-[1px]">
                     
-                    <!-- Drawing Toolbar -->
-                    <div class="w-10 bg-[#131722] border-r border-[#2a2e39] flex flex-col items-center py-2 gap-2 shrink-0 z-10" id="drawing-toolbar">
-                        <button onclick="setDrawingTool('trendLine')" title="Trend Line" class="text-slate-400 hover:text-white p-1.5 rounded hover:bg-[#1e2230]"><i data-lucide="minus" class="w-4 h-4 origin-center -rotate-45"></i></button>
-                        <button onclick="setDrawingTool('horizontalLine')" title="Horizontal Line" class="text-slate-400 hover:text-white p-1.5 rounded hover:bg-[#1e2230]"><i data-lucide="minus" class="w-4 h-4"></i></button>
-                        <button onclick="setDrawingTool('rayLine')" title="Ray Line" class="text-slate-400 hover:text-white p-1.5 rounded hover:bg-[#1e2230]"><i data-lucide="arrow-right" class="w-4 h-4"></i></button>
-                        <button onclick="setDrawingTool('fibonacciLine')" title="Fibonacci Retracement" class="text-slate-400 hover:text-white p-1.5 rounded hover:bg-[#1e2230]"><i data-lucide="align-justify" class="w-4 h-4"></i></button>
-                        <button onclick="setDrawingTool('rect')" title="Rectangle" class="text-slate-400 hover:text-white p-1.5 rounded hover:bg-[#1e2230]"><i data-lucide="square" class="w-4 h-4"></i></button>
-                        <button onclick="setDrawingTool('text')" title="Text" class="text-slate-400 hover:text-white p-1.5 rounded hover:bg-[#1e2230]"><i data-lucide="type" class="w-4 h-4"></i></button>
+                    <!-- Advanced Drawing Toolbar -->
+                    <div class="w-12 bg-[#131722] border-r border-[#2a2e39] flex flex-col items-center py-2 gap-1 overflow-y-auto custom-scrollbar shrink-0 z-10" id="drawing-toolbar">
+                        <!-- Line Tools -->
+                        <button onclick="setDrawingTool('segment')" title="Trend Line" class="text-slate-400 hover:text-[#26a69a] p-2 rounded hover:bg-[#1e2230]"><i data-lucide="minus" class="w-4 h-4 origin-center -rotate-45"></i></button>
+                        <button onclick="setDrawingTool('rayLine')" title="Ray Line" class="text-slate-400 hover:text-[#26a69a] p-2 rounded hover:bg-[#1e2230]"><i data-lucide="arrow-up-right" class="w-4 h-4"></i></button>
+                        <button onclick="setDrawingTool('arrow')" title="Arrow Line" class="text-slate-400 hover:text-[#26a69a] p-2 rounded hover:bg-[#1e2230]"><i data-lucide="arrow-right" class="w-4 h-4 origin-center -rotate-45"></i></button>
+                        <button onclick="setDrawingTool('horizontalLine')" title="Horizontal Line" class="text-slate-400 hover:text-[#26a69a] p-2 rounded hover:bg-[#1e2230]"><i data-lucide="minus" class="w-4 h-4"></i></button>
+                        <button onclick="setDrawingTool('verticalLine')" title="Vertical Line" class="text-slate-400 hover:text-[#26a69a] p-2 rounded hover:bg-[#1e2230]"><i data-lucide="minus" class="w-4 h-4 origin-center rotate-90"></i></button>
+                        <button onclick="setDrawingTool('priceChannel')" title="Parallel Channel" class="text-slate-400 hover:text-[#26a69a] p-2 rounded hover:bg-[#1e2230]"><i data-lucide="equal" class="w-4 h-4 origin-center -rotate-45"></i></button>
+                        
                         <div class="w-6 h-px bg-[#2a2e39] my-1"></div>
-                        <button onclick="clearDrawings()" title="Clear All Drawings" class="text-slate-400 hover:text-rose-400 p-1.5 rounded hover:bg-[#1e2230]"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        
+                        <!-- Fibonacci & Gann -->
+                        <button onclick="setDrawingTool('fibonacciLine')" title="Fibonacci Retracement" class="text-slate-400 hover:text-[#26a69a] p-2 rounded hover:bg-[#1e2230]"><i data-lucide="align-justify" class="w-4 h-4"></i></button>
+                        <button onclick="setDrawingTool('fibonacciExtension')" title="Trend-Based Fib Extension" class="text-slate-400 hover:text-[#26a69a] p-2 rounded hover:bg-[#1e2230]"><i data-lucide="bar-chart-2" class="w-4 h-4"></i></button>
+                        <button onclick="setDrawingTool('gannBox')" title="Gann Box" class="text-slate-400 hover:text-[#26a69a] p-2 rounded hover:bg-[#1e2230]"><i data-lucide="grid" class="w-4 h-4"></i></button>
+
+                        <div class="w-6 h-px bg-[#2a2e39] my-1"></div>
+
+                        <!-- Shapes & Text -->
+                        <button onclick="setDrawingTool('rect')" title="Rectangle / Zone" class="text-slate-400 hover:text-[#26a69a] p-2 rounded hover:bg-[#1e2230]"><i data-lucide="square" class="w-4 h-4"></i></button>
+                        <button onclick="setDrawingTool('circle')" title="Circle" class="text-slate-400 hover:text-[#26a69a] p-2 rounded hover:bg-[#1e2230]"><i data-lucide="circle" class="w-4 h-4"></i></button>
+                        <button onclick="setDrawingTool('triangle')" title="Triangle" class="text-slate-400 hover:text-[#26a69a] p-2 rounded hover:bg-[#1e2230]"><i data-lucide="triangle" class="w-4 h-4"></i></button>
+                        <button onclick="setDrawingTool('text')" title="Text" class="text-slate-400 hover:text-[#26a69a] p-2 rounded hover:bg-[#1e2230]"><i data-lucide="type" class="w-4 h-4"></i></button>
+                        
+                        <div class="w-6 h-px bg-[#2a2e39] my-1"></div>
+
+                        <!-- Measurement -->
+                        <button onclick="setDrawingTool('measure')" title="Measure (Price/Date Range)" class="text-slate-400 hover:text-[#26a69a] p-2 rounded hover:bg-[#1e2230]"><i data-lucide="ruler" class="w-4 h-4"></i></button>
+                        
+                        <div class="w-6 h-px bg-[#2a2e39] my-1"></div>
+                        <button onclick="clearDrawings()" title="Clear All Drawings" class="text-slate-400 hover:text-rose-400 p-2 rounded hover:bg-[#1e2230]"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                     </div>
 
                     <!-- Chart 1 (Left) -->
@@ -369,6 +400,7 @@
         if (!el) return null;
         var ch = klinecharts.init(containerId);
         ch.setStyles(chartTheme);
+        klinecharts.extension.addCrosshairSync && klinecharts.extension.addCrosshairSync(ch); // if extension exists
         return ch;
     }
 
@@ -462,7 +494,7 @@
     
     function addIndicator(indName) {
         if(!indName) return;
-        const isMain = ['MA', 'EMA', 'BOLL', 'SAR'].includes(indName);
+        const isMain = ['MA', 'EMA', 'SMA', 'BOLL', 'SAR'].includes(indName);
         if(chart1) chart1.createIndicator(indName, isMain, { id: isMain ? 'candle_pane' : undefined });
     }
     
