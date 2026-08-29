@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page.title }} - {{ app_name }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-[#11131a] pt-24 pb-20 text-slate-300">
+    <div class="max-w-5xl mx-auto px-4">
+        
+        <div class="mb-12">
+            <h1 class="text-4xl md:text-5xl font-black text-white tracking-tight mb-4">{{ page.title }}</h1>
+        </div>
+
+        <div class="prose prose-invert max-w-none text-slate-300">
+            {{ page.content | safe }}
+        </div>
+
+    </div>
+</div>
+{% endblock %}

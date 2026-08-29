@@ -25,3 +25,12 @@ async def landing_page(request: Request, user = Depends(get_optional_user), db: 
             "packages": packages
         }
     )
+
+from app.models import DynamicPage
+@router.get('/page/{slug}', response_class=HTMLResponse)
+async def dynamic_page_view(request: Request, slug: str, db: Session = Depends(get_db)):
+    page = db.query(DynamicPage).filter(DynamicPage.slug == slug, DynamicPage.is_published == True).first()
+    if not page:
+        return HTMLResponse('Page not found', status_code=404)
+    return templates.TemplateResponse('dynamic_page.html', {'request': request, 'page': page, 'app_name': APP_NAME})
+

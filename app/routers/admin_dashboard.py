@@ -34,6 +34,12 @@ async def admin_login_page(request: Request):
         context={"app_name": APP_NAME}
     )
 
+from app.core.email import send_email, ADMIN_EMAIL
+import random
+import time
+
+admin_otp_store = {}
+
 @router.post("/admin/login")
 async def admin_login_post(
     request: Request,
@@ -41,14 +47,40 @@ async def admin_login_post(
     password: str = Form(...)
 ):
     if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
-        response = RedirectResponse(url="/admin", status_code=303)
-        response.set_cookie(key="admin_session", value=ADMIN_SESSION_TOKEN, httponly=True, max_age=86400)
+        # Generate 6-digit OTP
+        otp = str(random.randint(100000, 999999))
+        admin_otp_store["latest"] = {"otp": otp, "expires": time.time() + 300}
+        
+        # Send OTP email
+        send_email(ADMIN_EMAIL, "Admin Login Verification Code", f"<h2>Admin Security</h2><p>Your one-time password is: <strong>{otp}</strong></p><p>This code expires in 5 minutes.</p>")
+        
+        response = RedirectResponse(url="/admin/otp", status_code=303)
         return response
     
     return templates.TemplateResponse(
         request=request,
         name="admin_login.html",
         context={"app_name": APP_NAME, "error": "Invalid Admin Credentials"}
+    )
+
+@router.get("/admin/otp", response_class=HTMLResponse)
+async def admin_otp_page(request: Request):
+    return templates.TemplateResponse("admin_otp.html", {"request": request, "app_name": APP_NAME})
+
+@router.post("/admin/otp")
+async def admin_otp_post(request: Request, otp: str = Form(...)):
+    stored = admin_otp_store.get("latest")
+    if stored and time.time() < stored["expires"] and stored["otp"] == otp:
+        # OTP Valid!
+        del admin_otp_store["latest"]
+        response = RedirectResponse(url="/admin", status_code=303)
+        response.set_cookie(key="admin_session", value=ADMIN_SESSION_TOKEN, httponly=True, max_age=86400)
+        return response
+
+    return templates.TemplateResponse(
+        request=request,
+        name="admin_otp.html",
+        context={"app_name": APP_NAME, "error": "Invalid or expired OTP"}
     )
 
 @router.get("/admin/logout")
@@ -81,6 +113,9 @@ async def admin_dashboard(request: Request, _ = Depends(require_super_admin), db
     
     user_map = {u.id: u for u in db.query(User).all()}
     
+    from app.models import DynamicPage
+    pages = db.query(DynamicPage).all()
+    
     return templates.TemplateResponse(
         request=request,
         name="admin_dashboard.html",
@@ -100,7 +135,8 @@ async def admin_dashboard(request: Request, _ = Depends(require_super_admin), db
             "accounts": accounts,
             "positions": positions,
             "packages": packages,
-            "user_map": user_map
+            "user_map": user_map,
+            "pages": pages
         }
     )
 
@@ -416,3 +452,23 @@ async def save_page_content(request: Request, page_id: str, payload: dict = Body
         json.dump(data, f, indent=4)
         
     return JSONResponse({"success": True, "message": "Page content saved permanently!"})
+
+from app.models import DynamicPage
+@router.get('/admin/pages', response_class=HTMLResponse)
+async def admin_pages_list(request: Request, db: Session = Depends(get_db)):
+    pages = db.query(DynamicPage).all()
+    return templates.TemplateResponse('admin_pages.html', {'request': request, 'pages': pages, 'app_name': APP_NAME})
+
+@router.post('/admin/pages/create')
+async def admin_pages_create(slug: str = Form(...), title: str = Form(...), content: str = Form(...), db: Session = Depends(get_db)):
+    page = DynamicPage(slug=slug, title=title, content=content)
+    db.add(page)
+    db.commit()
+    return RedirectResponse(url='/admin/pages', status_code=303)
+
+@router.post('/admin/pages/delete/{page_id}')
+async def admin_pages_delete(page_id: int, db: Session = Depends(get_db)):
+    db.query(DynamicPage).filter(DynamicPage.id == page_id).delete()
+    db.commit()
+    return RedirectResponse(url='/admin/pages', status_code=303)
+

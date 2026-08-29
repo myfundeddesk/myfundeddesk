@@ -141,7 +141,7 @@
             <div class="w-full md:w-auto flex flex-col items-end">
                 <div class="text-xs text-slate-400 mb-1">Total Payable</div>
                 <div class="text-4xl font-black text-emerald-500" x-text="'₹ ' + Math.floor(selectedPkgPrice * (1 - discountPercent)).toLocaleString('en-IN')"></div>
-                <button type="button" onclick="startRazorpayPayment()" class="w-full mt-4 bg-emerald-500 hover:bg-emerald-600 text-black font-black py-4 px-8 rounded-xl transition-colors shadow-lg shadow-emerald-500/20">
+                <button type="button" @click="startRazorpayPayment(selectedPkgId, platform)" class="w-full mt-4 bg-emerald-500 hover:bg-emerald-600 text-black font-black py-4 px-8 rounded-xl transition-colors shadow-lg shadow-emerald-500/20">
                     Complete Purchase
                 </button>
             </div>
@@ -176,15 +176,12 @@
         }
     }
 
-    async function startRazorpayPayment() {
-        const AlpineState = Alpine.$data(document.querySelector('[x-data]'));
-        const pkgId = AlpineState.selectedPkgId;
+    async function startRazorpayPayment(pkgId, platform) {
         if (!pkgId) {
             alert("Please select an Evaluation Plan.");
             return;
         }
 
-        const platform = AlpineState.platform;
         const coupon = document.getElementById('coupon-input').value.trim().toUpperCase();
         
         try {

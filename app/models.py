@@ -234,3 +234,12 @@ class ChatMessage(Base):
     created_at = Column(DateTime, default=utc_now)
     
     user = relationship("User")
+
+class DynamicPage(Base):
+    __tablename__ = 'dynamic_pages'
+    id = Column(Integer, primary_key=True, index=True)
+    slug = Column(String(255), unique=True, index=True)
+    title = Column(String(255))
+    content = Column(Text)
+    is_published = Column(Boolean, default=True)
+

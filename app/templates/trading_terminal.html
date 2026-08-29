@@ -355,11 +355,14 @@
     }
 
     function initCharts() {
-        var tvSym = tvSymbolMap[activeSymbol] || ('NSE:' + activeSymbol);
-        var interval = (tvSym.includes('OANDA') || tvSym.includes('1!') || tvSym.includes('BINGX') || tvSym.includes('BINANCE')) ? "5" : "D";
-        tvWidget1 = initTVWidget("tv_chart_container_1", tvSym, interval);
+        if (activeSymbol === 'FINNIFTY' || activeSymbol === 'MIDCPNIFTY' || activeSymbol.endsWith("CE") || activeSymbol.endsWith("PE")) {
+            renderOptionChart(activeSymbol);
+        } else {
+            var tvSym = tvSymbolMap[activeSymbol] || ('NSE:' + activeSymbol);
+            var interval = (tvSym.includes('OANDA') || tvSym.includes('1!') || tvSym.includes('BINGX') || tvSym.includes('BINANCE')) ? "5" : "D";
+            tvWidget1 = initTVWidget("tv_chart_container_1", tvSym, interval);
+        }
         
-        // Ensure active symbol is highlighted in watchlist
         var wl = document.getElementById('wl-' + activeSymbol);
         if(wl) wl.classList.add('active');
     }
@@ -922,4 +925,3 @@
         }
     }
 </script>
-

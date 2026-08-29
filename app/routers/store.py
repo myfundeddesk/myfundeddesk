@@ -163,6 +163,20 @@ async def api_verify_razorpay_payment(
     db.commit()
     db.refresh(new_account)
 
+    req_info = {
+        "Order ID": new_order.order_id,
+        "Package": package.name,
+        "Amount Paid": f"₹ {final_price_inr}",
+        "Account #": new_account.account_number
+    }
+    send_activity_email(
+        user.email,
+        subject="Payment Successful - Welcome to MyFundedDesk",
+        headline="Payment Confirmed!",
+        message=f"Your payment of ₹ {final_price_inr} was successfully processed. Your new {package.name} trading account (#{new_account.account_number}) is fully provisioned and ready for trading. Happy trading!",
+        request_info=req_info
+    )
+
     return JSONResponse(content={
         "success": True,
         "message": f"Payment verified! Account {new_account.account_number} provisioned.",
@@ -228,6 +242,20 @@ async def checkout_challenge(
     db.add(new_account)
     db.commit()
     db.refresh(new_account)
+
+    req_info = {
+        "Order ID": new_order.order_id,
+        "Package": package.name,
+        "Amount Paid": f"₹ {final_price_inr}",
+        "Account #": new_account.account_number
+    }
+    send_activity_email(
+        user.email,
+        subject="Payment Successful - Welcome to MyFundedDesk",
+        headline="Payment Confirmed!",
+        message=f"Your payment of ₹ {final_price_inr} was successfully processed. Your new {package.name} trading account (#{new_account.account_number}) is fully provisioned and ready for trading. Happy trading!",
+        request_info=req_info
+    )
 
     return RedirectResponse(url=f"/trading?account_id={new_account.id}&success=1", status_code=303)
 
