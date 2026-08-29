@@ -185,7 +185,18 @@ class MarketDataEngine:
         now = datetime.now(timezone.utc)
         
         if is_option:
-            underlying = "NIFTY50" if "NIFTY" in symbol else "BANKNIFTY"
+            if "BANKNIFTY" in symbol:
+                underlying = "BANKNIFTY"
+            elif "FINNIFTY" in symbol:
+                underlying = "FINNIFTY"
+            elif "MIDCPNIFTY" in symbol:
+                underlying = "MIDCPNIFTY"
+            elif "SENSEX" in symbol:
+                underlying = "SENSEX"
+            elif "NIFTY" in symbol:
+                underlying = "NIFTY50"
+            else:
+                underlying = "NIFTY50"
             # Get underlying candles
             if underlying not in self.candle_cache:
                 self.candle_cache[underlying] = self._generate_initial_candles(underlying, count)
@@ -324,7 +335,18 @@ class MarketDataEngine:
             return 0.0, open_price, 0.0
             
         if is_option:
-            underlying = "NIFTY50" if "NIFTY" in symbol else "BANKNIFTY"
+            if "BANKNIFTY" in symbol:
+                underlying = "BANKNIFTY"
+            elif "FINNIFTY" in symbol:
+                underlying = "FINNIFTY"
+            elif "MIDCPNIFTY" in symbol:
+                underlying = "MIDCPNIFTY"
+            elif "SENSEX" in symbol:
+                underlying = "SENSEX"
+            elif "NIFTY" in symbol:
+                underlying = "NIFTY50"
+            else:
+                underlying = "NIFTY50"
             underlying_spot = self.prices[underlying]["mid"]
             opt_price = calculate_option_price_live(symbol, underlying_spot)
             if opt_price is None: opt_price = open_price
@@ -337,7 +359,18 @@ class MarketDataEngine:
             diff = current_exit_price - open_price if order_type == "BUY" else open_price - current_exit_price
             
             pips = diff
-            contract_size = 25 if "NIFTY" in symbol else 15
+            if "BANKNIFTY" in symbol:
+                contract_size = 15
+            elif "FINNIFTY" in symbol:
+                contract_size = 40
+            elif "MIDCPNIFTY" in symbol:
+                contract_size = 75
+            elif "SENSEX" in symbol:
+                contract_size = 10
+            elif "NIFTY" in symbol:
+                contract_size = 25
+            else:
+                contract_size = 25
             pnl = diff * lots
             
             turnover = (open_price + current_exit_price) * lots
