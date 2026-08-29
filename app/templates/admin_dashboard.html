@@ -593,7 +593,442 @@
                         </div>
                     </div>
 
-                    <!-- TAB: USERS -->
+                    
+
+
+
+
+
+<div id="tab-packages" class="admin-tab" style="display: none;">
+
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h2 class="text-sm font-bold flex items-center gap-2 text-white"><i data-lucide="package" class="w-4 h-4 text-purple-400"></i> Challenge Packages</h2>
+            <div class="flex gap-2">
+                <button onclick="this.closest('.tab-content').classList.remove('window-mode'); document.getElementById('window-overlay').classList.add('hidden')" title="Minimize" class="w-3.5 h-3.5 rounded-full bg-amber-500 hover:bg-amber-400 flex items-center justify-center"></button>
+                <button onclick="this.closest('.tab-content').classList.toggle('window-mode')" title="Maximize" class="w-3.5 h-3.5 rounded-full bg-emerald-500 hover:bg-emerald-400 flex items-center justify-center"></button>
+                <button onclick="this.closest('.tab-content').classList.remove('window-mode'); document.getElementById('window-overlay').classList.add('hidden')" title="Close" class="w-3.5 h-3.5 rounded-full bg-rose-500 hover:bg-rose-400 flex items-center justify-center"></button>
+            </div>
+        </div>
+    
+<!-- Challenge Packages Management -->
+    <div class="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden shadow-2xl mb-8 mt-12 max-w-7xl mx-auto">
+        <div class="p-6 border-b border-slate-800 bg-slate-800/50 flex justify-between items-center">
+            <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                <i data-lucide="package" class="w-6 h-6 text-emerald-500"></i> Capital Prices & Packages Configurator
+            </h3>
+            <button onclick="document.getElementById('addPackageForm').classList.toggle('hidden')" class="bg-emerald-600 text-white px-4 py-2 rounded-xl font-bold text-sm hover:bg-emerald-500 transition-colors">
+                + Add Package
+            </button>
+        </div>
+        
+        <div id="addPackageForm" class="p-6 bg-slate-800/20 border-b border-slate-800 hidden">
+            <form action="/admin/api/package" method="POST" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div><label class="text-xs text-slate-400">Name</label><input type="text" name="name" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" required placeholder="Γé╣50,000 Instant"></div>
+                <div>
+                    <label class="text-xs text-slate-400">Model Type</label>
+                    <select name="model_type" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" required>
+                        <option value="1-Step">1-Step</option>
+                        <option value="2-Step">2-Step</option>
+                        <option value="Instant">Instant</option>
+                    </select>
+                </div>
+                <div><label class="text-xs text-slate-400">Account Size (Γé╣)</label><input type="number" name="account_size" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" required></div>
+                <div><label class="text-xs text-slate-400">Price (Γé╣)</label><input type="number" name="price" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" required></div>
+                
+                <div><label class="text-xs text-slate-400">Profit Target P1 (%)</label><input type="number" step="0.1" name="profit_target_p1" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" value="8.0" required></div>
+                <div><label class="text-xs text-slate-400">Profit Target P2 (%)</label><input type="number" step="0.1" name="profit_target_p2" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" value="5.0" required></div>
+                <div><label class="text-xs text-slate-400">Max Daily Loss (%)</label><input type="number" step="0.1" name="max_daily_loss" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" value="5.0" required></div>
+                <div><label class="text-xs text-slate-400">Max Total Loss (%)</label><input type="number" step="0.1" name="max_total_loss" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" value="10.0" required></div>
+                
+                <div><label class="text-xs text-slate-400">Min Trading Days</label><input type="number" name="min_trading_days" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" value="0" required></div>
+                <div><label class="text-xs text-slate-400">Leverage</label><input type="text" name="leverage" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" value="1:100" required></div>
+                <div><label class="text-xs text-slate-400">Profit Split</label><input type="text" name="profit_split" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" value="80/20" required></div>
+                
+                <div class="flex items-end"><button type="submit" class="w-full bg-emerald-500 text-white rounded-lg p-2 font-bold hover:bg-emerald-600 transition-colors">Save Package</button></div>
+            </form>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm whitespace-nowrap">
+                <thead class="bg-slate-800/50 border-b border-slate-700">
+                    <tr>
+                        <th class="px-4 py-3 font-bold text-slate-400">ID</th>
+                        <th class="px-4 py-3 font-bold text-slate-400">Name</th>
+                        <th class="px-4 py-3 font-bold text-slate-400">Type</th>
+                        <th class="px-4 py-3 font-bold text-slate-400">Size</th>
+                        <th class="px-4 py-3 font-bold text-slate-400">Price</th>
+                        <th class="px-4 py-3 font-bold text-slate-400">Targets</th>
+                        <th class="px-4 py-3 font-bold text-slate-400">Loss Limits</th>
+                        <th class="px-4 py-3 font-bold text-slate-400 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800 text-slate-300">
+                    {% for pkg in packages %}
+                    <tr class="hover:bg-slate-800/50 transition-colors">
+                        <td class="px-4 py-3 text-slate-400">#{{ pkg.id }}</td>
+                        <td class="px-4 py-3 font-bold text-white">{{ pkg.name }}</td>
+                        <td class="px-4 py-3 text-slate-300">
+                            <span class="bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded text-xs font-bold">{{ pkg.model_type }}</span>
+                        </td>
+                        <td class="px-4 py-3 font-mono text-emerald-400">Γé╣{{ "{:,.0f}".format(pkg.account_size) }}</td>
+                        <td class="px-4 py-3 font-mono text-white">Γé╣{{ "{:,.2f}".format(pkg.price) }}</td>
+                        <td class="px-4 py-3 text-slate-400 text-xs">P1: {{ pkg.profit_target_p1 }}% | P2: {{ pkg.profit_target_p2 }}%</td>
+                        <td class="px-4 py-3 text-rose-400 text-xs">Daily: {{ pkg.max_daily_loss }}% | Max: {{ pkg.max_total_loss }}%</td>
+                        <td class="px-4 py-3 text-right">
+                            <form action="/admin/api/package/{{ pkg.id }}/delete" method="POST" onsubmit="return confirm('Delete this package?');" class="inline">
+                                
+                            <button type="button" onclick="openPackageEditModal({{ pkg.id }}, '{{ pkg.price }}')" class="text-indigo-400 hover:text-indigo-300 mr-2"><i data-lucide="edit" class="w-4 h-4"></i></button>
+<button type="submit" class="text-rose-400 hover:text-rose-300"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+    </div>
+
+
+
+<div id="tab-trades" class="admin-tab" style="display: none;">
+                <div class="glass-panel rounded-xl overflow-hidden border border-slate-700">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm whitespace-nowrap">
+                            <thead class="bg-slate-900/80 text-slate-400 text-[11px] uppercase tracking-wider font-bold">
+                                <tr>
+                                    <th>Ticket</th>
+                                    <th>Account</th>
+                                    <th>Symbol</th>
+                                    <th>Type</th>
+                                    <th>Lots</th>
+                                    <th>Open Price</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for pos in positions %}
+                                <tr>
+                                    <td>#{{ pos.ticket }}</td>
+                                    <td>{{ pos.account_id }}</td>
+                                    <td>{{ pos.symbol }}</td>
+                                    <td>{{ pos.order_type }}</td>
+                                    <td>{{ pos.volume_lots }}</td>
+                                    <td>{{ pos.open_price }}</td>
+                                    <td>
+                                        <button onclick="adminAction('position', {{ pos.id }}, 'close')" class="btn btn-sm btn-outline--danger">Force Close</button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RULES CONFIGURATION TAB -->
+            
+
+<div id="tab-settings" class="admin-tab" style="display: none;">
+                <div class="card b-radius--10">
+                    <h3 class="card-header"><i data-lucide="settings" class="w-4 h-4 text-indigo-400"></i> Platform Settings</h3>
+                    
+                    <form onsubmit="submitAdminSettings(event)" class="space-y-6">
+                        <div class="card-body">
+                            <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-4 border-b border-slate-700 pb-2">Admin Portal Credentials</h4>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="fw-bold mb-2">Admin Username</label>
+                                    <input type="text" name="admin_username" id="settings-admin-username" class="form-control" value="Deependra">
+                                </div>
+                                <div>
+                                    <label class="fw-bold mb-2">Admin Password</label>
+                                    <div class="relative">
+                                        <input type="text" name="admin_password" id="settings-admin-password" class="form-control" value="Deependra@081">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-lg text-sm font-bold shadow-lg w-full uppercase tracking-wider">Save Settings & Restart Server</button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+    <script>
+        function openBroadcastModal() { document.getElementById('broadcastModal').classList.remove('hidden'); }
+        function closeBroadcastModal() { document.getElementById('broadcastModal').classList.add('hidden'); }
+        function sendBroadcast() {
+            const msg = document.getElementById('broadcastMessage').value;
+            if(!msg) return;
+            adminActionWithPayload('system', 'global', 'broadcast', msg);
+            closeBroadcastModal();
+        }
+        
+        
+        function openPromoModal() { document.getElementById('promoModal').classList.remove('hidden'); }
+        function closePromoModal() { document.getElementById('promoModal').classList.add('hidden'); }
+        function generateCustomPromo() {
+            const code = document.getElementById('promoCodeInput').value;
+            const discount = document.getElementById('promoDiscountInput').value;
+            if(!code || !discount) { showToast('Please fill all fields', 'error'); return; }
+            adminActionWithPayload('global', code, 'generate_promo', discount);
+            closePromoModal();
+        }
+
+        
+        function openPackageEditModal(id, price) { 
+            document.getElementById('editPkgId').value = id;
+            document.getElementById('editPkgPrice').value = price;
+            document.getElementById('packageEditModal').classList.remove('hidden'); 
+        }
+        function closePackageEditModal() { document.getElementById('packageEditModal').classList.add('hidden'); }
+        function savePackagePrice() {
+            const id = document.getElementById('editPkgId').value;
+            const price = document.getElementById('editPkgPrice').value;
+            if(!price) return;
+            adminActionWithPayload('package', id, 'update_price', price);
+            closePackageEditModal();
+        }
+
+        function openSettingsModal() { document.getElementById('settingsModal').classList.remove('hidden'); }
+        function closeSettingsModal() { document.getElementById('settingsModal').classList.add('hidden'); }
+        function saveDirectorName() {
+            const name = document.getElementById('directorNameInput').value;
+            if(!name) return;
+            adminActionWithPayload('system', 'director_name', 'update_setting', name);
+            closeSettingsModal();
+        }
+        
+        async function adminActionWithPayload(entity, id, action, payload) {
+            try {
+                const formData = new FormData();
+                formData.append('entity', entity);
+                formData.append('id', id);
+                formData.append('action', action);
+                formData.append('payload', payload);
+                
+                const response = await fetch('/admin/api/action', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    showToast(data.message, 'success');
+                    setTimeout(() => window.location.reload(), 1500);
+                } else {
+                    showToast(data.error || 'Action failed', 'error');
+                }
+            } catch (err) {
+                showToast('Server error', 'error');
+            }
+        }
+
+    lucide.createIcons();
+
+    function showToast(msg, type='success') {
+        const container = document.getElementById('toast-container');
+        const t = document.createElement('div');
+        t.className = `px-4 py-3 rounded-lg text-sm font-bold text-white shadow-lg transform transition-all duration-300 translate-x-full Γé╣{type==='success' ? 'bg-emerald-600' : 'bg-rose-600'}`;
+        t.innerText = msg;
+        container.appendChild(t);
+        
+        setTimeout(() => { t.style.transform = 'translateX(0)'; }, 10);
+        setTimeout(() => { 
+            t.style.transform = 'translateX(100%)'; 
+            t.style.opacity = '0';
+            setTimeout(() => t.remove(), 300);
+        }, 3000);
+    }
+
+    function switchTab(tab) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('nav button').forEach(el => {
+            el.classList.remove('bg-slate-800/50', 'text-white');
+            el.classList.add('text-slate-400');
+        });
+        
+        document.getElementById('tab-' + tab).classList.add('active');
+        const navBtn = document.getElementById('nav-' + tab);
+        navBtn.classList.remove('text-slate-400');
+        navBtn.classList.add('bg-slate-800/50', 'text-white');
+        
+        const titles = {
+            'overview': 'Platform Overview',
+            'users': 'User Management',
+            'accounts': 'Trading Accounts',
+            'trades': 'Live Market Positions',
+            'rules': 'Prop Firm Rules Engine',
+            'payouts': 'Payout Requests',
+            'ops': 'Market Operations & Risk',
+            'settings': 'Platform Settings'
+        };
+        document.getElementById('page-title').innerText = titles[tab];
+    }
+    
+    function openEditUserModal(id, name, email, password) {
+        document.getElementById('eu-id').value = id;
+        document.getElementById('eu-name').value = name;
+        document.getElementById('eu-email').value = email;
+        document.getElementById('eu-pass').value = password || '';
+        document.getElementById('edit-user-modal').classList.remove('hidden');
+    }
+
+    function openNotifyModal(id, name) {
+        document.getElementById('nu-id').value = id;
+        document.getElementById('nu-name').innerText = name;
+        document.getElementById('nu-msg').value = '';
+        document.getElementById('notify-user-modal').classList.remove('hidden');
+    }
+
+    function closeModal(id) {
+        document.getElementById(id).classList.add('hidden');
+    }
+
+    async function submitEditUser(e) {
+        e.preventDefault();
+        const form = e.target;
+        const data = new FormData(form);
+        try {
+            const res = await fetch('/admin/api/user/update', { method: 'POST', body: data });
+            const json = await res.json();
+            if (json.success) {
+                showToast(json.message, 'success');
+                closeModal('edit-user-modal');
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showToast(json.error, 'error');
+            }
+        } catch (err) {
+            showToast('Error updating user', 'error');
+        }
+    }
+
+    async function submitNotifyUser(e) {
+        e.preventDefault();
+        const form = e.target;
+        const data = new FormData(form);
+        try {
+            const res = await fetch('/admin/api/user/notify', { method: 'POST', body: data });
+            const json = await res.json();
+            if (json.success) {
+                showToast(json.message, 'success');
+                closeModal('notify-user-modal');
+            } else {
+                showToast(json.error, 'error');
+            }
+        } catch (err) {
+            showToast('Error sending notification', 'error');
+        }
+    }
+
+    async function adminAction(entity, id, action) {
+        if(!confirm(`EXECUTE: 'Γé╣{{action}}' on Γé╣{{entity}} #Γé╣{{id}}?`)) return;
+        
+        const formData = new FormData();
+        formData.append('entity', entity);
+        formData.append('id', id);
+        formData.append('action', action);
+
+        let url = `/admin/api/${entity}/${id}/action`;
+        if (entity === 'system' || entity === 'global') {
+            url = '/admin/api/action';
+        }
+
+        try {
+            const res = await fetch(url, {
+                method: 'POST',
+                body: formData
+            });
+            const json = await res.json();
+            if(json.success) {
+                showToast(json.message, 'success');
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                showToast(json.error, 'error');
+            }
+        } catch(e) {
+            showToast('Execution failed.', 'error');
+        }
+    }
+
+    async function submitAdminSettings(e) {
+        e.preventDefault();
+        const form = e.target;
+        const data = new FormData(form);
+        try {
+            const res = await fetch('/admin/api/settings', { method: 'POST', body: data });
+            const json = await res.json();
+            if (json.success) {
+                showToast(json.message, 'success');
+            } else {
+                showToast(json.error, 'error');
+            }
+        } catch (err) {
+            showToast('Error updating settings', 'error');
+        }
+    }
+</script>
+
+    
+    <div id="packageEditModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-white/10 rounded-2xl p-6 w-full max-w-lg">
+            <h3 class="text-xl font-bold text-white mb-4">Edit Capital Price</h3>
+            <input type="hidden" id="editPkgId">
+            <label class="text-slate-400 text-sm mb-1 block">New Price (Γé╣)</label>
+            <input type="number" step="0.01" id="editPkgPrice" class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-primary mb-4">
+            <div class="flex justify-end gap-3">
+                <button onclick="closePackageEditModal()" class="px-4 py-2 rounded-xl text-slate-400 hover:bg-white/5 transition-colors">Cancel</button>
+                <button onclick="savePackagePrice()" class="px-4 py-2 rounded-xl bg-primary text-white font-bold hover:bg-primary/80 transition-colors">Save Details</button>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="promoModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-white/10 rounded-2xl p-6 w-full max-w-lg">
+            <h3 class="text-xl font-bold text-white mb-4">Generate Master Promo</h3>
+            <input type="text" id="promoCodeInput" class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-primary mb-4" placeholder="Promo Code (e.g. SUMMER50)">
+            <input type="number" id="promoDiscountInput" class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-primary mb-4" placeholder="Discount % (e.g. 50)">
+            <div class="flex justify-end gap-3">
+                <button onclick="closePromoModal()" class="px-4 py-2 rounded-xl text-slate-400 hover:bg-white/5 transition-colors">Cancel</button>
+                <button onclick="generateCustomPromo()" class="px-4 py-2 rounded-xl bg-primary text-white font-bold hover:bg-primary/80 transition-colors">Generate</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="broadcastModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-white/10 rounded-2xl p-6 w-full max-w-lg">
+            <h3 class="text-xl font-bold text-white mb-4">Broadcast Custom Message</h3>
+            <textarea id="broadcastMessage" rows="4" class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-primary mb-4" placeholder="Type message here..."></textarea>
+            <div class="flex justify-end gap-3">
+                <button onclick="closeBroadcastModal()" class="px-4 py-2 rounded-xl text-slate-400 hover:bg-white/5 transition-colors">Cancel</button>
+                <button onclick="sendBroadcast()" class="px-4 py-2 rounded-xl bg-primary text-white font-bold hover:bg-primary/80 transition-colors">Send Broadcast</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="settingsModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-white/10 rounded-2xl p-6 w-full max-w-lg">
+            <h3 class="text-xl font-bold text-white mb-4">Update Certificate Director</h3>
+            <input type="text" id="directorNameInput" class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-primary mb-4" placeholder="Dr. S. K. Vance">
+            <div class="flex justify-end gap-3">
+                <button onclick="closeSettingsModal()" class="px-4 py-2 rounded-xl text-slate-400 hover:bg-white/5 transition-colors">Cancel</button>
+                <button onclick="saveDirectorName()" class="px-4 py-2 rounded-xl bg-primary text-white font-bold hover:bg-primary/80 transition-colors">Save Name</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+<!-- TAB: USERS -->
                     <div id="tab-users" class="admin-tab" style="display: none;">
                         <div class="card b-radius--10">
                             <div class="card-header"><h5>All Registered Users</h5></div>
