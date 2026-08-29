@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+﻿html_content = '''{% extends "base.html" %}
 
 {% block title %}Acquire Capital - MyFundedDesk{% endblock %}
 {% block breadcrumb %}Home / Start Evaluation{% endblock %}
@@ -159,7 +159,7 @@
         const val = document.getElementById('coupon-input').value.trim().toUpperCase();
         const msg = document.getElementById('coupon-msg');
         
-        let AlpineState = Alpine.$data(document.querySelector('[x-data]'));
+        let AlpineState = Alpine.\(document.querySelector('[x-data]'));
 
         if (val === 'SAVE20' || val === 'TRADER20') {
             AlpineState.discountPercent = 0.20;
@@ -177,7 +177,7 @@
     }
 
     async function startRazorpayPayment() {
-        const AlpineState = Alpine.$data(document.querySelector('[x-data]'));
+        const AlpineState = Alpine.\(document.querySelector('[x-data]'));
         const pkgId = AlpineState.selectedPkgId;
         if (!pkgId) {
             alert("Please select an Evaluation Plan.");
@@ -246,3 +246,7 @@
     }
 </script>
 {% endblock %}
+'''
+
+with open('app/templates/buy_challenge.html', 'w', encoding='utf-8') as f:
+    f.write(html_content)

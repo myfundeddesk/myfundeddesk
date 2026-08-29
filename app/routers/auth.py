@@ -452,8 +452,10 @@ async def google_callback(request: Request, code: str = None, error: str = None,
     user = db.query(User).filter(User.email == email_clean).first()
     
     if not user:
+        import uuid
         # Create new user
         user = User(
+            username=f"google_{uuid.uuid4().hex[:8]}",
             full_name=name,
             email=email_clean,
             is_email_verified=True, # Trusted from Google
