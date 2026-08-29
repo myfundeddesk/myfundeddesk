@@ -3,1177 +3,442 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Super Admin Control - {{ app_name }}</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>Prop Funding - Admin Dashboard</title>
+    
+    <!-- PropLab WordPress-style Theme Dependencies -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://script.viserlab.com/proplab/assets/global/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://script.viserlab.com/proplab/assets/global/css/line-awesome.min.css">
+    <link rel="stylesheet" href="https://script.viserlab.com/proplab/assets/admin/css/app.css">
+    
     <style>
-        .window-mode {
-            position: fixed !important;
-            top: 50% !important;
-            left: 50% !important;
-            transform: translate(-50%, -50%) !important;
-            width: 85vw !important;
-            height: 85vh !important;
-            z-index: 100 !important;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
-            border-radius: 0.75rem !important;
-            background-color: #0f172a !important;
-            border: 1px solid #334155 !important;
-            resize: both;
-            overflow: auto;
-            display: flex !important;
-            flex-direction: column !important;
-        }
-        .window-mode .window-header {
-            display: flex !important;
-        }
-        .window-header {
-            display: none; /* hidden by default in normal mode */
-            cursor: move;
-            background: #1e293b;
-            padding: 10px 16px;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #334155;
-            flex-shrink: 0;
-        }
-        body { font-family: 'Inter', sans-serif; background: #0f172a; color: #f8fafc; }
-        .tab-content { display: none; }
-        .tab-content.window-mode { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; height: 80%; background: #0f172a; border-radius: 12px; border: 1px solid #334155; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); z-index: 100; overflow: auto; resize: both; min-width: 300px; min-height: 200px; }
-        .tab-content.active { display: block; }
-        .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
         .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
-        .stat-card { background: linear-gradient(145deg, #1e293b, #0f172a); border: 1px solid #334155; }
+        /* Clean up table look */
+        .table--light thead th { background-color: #f8f9fa; color: #495057; font-weight: 600; border-bottom: 2px solid #dee2e6; }
+        .table--light tbody td { vertical-align: middle; color: #5a6268; }
+        .badge--success { background-color: rgba(40, 199, 111, 0.12); color: #28c76f; padding: 4px 8px; border-radius: 4px; font-weight: 600; }
+        .badge--danger { background-color: rgba(234, 84, 85, 0.12); color: #ea5455; padding: 4px 8px; border-radius: 4px; font-weight: 600; }
     </style>
 </head>
-<body class="h-screen w-screen overflow-hidden flex flex-col md:flex-row">
-
-    
-    <div x-data="{
-        checkNotifs() {
-            // For now, this is just the permission request. The chat polling is handled inside the chat widget.
-            if(window.Notification && Notification.permission !== 'granted') {
-                Notification.requestPermission();
-            }
-        }
-    }" x-init="setTimeout(() => checkNotifs(), 2000)" class="fixed top-4 right-4 z-[200]">
-        <button @click="checkNotifs()" class="bg-indigo-600 hover:bg-indigo-500 text-white p-3 rounded-full shadow-lg" title="Enable Notifications">
-            <i data-lucide="bell" class="w-5 h-5"></i>
-        </button>
-    </div>
-
-    <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div>
-
-    <!-- Sidebar -->
-    <div class="w-full md:w-64 glass-panel border-r border-slate-800 flex flex-col shrink-0 z-40 relative">
-        <div class="p-6 border-b border-slate-800 flex items-center gap-3">
-            <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/20">FD</div>
-            <div>
-                <h1 class="font-bold text-slate-100 leading-tight text-sm">Control Panel</h1>
-                <p class="text-[9px] text-emerald-400 font-mono uppercase tracking-widest flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> {{ admin_name }}</p>
+<body>
+    <div class="page-wrapper default-version">
+        <!-- Sidebar -->
+        <div class="sidebar bg--dark">
+            <button class="res-sidebar-close-btn"><i class="las la-times"></i></button>
+            <div class="sidebar__inner">
+                <div class="sidebar__logo">
+                    <a href="/admin/dashboard" class="sidebar__main-logo" style="text-decoration:none;">
+                        <h4 class="text-white fw-bold mb-0"><i class="las la-chart-bar text--primary"></i> {{ app_name }}</h4>
+                    </a>
+                </div>
+                <div class="sidebar__menu-wrapper">
+                    <ul class="sidebar__menu">
+                        <li class="sidebar-menu-item active">
+                            <a href="#" class="nav-link" onclick="switchTab('dashboard', this)">
+                                <i class="menu-icon las la-home"></i>
+                                <span class="menu-title">Dashboard</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-menu-item">
+                            <a href="#" class="nav-link" onclick="switchTab('users', this)">
+                                <i class="menu-icon las la-users"></i>
+                                <span class="menu-title">Manage Users</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-menu-item">
+                            <a href="#" class="nav-link" onclick="switchTab('accounts', this)">
+                                <i class="menu-icon las la-id-card"></i>
+                                <span class="menu-title">Trade Accounts</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-menu-item">
+                            <a href="#" class="nav-link" onclick="switchTab('trades', this)">
+                                <i class="menu-icon las la-coins"></i>
+                                <span class="menu-title">Manage Orders</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-menu-item">
+                            <a href="#" class="nav-link" onclick="switchTab('packages', this)">
+                                <i class="menu-icon las la-signal"></i>
+                                <span class="menu-title">Manage Plans</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-menu-item">
+                            <a href="#" class="nav-link" onclick="switchTab('settings', this)">
+                                <i class="menu-icon las la-life-ring"></i>
+                                <span class="menu-title">System Setting</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-menu-item mt-5">
+                            <a href="/trading" target="_blank" class="nav-link">
+                                <i class="menu-icon las la-globe"></i>
+                                <span class="menu-title">Visit Terminal</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
+        <div class="sidebar-mobile-overlay"></div>
 
-        <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1 custom-scrollbar">
-            <button onclick="switchTab('overview')" id="nav-overview" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors bg-slate-800/50 text-white">
-                <i data-lucide="layout-dashboard" class="w-4 h-4 text-indigo-400"></i> Platform Overview
-            </button>
-            <button onclick="switchTab('users')" id="nav-users" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                <i data-lucide="users" class="w-4 h-4 text-emerald-400"></i> Users Management
-            </button>
-            <button onclick="switchTab('accounts')" id="nav-accounts" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                <i data-lucide="wallet" class="w-4 h-4 text-amber-400"></i> Trading Accounts
-            </button>
-            <button onclick="switchTab('trades')" id="nav-trades" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                <i data-lucide="activity" class="w-4 h-4 text-rose-400"></i> Live Market Trades
-            </button>
-            <div class="pt-4 pb-2">
-                <p class="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">System Config</p>
+        <!-- Top Navbar -->
+        <nav class="navbar-wrapper bg--dark d-flex flex-wrap">
+            <div class="navbar__left">
+                <button type="button" class="res-sidebar-open-btn me-3"><i class="las la-bars"></i></button>
+                <form class="navbar-search">
+                    <input type="search" class="navbar-search-field" placeholder="Search here...">
+                    <i class="las la-search"></i>
+                </form>
             </div>
-            <button onclick="switchTab('rules')" id="nav-rules" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                <i data-lucide="settings" class="w-4 h-4 text-slate-400"></i> Prop Firm Rules
-            </button>
-            <button onclick="switchTab('payouts')" id="nav-payouts" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                <i data-lucide="banknote" class="w-4 h-4 text-teal-400"></i> Payout Requests
-            </button>
-            <div class="pt-4 pb-2">
-                <p class="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Danger Zone</p>
+            <div class="navbar__right">
+                <ul class="navbar__action-list">
+                    <li>
+                        <button type="button" class="primary--layer notification-bell" data-bs-toggle="tooltip" title="Notifications">
+                            <i class="las la-bell"></i>
+                        </button>
+                    </li>
+                    <li class="dropdown d-flex profile-dropdown">
+                        <button type="button" data-bs-toggle="dropdown" data-display="static" aria-expanded="false">
+                            <span class="navbar-user">
+                                <span class="navbar-user__info">
+                                    <span class="navbar-user__name">{{ admin_name }}</span>
+                                </span>
+                                <span class="icon"><i class="las la-chevron-circle-down"></i></span>
+                            </span>
+                        </button>
+                    </li>
+                </ul>
             </div>
-            <button onclick="switchTab('ops')" id="nav-ops" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-rose-900/30 hover:text-rose-400 transition-colors">
-                <i data-lucide="alert-octagon" class="w-4 h-4 text-rose-500"></i> Market Operations
-            </button>
-            <button onclick="switchTab('settings')" id="nav-settings" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-colors mt-2">
-                <i data-lucide="settings" class="w-4 h-4 text-indigo-400"></i> Platform Settings
-            </button>
-            <button onclick="switchTab('packages')" id="nav-packages" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-colors mt-2">
-                <i data-lucide="package" class="w-4 h-4 text-emerald-400"></i> Challenge Packages
-            </button>
-            <button onclick="switchTab('chat')" id="nav-chat" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-colors mt-2">
-                <i data-lucide="message-circle" class="w-4 h-4 text-blue-400"></i> Support Chat 
-            </button>
-            <button onclick="switchTab('content')" id="nav-content" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-colors mt-2">
-                <i data-lucide="edit-3" class="w-4 h-4 text-pink-400"></i> Content Management
-            </button>
         </nav>
 
-        <div class="p-4 border-t border-slate-800 space-y-2">
-            <a href="/dashboard" class="flex items-center gap-2 text-xs text-slate-400 hover:text-white transition-colors px-2 py-1.5 rounded hover:bg-slate-800">
-                <i data-lucide="arrow-left" class="w-4 h-4"></i> To Platform
-            </a>
-            <a href="/admin/logout" class="flex items-center gap-2 text-xs text-rose-400 hover:text-rose-300 transition-colors px-2 py-1.5 rounded hover:bg-rose-500/10">
-                <i data-lucide="log-out" class="w-4 h-4"></i> Secure Logout
-            </a>
-        </div>
-    </div>
+        <!-- Main Body -->
+        <div class="container-fluid px-3 px-sm-0">
+            <div class="body-wrapper">
+                <div class="bodywrapper__inner">
 
-    <!-- Edit User Modal -->
-    <div id="edit-user-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
-        <div class="bg-slate-800 w-full max-w-md rounded-xl shadow-2xl overflow-hidden border border-slate-700">
-            <div class="p-4 bg-slate-900 border-b border-slate-700 flex justify-between items-center">
-                <h3 class="text-white font-bold">Edit User</h3>
-                <button onclick="closeModal('edit-user-modal')" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
-            </div>
-            <form onsubmit="submitEditUser(event)" class="p-6 space-y-4">
-                <input type="hidden" id="eu-id" name="user_id">
-                <div>
-                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Username / Full Name</label>
-                    <input type="text" id="eu-name" name="full_name" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white outline-none focus:border-indigo-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Email</label>
-                    <input type="email" id="eu-email" name="email" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white outline-none focus:border-indigo-500">
-                </div>
-                <div class="pt-2 border-t border-slate-700">
-                    <label class="block text-xs font-bold text-rose-400 uppercase tracking-wider mb-2">Force Reset Password</label>
-                    <p class="text-xs text-slate-500 mb-2">Passwords are encrypted. To change, type a new one here. Leave blank to keep current.</p>
-                    <input type="text" id="eu-pass" name="new_password" class="w-full bg-slate-900 border border-rose-500/50 rounded-lg px-4 py-2 text-white outline-none focus:border-rose-500" placeholder="New Password...">
-                </div>
-                <div class="pt-4 flex justify-end gap-2">
-                    <button type="button" onclick="closeModal('edit-user-modal')" class="px-4 py-2 text-sm font-bold text-slate-400 hover:text-white">Cancel</button>
-                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2 rounded-lg text-sm font-bold shadow-lg">Save Changes</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Notify User Modal -->
-    
-
-
-
-
-
-
-
-
-    </div>
-
-
-
-<!-- Modals -->
-
-    </div>
-
-
-    
-        
-
-    <div id="window-overlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden"></div>
-    <div id="notify-user-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
-        <div class="bg-slate-800 w-full max-w-md rounded-xl shadow-2xl overflow-hidden border border-slate-700">
-            <div class="p-4 bg-slate-900 border-b border-slate-700 flex justify-between items-center">
-                <h3 class="text-white font-bold">Send Notification</h3>
-                <button onclick="closeModal('notify-user-modal')" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
-            </div>
-            <form onsubmit="submitNotifyUser(event)" class="p-6 space-y-4">
-                <input type="hidden" id="nu-id" name="user_id">
-                <p class="text-sm text-slate-300">Sending to: <span id="nu-name" class="font-bold text-teal-400"></span></p>
-                <div>
-                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Message</label>
-                    <textarea id="nu-msg" name="message" rows="4" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white outline-none focus:border-teal-500" placeholder="Type notification..."></textarea>
-                </div>
-                <div class="pt-4 flex justify-end gap-2">
-                    <button type="button" onclick="closeModal('notify-user-modal')" class="px-4 py-2 text-sm font-bold text-slate-400 hover:text-white">Cancel</button>
-                    <button type="submit" class="bg-teal-600 hover:bg-teal-500 text-white px-6 py-2 rounded-lg text-sm font-bold shadow-lg flex items-center gap-2"><i data-lucide="send" class="w-4 h-4"></i> Send Push</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Toast Notification -->
-    <div class="flex-1 overflow-y-auto custom-scrollbar relative z-0">
-        
-        <div class="sticky top-0 z-10 glass-panel border-b border-slate-800 h-16 flex items-center justify-between px-6">
-            <h2 class="text-lg font-bold text-slate-100" id="page-title">Platform Overview</h2>
-            <div class="flex items-center gap-6">
-                <div class="flex items-center gap-2 text-xs font-mono bg-slate-900/50 px-3 py-1.5 rounded border border-slate-700">
-                    <span class="text-slate-400">Total Simulated AUM:</span>
-                    <span class="text-emerald-400 font-bold">₹{{ "{:,.0f}".format(stats.total_aum) }}</span>
-                </div>
-                <div class="flex items-center gap-2 text-xs font-mono">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span class="text-slate-400">CORE ONLINE</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="p-6">
-            
-            <!-- OVERVIEW TAB -->
-            <div id="tab-overview" class="tab-content active space-y-6">
-
-        <div class="window-header">
-            <h2 class="text-sm font-bold flex items-center gap-2 text-white"><i data-lucide="layout-dashboard" class="w-4 h-4 text-slate-100"></i> Platform Overview</h2>
-            <div class="flex gap-2">
-                <button onclick="this.closest('.tab-content').classList.remove('window-mode'); document.getElementById('window-overlay').classList.add('hidden')" title="Minimize" class="w-3.5 h-3.5 rounded-full bg-amber-500 hover:bg-amber-400 flex items-center justify-center"></button>
-                <button onclick="this.closest('.tab-content').classList.toggle('window-mode')" title="Maximize" class="w-3.5 h-3.5 rounded-full bg-emerald-500 hover:bg-emerald-400 flex items-center justify-center"></button>
-                <button onclick="this.closest('.tab-content').classList.remove('window-mode'); document.getElementById('window-overlay').classList.add('hidden')" title="Close" class="w-3.5 h-3.5 rounded-full bg-rose-500 hover:bg-rose-400 flex items-center justify-center"></button>
-            </div>
-        </div>
-    
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div class="stat-card p-5 rounded-xl">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-slate-400 text-xs font-bold uppercase tracking-wider">Total Users</h3>
-                            <div class="w-8 h-8 rounded-full bg-indigo-500/10 flex items-center justify-center"><i data-lucide="users" class="w-4 h-4 text-indigo-400"></i></div>
-                        </div>
-                        <div class="text-3xl font-black text-white">{{ stats.total_users }}</div>
+                    <div class="d-flex mb-30 flex-wrap gap-3 justify-content-between align-items-center">
+                        <h6 class="page-title" id="page-title-text">Dashboard</h6>
                     </div>
-                    <div class="stat-card p-5 rounded-xl">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-slate-400 text-xs font-bold uppercase tracking-wider">Active Challenges</h3>
-                            <div class="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center"><i data-lucide="activity" class="w-4 h-4 text-emerald-400"></i></div>
-                        </div>
-                        <div class="text-3xl font-black text-white">{{ stats.active_accounts }}</div>
-                    </div>
-                    <div class="stat-card p-5 rounded-xl">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-slate-400 text-xs font-bold uppercase tracking-wider">Breached Accounts</h3>
-                            <div class="w-8 h-8 rounded-full bg-rose-500/10 flex items-center justify-center"><i data-lucide="alert-triangle" class="w-4 h-4 text-rose-400"></i></div>
-                        </div>
-                        <div class="text-3xl font-black text-white">{{ stats.breached_accounts }}</div>
-                    </div>
-                    <div class="stat-card p-5 rounded-xl">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-slate-400 text-xs font-bold uppercase tracking-wider">Funded Traders</h3>
-                            <div class="w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center"><i data-lucide="award" class="w-4 h-4 text-amber-400"></i></div>
-                        </div>
-                        <div class="text-3xl font-black text-white">{{ stats.total_funded }}</div>
-                    </div>
-                </div>
 
-                <div class="glass-panel p-6 rounded-xl border border-slate-700">
-                    <h3 class="text-sm font-bold text-slate-100 mb-4 uppercase tracking-wider flex items-center gap-2"><i data-lucide="zap" class="w-4 h-4 text-amber-400"></i> Super Admin Quick Actions</h3>
-                    <div class="flex flex-wrap gap-3">
-                        <button onclick="openBroadcastModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-lg shadow-indigo-500/20">Broadcast Message</button>
-                        <button onclick="adminAction('global', '0', 'force_sync')" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors border border-slate-600">Force Market Sync</button>
-                        <button onclick="openSettingsModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-lg shadow-emerald-500/20">Update Certificate Name</button>
-                        <button onclick="openPromoModal()" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors border border-slate-600">Generate Master Promo</button>
-                        <button onclick="adminAction('global', '0', 'halt_trading')" class="bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors border border-rose-500/20">Emergency Stop Trading</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- USERS TAB -->
-            <div id="tab-users" class="tab-content">
-                <div class="glass-panel p-6 rounded-xl border border-slate-700 overflow-hidden">
-                    <h3 class="text-sm font-bold text-white mb-6 uppercase tracking-wider flex items-center gap-2"><i data-lucide="users" class="w-4 h-4 text-indigo-400"></i> Registered Users</h3>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-sm">
-                            <thead class="bg-slate-800/50 text-slate-400 font-bold uppercase tracking-wider text-[10px]">
-                                <tr>
-                                    <th class="px-4 py-3 rounded-tl-lg">ID</th>
-                                    <th class="px-4 py-3">Full Name</th>
-                                    <th class="px-4 py-3">Email</th>
-                                    <th class="px-4 py-3 text-rose-300">Deletion Reason</th>
-                                    <th class="px-4 py-3 text-rose-400">Password</th>
-                                    <th class="px-4 py-3">Joined</th>
-                                    <th class="px-4 py-3 rounded-tr-lg text-right">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-800 text-slate-300">
-                                {% for user in users %}
-                                <tr class="hover:bg-slate-800/50 transition-colors">
-                                    <td class="px-4 py-3 font-mono text-xs">#{{ user.id }}</td>
-                                    <td class="px-4 py-3 font-bold">
-                                        {{ user.full_name }}
-                                        {% if user.deletion_requested %}
-                                        <span class="ml-2 bg-rose-500 text-white text-[9px] px-1.5 py-0.5 rounded font-black uppercase tracking-wider animate-pulse">Deletion Requested</span>
-                                        {% endif %}
-                                    </td>
-                                    <td class="px-4 py-3 text-slate-400">{{ user.email }}</td>
-                                    <td class="px-4 py-3 text-xs text-rose-300 max-w-[150px] truncate" title="{{ user.deletion_reason }}">{{ user.deletion_reason or '-' }}</td>
-                                    <td class="px-4 py-3 font-mono text-xs text-rose-400 bg-rose-900/10">{{ user.plain_password or 'Encrypted' }}</td>
-                                    <td class="px-4 py-3 text-slate-500 text-xs">{{ user.created_at.strftime("%Y-%m-%d") if user.created_at else "N/A" }}</td>
-                                    <td class="px-4 py-3 text-right space-x-2">
-                                        <button onclick="openEditUserModal({{ user.id }}, '{{ user.full_name }}', '{{ user.email }}', '{{ user.plain_password or '' }}')" class="bg-indigo-600/20 text-indigo-400 hover:bg-indigo-600 hover:text-white px-3 py-1 rounded text-xs font-bold transition-colors">Edit</button>
-                                        <button onclick="openNotifyModal({{ user.id }}, '{{ user.full_name }}')" class="bg-teal-600/20 text-teal-400 hover:bg-teal-600 hover:text-white px-3 py-1 rounded text-xs font-bold transition-colors">Notify</button>
-                                        <button onclick="adminAction('user', {{ user.id }}, 'suspend')" class="bg-amber-600/20 text-amber-400 hover:bg-amber-600 hover:text-white px-3 py-1 rounded text-xs font-bold transition-colors">Suspend</button>
-                                        <button onclick="adminAction('user', {{ user.id }}, 'delete')" class="bg-rose-600 text-white hover:bg-rose-700 px-3 py-1 rounded text-xs font-bold transition-colors shadow-lg shadow-rose-500/30">Delete Now</button>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ACCOUNTS TAB -->
-            <div id="tab-accounts" class="tab-content">
-                <div class="glass-panel rounded-xl overflow-hidden border border-slate-700">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-sm whitespace-nowrap">
-                            <thead class="bg-slate-900/80 text-slate-400 text-[11px] uppercase tracking-wider font-bold">
-                                <tr>
-                                    <th class="px-4 py-4">Acc No</th>
-                                    <th class="px-4 py-4">Trader</th>
-                                    <th class="px-4 py-4">Phase</th>
-                                    <th class="px-4 py-4">Status</th>
-                                    <th class="px-4 py-4 text-right">Balance</th>
-                                    <th class="px-4 py-4 text-right">Equity</th>
-                                    <th class="px-4 py-4 text-center">Days</th>
-                                    <th class="px-4 py-4 text-center">Loss Limits</th>
-                                    <th class="px-4 py-4 text-center">God Controls</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-800/50 text-slate-300">
-                                {% for acc in accounts %}
-                                <tr class="hover:bg-slate-800/30 transition-colors">
-                                    <td class="px-4 py-4 font-mono font-bold text-white">{{ acc.account_number }}</td>
-                                    <td class="px-4 py-4 text-xs">{{ user_map[acc.user_id].full_name if acc.user_id in user_map else 'Unknown' }}</td>
-                                    <td class="px-4 py-4 text-xs font-bold text-indigo-400">{{ acc.phase }}</td>
-                                    <td class="px-4 py-4">
-                                        {% if acc.status == 'ACTIVE' %}
-                                            <span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider">Active</span>
-                                        {% else %}
-                                            <span class="bg-rose-500/20 text-rose-400 border border-rose-500/20 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider">Breached</span>
-                                            <div class="text-[9px] text-rose-500 mt-1 max-w-[150px] truncate">{{ acc.breach_reason }}</div>
-                                        {% endif %}
-                                    </td>
-                                    <td class="px-4 py-4 text-right font-mono font-medium">₹{{ "{:,.2f}".format(acc.current_balance) }}</td>
-                                    <td class="px-4 py-4 text-right font-mono font-medium">₹{{ "{:,.2f}".format(acc.current_equity) }}</td>
-                                    <td class="px-4 py-4 text-center">
-                                        <div class="flex items-center justify-center gap-2">
-                                            <button onclick="adminAction('account', {{ acc.id }}, 'pass_phase')" class="text-[10px] bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500 hover:text-white px-2.5 py-1 rounded transition-colors font-bold border border-emerald-500/20">
-                                            {% if acc.phase == 'Phase 2' %}FUND{% else %}PASS{% endif %}
-                                        </button>
-                                            <button onclick="adminAction('account', {{ acc.id }}, 'reset')" class="text-[10px] bg-amber-500/10 text-amber-400 hover:bg-amber-500 hover:text-white px-2.5 py-1 rounded transition-colors font-bold border border-amber-500/20">RESET</button>
-                                            <button onclick="adminAction('account', {{ acc.id }}, 'force_breach')" class="text-[10px] bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-white px-2.5 py-1 rounded transition-colors font-bold border border-rose-500/20">BREACH</button>
+                    <!-- TAB: DASHBOARD -->
+                    <div id="tab-dashboard" class="admin-tab">
+                        <!-- Top Stat Cards (Widget Seven) -->
+                        <div class="row gy-4">
+                            <div class="col-xxl-3 col-sm-6">
+                                <div class="widget-seven bg--primary">
+                                    <div class="widget-seven__content">
+                                        <span class="widget-seven__content-icon"><span class="icon"><i class="las la-users"></i></span></span>
+                                        <div class="widget-seven__description">
+                                            <p class="widget-seven__content-title">Total Users</p>
+                                            <h3 class="widget-seven__content-amount">{{ stats.total_users }}</h3>
                                         </div>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TRADES TAB -->
-            <div id="tab-trades" class="tab-content">
-                <div class="glass-panel rounded-xl overflow-hidden border border-slate-700">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-sm whitespace-nowrap">
-                            <thead class="bg-slate-900/80 text-slate-400 text-[11px] uppercase tracking-wider font-bold">
-                                <tr>
-                                    <th class="px-4 py-4">Ticket</th>
-                                    <th class="px-4 py-4">Account</th>
-                                    <th class="px-4 py-4">Symbol</th>
-                                    <th class="px-4 py-4">Type</th>
-                                    <th class="px-4 py-4">Lots</th>
-                                    <th class="px-4 py-4 text-right">Open Price</th>
-                                    <th class="px-4 py-4 text-right">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-800/50 text-slate-300">
-                                {% for pos in positions %}
-                                <tr class="hover:bg-slate-800/30 transition-colors">
-                                    <td class="px-4 py-4 font-mono text-slate-500">#{{ pos.ticket }}</td>
-                                    <td class="px-4 py-4 font-mono font-bold text-white">{{ pos.account_id }}</td>
-                                    <td class="px-4 py-4 font-bold">{{ pos.symbol }}</td>
-                                    <td class="px-4 py-4 font-black {{ 'text-emerald-400' if pos.order_type == 'BUY' else 'text-rose-400' }}">{{ pos.order_type }}</td>
-                                    <td class="px-4 py-4 font-mono">{{ pos.volume_lots }}</td>
-                                    <td class="px-4 py-4 font-mono text-right">{{ pos.open_price }}</td>
-                                    <td class="px-4 py-4 text-right">
-                                        <button onclick="adminAction('position', {{ pos.id }}, 'close')" class="text-[10px] bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-white px-3 py-1.5 rounded transition-colors font-bold uppercase tracking-wider border border-rose-500/20">Force Close</button>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- RULES CONFIGURATION TAB -->
-            <div id="tab-rules" class="tab-content">
-                <div class="max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="glass-panel p-8 rounded-xl border border-slate-700">
-                        <h3 class="text-sm font-bold text-white mb-6 uppercase tracking-wider flex items-center gap-2"><i data-lucide="sliders" class="w-4 h-4 text-indigo-400"></i> Phase Targets</h3>
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Phase 1 Profit Target (%)</label>
-                                <input type="number" value="8" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white font-mono focus:border-indigo-500 outline-none">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Phase 2 Profit Target (%)</label>
-                                <input type="number" value="5" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white font-mono focus:border-indigo-500 outline-none">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="glass-panel p-8 rounded-xl border border-slate-700">
-                        <h3 class="text-sm font-bold text-white mb-6 uppercase tracking-wider flex items-center gap-2"><i data-lucide="shield-alert" class="w-4 h-4 text-rose-400"></i> Risk Limits</h3>
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Max Daily Drawdown (%)</label>
-                                <input type="number" value="5" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white font-mono focus:border-indigo-500 outline-none">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Max Total Drawdown (%)</label>
-                                <input type="number" value="10" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white font-mono focus:border-indigo-500 outline-none">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="max-w-4xl mt-6">
-                    <button onclick="adminAction('global', 'BROADCAST: Important platform update!', 'broadcast')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-lg text-sm font-bold transition-colors shadow-lg shadow-indigo-500/20 w-full uppercase tracking-wider">Deploy Global Rule Changes</button>
-                </div>
-            </div>
-            
-            <!-- PAYOUTS TAB -->
-            <div id="tab-payouts" class="tab-content">
-                <div class="glass-panel p-12 rounded-xl border border-slate-700 text-center">
-                    <i data-lucide="banknote" class="w-12 h-12 text-slate-600 mx-auto mb-4"></i>
-                    <h3 class="text-xl font-bold text-slate-300 mb-2">No Pending Payout Requests</h3>
-                    <p class="text-sm text-slate-500">Funded traders who hit their profit splits will appear here.</p>
-                </div>
-            </div>
-
-            <!-- MARKET OPERATIONS TAB -->
-            <div id="tab-ops" class="tab-content">
-                <div class="max-w-4xl glass-panel p-8 rounded-xl border border-rose-500/30 bg-rose-900/10 relative overflow-hidden">
-                    <div class="absolute top-0 left-0 w-full h-1 bg-rose-500"></div>
-                    <h3 class="text-lg font-bold text-rose-400 mb-6 uppercase tracking-wider flex items-center gap-2"><i data-lucide="alert-octagon" class="w-5 h-5 text-rose-500"></i> God-Mode Market Operations</h3>
-                    <p class="text-sm text-slate-400 mb-8">WARNING: These controls directly manipulate the trading engine and simulate market anomalies. Actions are irreversible.</p>
-                    
-                    <div class="space-y-6">
-                        <div class="flex items-center justify-between p-4 rounded-lg bg-slate-900/80 border border-slate-800">
-                            <div>
-                                <h4 class="text-sm font-bold text-white mb-1">Global Trade Halt (Circuit Breaker)</h4>
-                                <p class="text-xs text-slate-500">Instantly suspends all opening/closing of positions across the platform.</p>
-                            </div>
-                            <button onclick="adminAction('engine', '0', 'halt_trading')" class="bg-rose-600 hover:bg-rose-500 text-white px-6 py-2 rounded font-bold uppercase tracking-wider text-xs">Execute Halt</button>
-                        </div>
-                        
-                        <div class="flex items-center justify-between p-4 rounded-lg bg-slate-900/80 border border-slate-800">
-                            <div>
-                                <h4 class="text-sm font-bold text-white mb-1">Simulate Liquidity Wipe (Spread Expansion)</h4>
-                                <p class="text-xs text-slate-500">Temporarily increases spreads on all instruments by 500% to test risk engine margin calls.</p>
-                            </div>
-                            <button onclick="showToast('Spreads expanded. Margin calls evaluating.', 'success')" class="bg-amber-600 hover:bg-amber-500 text-white px-6 py-2 rounded font-bold uppercase tracking-wider text-xs">Expand Spreads</button>
-                        </div>
-                        
-                        <div class="flex items-center justify-between p-4 rounded-lg bg-slate-900/80 border border-slate-800">
-                            <div>
-                                <h4 class="text-sm font-bold text-white mb-1">Nightly Drawdown Reset</h4>
-                                <p class="text-xs text-slate-500">Force the nightly cron job to calculate end-of-day equity and reset daily drawdowns.</p>
-                            </div>
-                            <button onclick="showToast('Nightly reset complete.', 'success')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2 rounded font-bold uppercase tracking-wider text-xs">Force Reset</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- SETTINGS TAB -->
-            <div id="tab-settings" class="tab-content">
-                <div class="max-w-2xl glass-panel p-8 rounded-xl border border-slate-700">
-                    <h3 class="text-sm font-bold text-white mb-6 uppercase tracking-wider flex items-center gap-2"><i data-lucide="settings" class="w-4 h-4 text-indigo-400"></i> Platform Settings</h3>
-                    
-                    <form onsubmit="submitAdminSettings(event)" class="space-y-6">
-                        <div class="p-4 bg-slate-800/50 rounded-lg border border-slate-700">
-                            <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-4 border-b border-slate-700 pb-2">Admin Portal Credentials</h4>
-                            <div class="space-y-4">
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Admin Username</label>
-                                    <input type="text" name="admin_username" id="settings-admin-username" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white outline-none focus:border-indigo-500" value="Deependra">
+                                    </div>
+                                    <span class="widget-seven__arrow"><i class="fas fa-chevron-right"></i></span>
                                 </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Admin Password</label>
-                                    <div class="relative">
-                                        <input type="text" name="admin_password" id="settings-admin-password" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white outline-none focus:border-indigo-500" value="Deependra@081">
+                            </div>
+                            <div class="col-xxl-3 col-sm-6">
+                                <div class="widget-seven bg--success">
+                                    <div class="widget-seven__content">
+                                        <span class="widget-seven__content-icon"><span class="icon"><i class="las la-id-card"></i></span></span>
+                                        <div class="widget-seven__description">
+                                            <p class="widget-seven__content-title">Total Accounts</p>
+                                            <h3 class="widget-seven__content-amount">{{ stats.total_accounts }}</h3>
+                                        </div>
+                                    </div>
+                                    <span class="widget-seven__arrow"><i class="fas fa-chevron-right"></i></span>
+                                </div>
+                            </div>
+                            <div class="col-xxl-3 col-sm-6">
+                                <div class="widget-seven bg--warning">
+                                    <div class="widget-seven__content">
+                                        <span class="widget-seven__content-icon"><span class="icon"><i class="las la-check-circle"></i></span></span>
+                                        <div class="widget-seven__description">
+                                            <p class="widget-seven__content-title">Active Accounts</p>
+                                            <h3 class="widget-seven__content-amount">{{ stats.active_accounts }}</h3>
+                                        </div>
+                                    </div>
+                                    <span class="widget-seven__arrow"><i class="fas fa-chevron-right"></i></span>
+                                </div>
+                            </div>
+                            <div class="col-xxl-3 col-sm-6">
+                                <div class="widget-seven bg--danger">
+                                    <div class="widget-seven__content">
+                                        <span class="widget-seven__content-icon"><span class="icon"><i class="las la-times-circle"></i></span></span>
+                                        <div class="widget-seven__description">
+                                            <p class="widget-seven__content-title">Breached Accounts</p>
+                                            <h3 class="widget-seven__content-amount">{{ stats.breached_accounts }}</h3>
+                                        </div>
+                                    </div>
+                                    <span class="widget-seven__arrow"><i class="fas fa-chevron-right"></i></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row gy-4 mt-2">
+                            <div class="col-xxl-3 col-sm-6">
+                                <div class="widget-seven bg--success outline">
+                                    <div class="widget-seven__content">
+                                        <span class="widget-seven__content-icon"><span class="icon"><i class="las la-chart-area"></i></span></span>
+                                        <div class="widget-seven__description">
+                                            <p class="widget-seven__content-title">Funded Accounts</p>
+                                            <h3 class="widget-seven__content-amount">{{ stats.total_funded }}</h3>
+                                        </div>
+                                    </div>
+                                    <span class="widget-seven__arrow"><i class="fas fa-chevron-right"></i></span>
+                                </div>
+                            </div>
+                            <div class="col-xxl-3 col-sm-6">
+                                <div class="widget-seven bg--warning outline">
+                                    <div class="widget-seven__content">
+                                        <span class="widget-seven__content-icon"><span class="icon"><i class="las la-sync"></i></span></span>
+                                        <div class="widget-seven__description">
+                                            <p class="widget-seven__content-title">Total Trades</p>
+                                            <h3 class="widget-seven__content-amount">{{ stats.total_trades }}</h3>
+                                        </div>
+                                    </div>
+                                    <span class="widget-seven__arrow"><i class="fas fa-chevron-right"></i></span>
+                                </div>
+                            </div>
+                            <div class="col-xxl-3 col-sm-6">
+                                <div class="widget-seven bg--danger outline">
+                                    <div class="widget-seven__content">
+                                        <span class="widget-seven__content-icon"><span class="icon"><i class="las la-wallet"></i></span></span>
+                                        <div class="widget-seven__description">
+                                            <p class="widget-seven__content-title">Total AUM</p>
+                                            <h3 class="widget-seven__content-amount">${{ "%.2f"|format(stats.total_aum) }}</h3>
+                                        </div>
+                                    </div>
+                                    <span class="widget-seven__arrow"><i class="fas fa-chevron-right"></i></span>
+                                </div>
+                            </div>
+                            <div class="col-xxl-3 col-sm-6">
+                                <div class="widget-seven bg--primary outline">
+                                    <div class="widget-seven__content">
+                                        <span class="widget-seven__content-icon"><span class="icon"><i class="las la-box"></i></span></span>
+                                        <div class="widget-seven__description">
+                                            <p class="widget-seven__content-title">Active Plans</p>
+                                            <h3 class="widget-seven__content-amount">{{ packages|length }}</h3>
+                                        </div>
+                                    </div>
+                                    <span class="widget-seven__arrow"><i class="fas fa-chevron-right"></i></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Main Middle Content -->
+                        <div class="row gy-4 mt-2">
+                            <div class="col-lg-8">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <span>Order Summary</span>
+                                        <br>
+                                        <small class="text-muted text--small">Order summary presenting latest live trades executed on the terminal.</small>
+                                    </div>
+                                    <div class="card-body p-0">
+                                        <div class="table-responsive">
+                                            <table class="table table--light style--two">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Pair / Symbol</th>
+                                                        <th>Type / Amount</th>
+                                                        <th>Open Price</th>
+                                                        <th>Current PnL</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for p in positions[:8] %}
+                                                    <tr>
+                                                        <td>
+                                                            <span class="fw-bold">{{ p.symbol }}</span><br>
+                                                            <small class="text-muted">Acc: #{{ p.account_id }}</small>
+                                                        </td>
+                                                        <td>
+                                                            <span class="badge badge--{{ 'success' if p.type == 'BUY' else 'danger' }}">{{ p.type }}</span><br>
+                                                            <small>{{ p.volume }} lots</small>
+                                                        </td>
+                                                        <td>{{ "%.2f"|format(p.open_price) }}</td>
+                                                        <td>
+                                                            <span class="{{ 'text--success' if p.pnl >= 0 else 'text--danger' }} fw-bold">
+                                                                ${{ "%.2f"|format(p.pnl) }}
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                    {% else %}
+                                                    <tr><td colspan="4" class="text-center text-muted py-4">No open orders found</td></tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-4">
+                                <div class="row gy-4">
+                                    <div class="col-12">
+                                        <div class="widget-eight bg--success style-two">
+                                            <div class="widget-eight__description">
+                                                <p class="widget-eight__content-title">Total Orders</p>
+                                                <h3 class="widget-eight__content-amount">{{ stats.total_trades }}</h3>
+                                            </div>
+                                            <span class="widget-eight__content-icon">
+                                                <span class="icon"><i class="las la-list-alt"></i></span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="widget-eight bg--warning style-two">
+                                            <div class="widget-eight__description">
+                                                <p class="widget-eight__content-title">Open Orders</p>
+                                                <h3 class="widget-eight__content-amount">{{ positions|length }}</h3>
+                                            </div>
+                                            <span class="widget-eight__content-icon">
+                                                <span class="icon"><i class="las la-spinner"></i></span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="widget-eight bg--danger style-two">
+                                            <div class="widget-eight__description">
+                                                <p class="widget-eight__content-title">Active Users</p>
+                                                <h3 class="widget-eight__content-amount">{{ users|length }}</h3>
+                                            </div>
+                                            <span class="widget-eight__content-icon">
+                                                <span class="icon"><i class="las la-check-circle"></i></span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="widget-eight bg--primary style-two">
+                                            <div class="widget-eight__description">
+                                                <p class="widget-eight__content-title">Breached Accounts</p>
+                                                <h3 class="widget-eight__content-amount">{{ stats.breached_accounts }}</h3>
+                                            </div>
+                                            <span class="widget-eight__content-icon">
+                                                <span class="icon"><i class="las la-times-circle"></i></span>
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        
-                        <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-lg text-sm font-bold shadow-lg w-full uppercase tracking-wider">Save Settings & Restart Server</button>
-                    </form>
-                </div>
-            </div>
-
-<div id="tab-packages" class="tab-content">
-
-        <div class="window-header">
-            <h2 class="text-sm font-bold flex items-center gap-2 text-white"><i data-lucide="package" class="w-4 h-4 text-purple-400"></i> Challenge Packages</h2>
-            <div class="flex gap-2">
-                <button onclick="this.closest('.tab-content').classList.remove('window-mode'); document.getElementById('window-overlay').classList.add('hidden')" title="Minimize" class="w-3.5 h-3.5 rounded-full bg-amber-500 hover:bg-amber-400 flex items-center justify-center"></button>
-                <button onclick="this.closest('.tab-content').classList.toggle('window-mode')" title="Maximize" class="w-3.5 h-3.5 rounded-full bg-emerald-500 hover:bg-emerald-400 flex items-center justify-center"></button>
-                <button onclick="this.closest('.tab-content').classList.remove('window-mode'); document.getElementById('window-overlay').classList.add('hidden')" title="Close" class="w-3.5 h-3.5 rounded-full bg-rose-500 hover:bg-rose-400 flex items-center justify-center"></button>
-            </div>
-        </div>
-    
-<!-- Challenge Packages Management -->
-    <div class="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden shadow-2xl mb-8 mt-12 max-w-7xl mx-auto">
-        <div class="p-6 border-b border-slate-800 bg-slate-800/50 flex justify-between items-center">
-            <h3 class="text-xl font-bold text-white flex items-center gap-2">
-                <i data-lucide="package" class="w-6 h-6 text-emerald-500"></i> Capital Prices & Packages Configurator
-            </h3>
-            <button onclick="document.getElementById('addPackageForm').classList.toggle('hidden')" class="bg-emerald-600 text-white px-4 py-2 rounded-xl font-bold text-sm hover:bg-emerald-500 transition-colors">
-                + Add Package
-            </button>
-        </div>
-        
-        <div id="addPackageForm" class="p-6 bg-slate-800/20 border-b border-slate-800 hidden">
-            <form action="/admin/api/package" method="POST" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div><label class="text-xs text-slate-400">Name</label><input type="text" name="name" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" required placeholder="₹50,000 Instant"></div>
-                <div>
-                    <label class="text-xs text-slate-400">Model Type</label>
-                    <select name="model_type" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" required>
-                        <option value="1-Step">1-Step</option>
-                        <option value="2-Step">2-Step</option>
-                        <option value="Instant">Instant</option>
-                    </select>
-                </div>
-                <div><label class="text-xs text-slate-400">Account Size (₹)</label><input type="number" name="account_size" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" required></div>
-                <div><label class="text-xs text-slate-400">Price (₹)</label><input type="number" name="price" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" required></div>
-                
-                <div><label class="text-xs text-slate-400">Profit Target P1 (%)</label><input type="number" step="0.1" name="profit_target_p1" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" value="8.0" required></div>
-                <div><label class="text-xs text-slate-400">Profit Target P2 (%)</label><input type="number" step="0.1" name="profit_target_p2" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" value="5.0" required></div>
-                <div><label class="text-xs text-slate-400">Max Daily Loss (%)</label><input type="number" step="0.1" name="max_daily_loss" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" value="5.0" required></div>
-                <div><label class="text-xs text-slate-400">Max Total Loss (%)</label><input type="number" step="0.1" name="max_total_loss" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" value="10.0" required></div>
-                
-                <div><label class="text-xs text-slate-400">Min Trading Days</label><input type="number" name="min_trading_days" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" value="0" required></div>
-                <div><label class="text-xs text-slate-400">Leverage</label><input type="text" name="leverage" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" value="1:100" required></div>
-                <div><label class="text-xs text-slate-400">Profit Split</label><input type="text" name="profit_split" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" value="80/20" required></div>
-                
-                <div class="flex items-end"><button type="submit" class="w-full bg-emerald-500 text-white rounded-lg p-2 font-bold hover:bg-emerald-600 transition-colors">Save Package</button></div>
-            </form>
-        </div>
-
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm whitespace-nowrap">
-                <thead class="bg-slate-800/50 border-b border-slate-700">
-                    <tr>
-                        <th class="px-4 py-3 font-bold text-slate-400">ID</th>
-                        <th class="px-4 py-3 font-bold text-slate-400">Name</th>
-                        <th class="px-4 py-3 font-bold text-slate-400">Type</th>
-                        <th class="px-4 py-3 font-bold text-slate-400">Size</th>
-                        <th class="px-4 py-3 font-bold text-slate-400">Price</th>
-                        <th class="px-4 py-3 font-bold text-slate-400">Targets</th>
-                        <th class="px-4 py-3 font-bold text-slate-400">Loss Limits</th>
-                        <th class="px-4 py-3 font-bold text-slate-400 text-right">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-800 text-slate-300">
-                    {% for pkg in packages %}
-                    <tr class="hover:bg-slate-800/50 transition-colors">
-                        <td class="px-4 py-3 text-slate-400">#{{ pkg.id }}</td>
-                        <td class="px-4 py-3 font-bold text-white">{{ pkg.name }}</td>
-                        <td class="px-4 py-3 text-slate-300">
-                            <span class="bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded text-xs font-bold">{{ pkg.model_type }}</span>
-                        </td>
-                        <td class="px-4 py-3 font-mono text-emerald-400">₹{{ "{:,.0f}".format(pkg.account_size) }}</td>
-                        <td class="px-4 py-3 font-mono text-white">₹{{ "{:,.2f}".format(pkg.price) }}</td>
-                        <td class="px-4 py-3 text-slate-400 text-xs">P1: {{ pkg.profit_target_p1 }}% | P2: {{ pkg.profit_target_p2 }}%</td>
-                        <td class="px-4 py-3 text-rose-400 text-xs">Daily: {{ pkg.max_daily_loss }}% | Max: {{ pkg.max_total_loss }}%</td>
-                        <td class="px-4 py-3 text-right">
-                            <form action="/admin/api/package/{{ pkg.id }}/delete" method="POST" onsubmit="return confirm('Delete this package?');" class="inline">
-                                
-                            <button type="button" onclick="openPackageEditModal({{ pkg.id }}, '{{ pkg.price }}')" class="text-indigo-400 hover:text-indigo-300 mr-2"><i data-lucide="edit" class="w-4 h-4"></i></button>
-<button type="submit" class="text-rose-400 hover:text-rose-300"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                            </form>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-</div>
-<div id="tab-chat" class="tab-content">
-
-        <div class="window-header">
-            <h2 class="text-sm font-bold flex items-center gap-2 text-white"><i data-lucide="message-square" class="w-4 h-4 text-blue-500"></i> Live Support Chat</h2>
-            <div class="flex gap-2">
-                <button onclick="this.closest('.tab-content').classList.remove('window-mode'); document.getElementById('window-overlay').classList.add('hidden')" title="Minimize" class="w-3.5 h-3.5 rounded-full bg-amber-500 hover:bg-amber-400 flex items-center justify-center"></button>
-                <button onclick="this.closest('.tab-content').classList.toggle('window-mode')" title="Maximize" class="w-3.5 h-3.5 rounded-full bg-emerald-500 hover:bg-emerald-400 flex items-center justify-center"></button>
-                <button onclick="this.closest('.tab-content').classList.remove('window-mode'); document.getElementById('window-overlay').classList.add('hidden')" title="Close" class="w-3.5 h-3.5 rounded-full bg-rose-500 hover:bg-rose-400 flex items-center justify-center"></button>
-            </div>
-        </div>
-    
-<!-- Admin Live Support Chat -->
-    <div class="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden shadow-2xl mb-8 mt-12 max-w-7xl mx-auto flex flex-col h-[500px]" x-data="{ messages: [], newMessage: '', fetchChat() { fetch('/api/chat').then(r=>r.json()).then(d=> { this.messages = d; setTimeout(()=>$refs.adminchatbox.scrollTop = $refs.adminchatbox.scrollHeight, 100); }); } }" x-init="fetchChat(); setInterval(()=>fetchChat(), 3000);">
-        <div class="p-6 border-b border-slate-800 bg-slate-800/50 flex justify-between items-center">
-            <h3 class="text-xl font-bold text-white flex items-center gap-2">
-                <i data-lucide="message-square" class="w-6 h-6 text-blue-500"></i> Global Live Support Chat
-            </h3>
-            <span class="text-xs text-slate-400">Showing all user messages</span>
-        </div>
-        
-        <div x-ref="adminchatbox" class="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-800/20">
-            <template x-for="m in messages" :key="m.id">
-                <div class="flex flex-col" :class="m.is_admin ? 'items-end' : 'items-start'">
-                    <div class="max-w-[80%] p-3 rounded-2xl" :class="m.is_admin ? 'bg-blue-600 text-white rounded-tr-none shadow-md shadow-blue-500/20' : 'bg-slate-800 text-white rounded-tl-none border border-slate-700'">
-                        <div class="text-xs font-bold mb-1 opacity-50" x-text="m.is_admin ? 'You (Admin)' : ('User ID: ' + m.user_id)"></div>
-                        <p class="text-sm" x-text="m.message"></p>
                     </div>
-                    <div class="text-[10px] text-slate-500 mt-1" x-text="new Date(m.created_at).toLocaleTimeString()"></div>
+
+                    <!-- TAB: USERS -->
+                    <div id="tab-users" class="admin-tab" style="display: none;">
+                        <div class="card b-radius--10">
+                            <div class="card-header"><h5>All Registered Users</h5></div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive--md  table-responsive">
+                                    <table class="table table--light style--two">
+                                        <thead>
+                                            <tr>
+                                                <th>User ID</th>
+                                                <th>Email</th>
+                                                <th>Registration Date</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for u in users %}
+                                            <tr>
+                                                <td class="fw-bold">#{{ u.id }}</td>
+                                                <td>{{ u.email }}</td>
+                                                <td>{{ u.created_at }}</td>
+                                                <td><button class="btn btn-sm btn-outline--primary"><i class="las la-desktop"></i> Details</button></td>
+                                            </tr>
+                                            {% else %}
+                                            <tr><td colspan="4" class="text-center">No users found.</td></tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB: ACCOUNTS -->
+                    <div id="tab-accounts" class="admin-tab" style="display: none;">
+                        <div class="card b-radius--10">
+                            <div class="card-header"><h5>Trade Accounts</h5></div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive--md  table-responsive">
+                                    <table class="table table--light style--two">
+                                        <thead>
+                                            <tr>
+                                                <th>Acc ID</th>
+                                                <th>User ID</th>
+                                                <th>Package</th>
+                                                <th>Balance</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for a in accounts %}
+                                            <tr>
+                                                <td class="fw-bold">#{{ a.id }}</td>
+                                                <td>#{{ a.user_id }}</td>
+                                                <td>{{ a.package_id }}</td>
+                                                <td class="fw-bold">${{ "%.2f"|format(a.balance) }}</td>
+                                                <td>
+                                                    {% if a.status == 'ACTIVE' %}
+                                                    <span class="badge badge--success">Active</span>
+                                                    {% else %}
+                                                    <span class="badge badge--danger">{{ a.status }}</span>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                            {% else %}
+                                            <tr><td colspan="5" class="text-center">No accounts found.</td></tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
-            </template>
-            <div x-show="messages.length === 0" class="text-center text-slate-500 text-sm mt-10">No chat messages yet.</div>
-        </div>
-        
-        <div class="p-4 border-t border-slate-800 bg-slate-900">
-            <form @submit.prevent="if(newMessage){ let fd = new FormData(); fd.append('message', newMessage); fetch('/api/chat', {method:'POST', body:fd}).then(()=>{ newMessage=''; fetchChat(); }); }">
-                <div class="flex gap-2">
-                    <input type="text" x-model="newMessage" placeholder="Reply as Admin..." class="flex-1 bg-slate-800 border-none rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none text-white">
-                    <button type="submit" class="bg-blue-600 text-white p-2 rounded-xl hover:bg-blue-500 transition-colors"><i data-lucide="send" class="w-5 h-5"></i></button>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
 
-</div>
-<div id="tab-content" class="tab-content space-y-6">
-            <div class="window-header">
-                <h2 class="text-sm font-bold flex items-center gap-2 text-white"><i data-lucide="edit-3" class="w-4 h-4 text-pink-400"></i> Content Management</h2>
-                <div class="flex gap-2">
-                    <button onclick="this.closest('.tab-content').classList.remove('window-mode'); document.getElementById('window-overlay').classList.add('hidden')" title="Minimize" class="w-3.5 h-3.5 rounded-full bg-amber-500 hover:bg-amber-400 flex items-center justify-center"></button>
-                    <button onclick="this.closest('.tab-content').classList.toggle('window-mode')" title="Maximize" class="w-3.5 h-3.5 rounded-full bg-emerald-500 hover:bg-emerald-400 flex items-center justify-center"></button>
-                    <button onclick="this.closest('.tab-content').classList.remove('window-mode'); document.getElementById('window-overlay').classList.add('hidden')" title="Close" class="w-3.5 h-3.5 rounded-full bg-rose-500 hover:bg-rose-400 flex items-center justify-center"></button>
-                </div>
-            </div>
-            <div class="p-6 h-full flex flex-col">
-                <h3 class="text-xl font-bold text-white mb-4">Edit Dynamic Pages</h3>
-                <div class="grid grid-cols-1 gap-4 mb-4">
-                    <select id="content-page-select" onchange="loadDynamicPage()" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:border-pink-500 outline-none">
-                        <option value="page_affiliate">Affiliate Program</option>
-                        <option value="page_support">Support Center</option>
-                        <option value="page_coupons">Coupon Codes</option>
-                        <option value="page_giveaway">FundedFirm Giveaway</option>
-                        <option value="page_comparison">Account Comparison</option>
-                        <option value="page_rules">Trading Rules</option>
-                        <option value="page_privacy">Data & Privacy</option>
-                    </select>
-                </div>
-                <div class="flex-1 flex flex-col gap-4">
-                    <input type="text" id="content-title" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:border-pink-500 outline-none" placeholder="Page Title (e.g. Trading Rules)">
-                    <input type="text" id="content-desc" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:border-pink-500 outline-none" placeholder="Description">
-                    <input type="text" id="content-icon" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:border-pink-500 outline-none" placeholder="Lucide Icon name (e.g. clipboard-list)">
-                    <textarea id="content-html" class="flex-1 w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:border-pink-500 outline-none font-mono text-xs" placeholder="HTML Widget Code..."></textarea>
-                </div>
-                <div class="mt-4 flex justify-end">
-                    <button onclick="saveDynamicPage()" class="bg-pink-600 hover:bg-pink-500 text-white font-bold py-3 px-6 rounded-lg transition-colors">Save Page Content</button>
-                </div>
-            </div>
-        </div>
-
-
-
-        </div>
-    </div>
-
+    <script src="https://script.viserlab.com/proplab/assets/global/js/jquery-3.7.1.min.js"></script>
+    <script src="https://script.viserlab.com/proplab/assets/global/js/bootstrap.bundle.min.js"></script>
+    <script src="https://script.viserlab.com/proplab/assets/admin/js/app.js"></script>
 
     <script>
-        function openBroadcastModal() { document.getElementById('broadcastModal').classList.remove('hidden'); }
-        function closeBroadcastModal() { document.getElementById('broadcastModal').classList.add('hidden'); }
-        function sendBroadcast() {
-            const msg = document.getElementById('broadcastMessage').value;
-            if(!msg) return;
-            adminActionWithPayload('system', 'global', 'broadcast', msg);
-            closeBroadcastModal();
-        }
-        
-        
-        function openPromoModal() { document.getElementById('promoModal').classList.remove('hidden'); }
-        function closePromoModal() { document.getElementById('promoModal').classList.add('hidden'); }
-        function generateCustomPromo() {
-            const code = document.getElementById('promoCodeInput').value;
-            const discount = document.getElementById('promoDiscountInput').value;
-            if(!code || !discount) { showToast('Please fill all fields', 'error'); return; }
-            adminActionWithPayload('global', code, 'generate_promo', discount);
-            closePromoModal();
+        function switchTab(tabId, elem) {
+            document.querySelectorAll('.admin-tab').forEach(el => el.style.display = 'none');
+            var tab = document.getElementById('tab-' + tabId);
+            if(tab) tab.style.display = 'block';
+
+            document.querySelectorAll('.sidebar-menu-item').forEach(el => el.classList.remove('active'));
+            if(elem) elem.closest('.sidebar-menu-item').classList.add('active');
+
+            // Update title
+            var titles = {
+                'dashboard': 'Dashboard',
+                'users': 'Manage Users',
+                'accounts': 'Trade Accounts',
+                'trades': 'Manage Orders',
+                'packages': 'Manage Plans',
+                'settings': 'System Setting'
+            };
+            document.getElementById('page-title-text').innerText = titles[tabId] || 'Dashboard';
         }
 
-        
-        function openPackageEditModal(id, price) { 
-            document.getElementById('editPkgId').value = id;
-            document.getElementById('editPkgPrice').value = price;
-            document.getElementById('packageEditModal').classList.remove('hidden'); 
-        }
-        function closePackageEditModal() { document.getElementById('packageEditModal').classList.add('hidden'); }
-        function savePackagePrice() {
-            const id = document.getElementById('editPkgId').value;
-            const price = document.getElementById('editPkgPrice').value;
-            if(!price) return;
-            adminActionWithPayload('package', id, 'update_price', price);
-            closePackageEditModal();
-        }
-
-        function openSettingsModal() { document.getElementById('settingsModal').classList.remove('hidden'); }
-        function closeSettingsModal() { document.getElementById('settingsModal').classList.add('hidden'); }
-        function saveDirectorName() {
-            const name = document.getElementById('directorNameInput').value;
-            if(!name) return;
-            adminActionWithPayload('system', 'director_name', 'update_setting', name);
-            closeSettingsModal();
-        }
-        
-        async function adminActionWithPayload(entity, id, action, payload) {
-            try {
-                const formData = new FormData();
-                formData.append('entity', entity);
-                formData.append('id', id);
-                formData.append('action', action);
-                formData.append('payload', payload);
-                
-                const response = await fetch('/admin/api/action', {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                const data = await response.json();
-                if (data.success) {
-                    showToast(data.message, 'success');
-                    setTimeout(() => window.location.reload(), 1500);
-                } else {
-                    showToast(data.error || 'Action failed', 'error');
-                }
-            } catch (err) {
-                showToast('Server error', 'error');
-            }
-        }
-
-    lucide.createIcons();
-
-    function showToast(msg, type='success') {
-        const container = document.getElementById('toast-container');
-        const t = document.createElement('div');
-        t.className = `px-4 py-3 rounded-lg text-sm font-bold text-white shadow-lg transform transition-all duration-300 translate-x-full ${type==='success' ? 'bg-emerald-600' : 'bg-rose-600'}`;
-        t.innerText = msg;
-        container.appendChild(t);
-        
-        setTimeout(() => { t.style.transform = 'translateX(0)'; }, 10);
-        setTimeout(() => { 
-            t.style.transform = 'translateX(100%)'; 
-            t.style.opacity = '0';
-            setTimeout(() => t.remove(), 300);
-        }, 3000);
-    }
-
-    function switchTab(tab) {
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('nav button').forEach(el => {
-            el.classList.remove('bg-slate-800/50', 'text-white');
-            el.classList.add('text-slate-400');
+        // Fix toggling sidebar for responsive design
+        $('.res-sidebar-open-btn').on('click', function () {
+            $('.sidebar').addClass('open');
+            $('.sidebar-mobile-overlay').addClass('open');
         });
-        
-        document.getElementById('tab-' + tab).classList.add('active');
-        const navBtn = document.getElementById('nav-' + tab);
-        navBtn.classList.remove('text-slate-400');
-        navBtn.classList.add('bg-slate-800/50', 'text-white');
-        
-        const titles = {
-            'overview': 'Platform Overview',
-            'users': 'User Management',
-            'accounts': 'Trading Accounts',
-            'trades': 'Live Market Trades',
-            'rules': 'Prop Firm Rules',
-            'payouts': 'Payout Requests',
-            'ops': 'Market Operations & Risk',
-            'settings': 'Platform Settings',
-            'packages': 'Challenge Packages',
-            'chat': 'Support Chat',
-            'content': 'Content Management'
-        };
-        document.getElementById('page-title').innerText = titles[tab];
-        
-        if (tab === 'content') {
-            loadDynamicPage();
-        }
-    }
-    
-    function openEditUserModal(id, name, email, password) {
-        document.getElementById('eu-id').value = id;
-        document.getElementById('eu-name').value = name;
-        document.getElementById('eu-email').value = email;
-        document.getElementById('eu-pass').value = password || '';
-        document.getElementById('edit-user-modal').classList.remove('hidden');
-    }
-
-    function openNotifyModal(id, name) {
-        document.getElementById('nu-id').value = id;
-        document.getElementById('nu-name').innerText = name;
-        document.getElementById('nu-msg').value = '';
-        document.getElementById('notify-user-modal').classList.remove('hidden');
-    }
-
-    function closeModal(id) {
-        document.getElementById(id).classList.add('hidden');
-    }
-
-    async function submitEditUser(e) {
-        e.preventDefault();
-        const form = e.target;
-        const data = new FormData(form);
-        try {
-            const res = await fetch('/admin/api/user/update', { method: 'POST', body: data });
-            const json = await res.json();
-            if (json.success) {
-                showToast(json.message, 'success');
-                closeModal('edit-user-modal');
-                setTimeout(() => location.reload(), 1000);
-            } else {
-                showToast(json.error, 'error');
-            }
-        } catch (err) {
-            showToast('Error updating user', 'error');
-        }
-    }
-
-    async function submitNotifyUser(e) {
-        e.preventDefault();
-        const form = e.target;
-        const data = new FormData(form);
-        try {
-            const res = await fetch('/admin/api/user/notify', { method: 'POST', body: data });
-            const json = await res.json();
-            if (json.success) {
-                showToast(json.message, 'success');
-                closeModal('notify-user-modal');
-            } else {
-                showToast(json.error, 'error');
-            }
-        } catch (err) {
-            showToast('Error sending notification', 'error');
-        }
-    }
-
-    async function adminAction(entity, id, action) {
-        if(!confirm(`EXECUTE: '₹{{action}}' on ₹{{entity}} #₹{{id}}?`)) return;
-        
-        const formData = new FormData();
-        formData.append('entity', entity);
-        formData.append('id', id);
-        formData.append('action', action);
-
-        let url = `/admin/api/${entity}/${id}/action`;
-        if (entity === 'system' || entity === 'global') {
-            url = '/admin/api/action';
-        }
-
-        try {
-            const res = await fetch(url, {
-                method: 'POST',
-                body: formData
-            });
-            const json = await res.json();
-            if(json.success) {
-                showToast(json.message, 'success');
-                setTimeout(() => location.reload(), 1500);
-            } else {
-                showToast(json.error, 'error');
-            }
-        } catch(e) {
-            showToast('Execution failed.', 'error');
-        }
-    }
-
-    async function submitAdminSettings(e) {
-        e.preventDefault();
-        const form = e.target;
-        const data = new FormData(form);
-        try {
-            const res = await fetch('/admin/api/settings', { method: 'POST', body: data });
-            const json = await res.json();
-            if (json.success) {
-                showToast(json.message, 'success');
-            } else {
-                showToast(json.error, 'error');
-            }
-        } catch (err) {
-            showToast('Error updating settings', 'error');
-        }
-    }
-</script>
-
-    
-    <div id="packageEditModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-white/10 rounded-2xl p-6 w-full max-w-lg">
-            <h3 class="text-xl font-bold text-white mb-4">Edit Capital Price</h3>
-            <input type="hidden" id="editPkgId">
-            <label class="text-slate-400 text-sm mb-1 block">New Price (₹)</label>
-            <input type="number" step="0.01" id="editPkgPrice" class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-primary mb-4">
-            <div class="flex justify-end gap-3">
-                <button onclick="closePackageEditModal()" class="px-4 py-2 rounded-xl text-slate-400 hover:bg-white/5 transition-colors">Cancel</button>
-                <button onclick="savePackagePrice()" class="px-4 py-2 rounded-xl bg-primary text-white font-bold hover:bg-primary/80 transition-colors">Save Details</button>
-            </div>
-        </div>
-    </div>
-
-
-    <div id="promoModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-white/10 rounded-2xl p-6 w-full max-w-lg">
-            <h3 class="text-xl font-bold text-white mb-4">Generate Master Promo</h3>
-            <input type="text" id="promoCodeInput" class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-primary mb-4" placeholder="Promo Code (e.g. SUMMER50)">
-            <input type="number" id="promoDiscountInput" class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-primary mb-4" placeholder="Discount % (e.g. 50)">
-            <div class="flex justify-end gap-3">
-                <button onclick="closePromoModal()" class="px-4 py-2 rounded-xl text-slate-400 hover:bg-white/5 transition-colors">Cancel</button>
-                <button onclick="generateCustomPromo()" class="px-4 py-2 rounded-xl bg-primary text-white font-bold hover:bg-primary/80 transition-colors">Generate</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="broadcastModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-white/10 rounded-2xl p-6 w-full max-w-lg">
-            <h3 class="text-xl font-bold text-white mb-4">Broadcast Custom Message</h3>
-            <textarea id="broadcastMessage" rows="4" class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-primary mb-4" placeholder="Type message here..."></textarea>
-            <div class="flex justify-end gap-3">
-                <button onclick="closeBroadcastModal()" class="px-4 py-2 rounded-xl text-slate-400 hover:bg-white/5 transition-colors">Cancel</button>
-                <button onclick="sendBroadcast()" class="px-4 py-2 rounded-xl bg-primary text-white font-bold hover:bg-primary/80 transition-colors">Send Broadcast</button>
-            </div>
-        </div>
-    </div>
-    
-    <div id="settingsModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-white/10 rounded-2xl p-6 w-full max-w-lg">
-            <h3 class="text-xl font-bold text-white mb-4">Update Certificate Director</h3>
-            <input type="text" id="directorNameInput" class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-primary mb-4" placeholder="Dr. S. K. Vance">
-            <div class="flex justify-end gap-3">
-                <button onclick="closeSettingsModal()" class="px-4 py-2 rounded-xl text-slate-400 hover:bg-white/5 transition-colors">Cancel</button>
-                <button onclick="saveDirectorName()" class="px-4 py-2 rounded-xl bg-primary text-white font-bold hover:bg-primary/80 transition-colors">Save Name</button>
-            </div>
-        </div>
-    </div>
-
-<script>
-// Make window-mode tabs draggable
-document.addEventListener('DOMContentLoaded', () => {
-    let isDragging = false;
-    let currentX;
-    let currentY;
-    let initialX;
-    let initialY;
-    let xOffset = 0;
-    let yOffset = 0;
-    let activeWindow = null;
-
-    document.querySelectorAll('.window-header').forEach(header => {
-        header.addEventListener('mousedown', dragStart);
-    });
-
-    document.addEventListener('mouseup', dragEnd);
-    document.addEventListener('mousemove', drag);
-
-    function dragStart(e) {
-        if (e.target.closest('button')) return; // ignore window controls
-        activeWindow = e.target.closest('.window-mode');
-        if (!activeWindow) return;
-        
-        // Bring to front
-        document.querySelectorAll('.window-mode').forEach(w => w.style.zIndex = '100');
-        activeWindow.style.zIndex = '101';
-
-        const style = window.getComputedStyle(activeWindow);
-        const matrix = new WebKitCSSMatrix(style.transform);
-        xOffset = matrix.m41;
-        yOffset = matrix.m42;
-
-        initialX = e.clientX - xOffset;
-        initialY = e.clientY - yOffset;
-        isDragging = true;
-    }
-
-    function dragEnd(e) {
-        initialX = currentX;
-        initialY = currentY;
-        isDragging = false;
-        activeWindow = null;
-    }
-
-    function drag(e) {
-        if (isDragging && activeWindow) {
-            e.preventDefault();
-            currentX = e.clientX - initialX;
-            currentY = e.clientY - initialY;
-            activeWindow.style.transform = `translate(${currentX}px, ${currentY}px)`;
-        }
-    }
-});
-
-async function loadDynamicPage() {
-    const pageId = document.getElementById('content-page-select').value;
-    try {
-        const res = await fetch(`/admin/api/pages/${pageId}`);
-        const data = await res.json();
-        document.getElementById('content-title').value = data.title || '';
-        document.getElementById('content-desc').value = data.desc || '';
-        document.getElementById('content-icon').value = data.icon || '';
-        document.getElementById('content-html').value = data.html || '';
-    } catch(err) {
-        console.error("Failed to load page:", err);
-    }
-}
-
-async function saveDynamicPage() {
-    const pageId = document.getElementById('content-page-select').value;
-    const payload = {
-        title: document.getElementById('content-title').value,
-        desc: document.getElementById('content-desc').value,
-        icon: document.getElementById('content-icon').value,
-        html: document.getElementById('content-html').value
-    };
-    try {
-        const res = await fetch(`/admin/api/pages/${pageId}`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(payload)
+        $('.res-sidebar-close-btn, .sidebar-mobile-overlay').on('click', function () {
+            $('.sidebar').removeClass('open');
+            $('.sidebar-mobile-overlay').removeClass('open');
         });
-        const data = await res.json();
-        if(data.success) {
-            alert(data.message);
-        } else {
-            alert("Failed to save: " + data.error);
-        }
-    } catch(err) {
-        alert("Error saving page");
-    }
-}
-
-
-</script>
-
-
-    <!-- Admin Floating Chat Widget -->
-    <div x-data="{ 
-        chatOpen: false, 
-        users: [], 
-        activeUser: null,
-        messages: [],
-        newMessage: '',
-        fetchUsers() {
-            fetch('/admin/api/chat/users').then(r=>r.json()).then(d => this.users = d);
-        },
-        lastMsgId: 0,
-        fetchMessages() {
-            if(!this.activeUser) return;
-            fetch('/api/chat?target_user_id=' + this.activeUser.id).then(r=>r.json()).then(d => {
-                if (d.length > 0 && d[d.length-1].id > this.lastMsgId && !d[d.length-1].is_admin) {
-                    let audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
-                    audio.play().catch(e=>console.log(e));
-                    if(window.Notification && Notification.permission === 'granted') {
-                        new Notification('New Support Message', { body: d[d.length-1].message });
-                    }
-                }
-                if (d.length > 0) this.lastMsgId = d[d.length-1].id;
-                
-                this.messages = d;
-                setTimeout(() => {
-                    const cb = document.getElementById('admin-chat-box');
-                    if(cb) cb.scrollTop = cb.scrollHeight;
-                }, 50);
-            });
-        },
-        sendMessage() {
-            if(!this.newMessage || !this.activeUser) return;
-            let fd = new FormData();
-            fd.append('message', this.newMessage);
-            fd.append('target_user_id', this.activeUser.id);
-            fetch('/api/chat', {method:'POST', body:fd}).then(() => {
-                this.newMessage = '';
-                this.fetchMessages();
-            });
-        }
-    }" 
-    x-init="setInterval(() => { if(chatOpen) fetchUsers(); if(chatOpen && activeUser) fetchMessages(); }, 3000);"
-    class="fixed bottom-6 right-6 z-[200]">
-        
-        <!-- Chat Button -->
-        <button @click="chatOpen = !chatOpen; if(chatOpen) fetchUsers();" class="w-14 h-14 bg-blue-600 hover:bg-blue-500 text-white rounded-full shadow-2xl flex items-center justify-center transition-transform hover:scale-110">
-            <i data-lucide="message-circle" class="w-7 h-7" x-show="!chatOpen"></i>
-            <i data-lucide="x" class="w-7 h-7" x-show="chatOpen" style="display:none;"></i>
-        </button>
-
-        <!-- Chat Window -->
-        <div x-show="chatOpen" style="display:none;" x-transition
-             class="absolute bottom-20 right-0 w-[600px] h-[500px] bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl overflow-hidden flex shadow-blue-900/20">
-            
-            <!-- Left Pane: Users List -->
-            <div class="w-1/3 bg-slate-800 border-r border-slate-700 flex flex-col">
-                <div class="p-4 border-b border-slate-700 font-bold text-white bg-slate-900">Active Chats</div>
-                <div class="flex-1 overflow-y-auto">
-                    <template x-for="u in users" :key="u.id">
-                        <button @click="activeUser = u; fetchMessages();" 
-                                :class="activeUser && activeUser.id === u.id ? 'bg-blue-600/20 border-l-4 border-blue-500' : 'hover:bg-slate-700 border-l-4 border-transparent'"
-                                class="w-full text-left p-3 border-b border-slate-700 transition-colors">
-                            <div class="text-sm font-bold text-white truncate" x-text="u.name"></div>
-                            <div class="text-[10px] text-slate-400 truncate" x-text="u.email"></div>
-                        </button>
-                    </template>
-                    <div x-show="users.length === 0" class="text-center text-slate-500 text-xs p-4">No active chats</div>
-                </div>
-            </div>
-
-            <!-- Right Pane: Messages -->
-            <div class="w-2/3 flex flex-col bg-slate-900">
-                <template x-if="!activeUser">
-                    <div class="flex-1 flex flex-col items-center justify-center text-slate-500">
-                        <i data-lucide="message-square" class="w-12 h-12 mb-2 opacity-20"></i>
-                        <p class="text-sm">Select a user to start chatting</p>
-                    </div>
-                </template>
-                
-                <template x-if="activeUser">
-                    <div class="flex-1 flex flex-col h-full">
-                        <!-- Header -->
-                        <div class="p-4 border-b border-slate-700 bg-slate-800 flex items-center justify-between shadow-md z-10 shrink-0">
-                            <div class="font-bold text-white" x-text="'Chatting with ' + activeUser.name"></div>
-                        </div>
-                        
-                        <!-- Messages -->
-                        <div id="admin-chat-box" class="flex-1 overflow-y-auto p-4 space-y-4">
-                            <template x-for="m in messages" :key="m.id">
-                                <div class="flex flex-col" :class="m.is_admin ? 'items-end' : 'items-start'">
-                                    <div class="max-w-[80%] p-3 rounded-2xl" 
-                                         :class="m.is_admin ? 'bg-blue-600 text-white rounded-tr-none shadow-md shadow-blue-500/20' : 'bg-slate-800 text-slate-200 rounded-tl-none border border-slate-700'">
-                                        <div class="text-[10px] font-bold mb-1 opacity-50" x-text="m.is_admin ? 'You' : activeUser.name"></div>
-                                        <p class="text-sm whitespace-pre-wrap" x-text="m.message"></p>
-                                    </div>
-                                    <div class="text-[9px] text-slate-500 mt-1" x-text="new Date(m.created_at).toLocaleTimeString()"></div>
-                                </div>
-                            </template>
-                            <div x-show="messages.length === 0" class="text-center text-slate-500 text-xs mt-10">No messages yet.</div>
-                        </div>
-                        
-                        <!-- Input -->
-                        <div class="p-3 border-t border-slate-700 bg-slate-800 shrink-0">
-                            <form @submit.prevent="sendMessage()" class="flex gap-2">
-                                <input type="text" x-model="newMessage" placeholder="Type a reply..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none">
-                                <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white p-2 rounded-xl transition-colors"><i data-lucide="send" class="w-5 h-5"></i></button>
-                            </form>
-                        </div>
-                    </div>
-                </template>
-            </div>
-        </div>
-    </div>
-
+    </script>
 </body>
 </html>
