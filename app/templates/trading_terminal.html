@@ -494,8 +494,12 @@
         }
 
         // Use string directly. Passing an object might bypass KLineChart's interactive drawing mode.
-        if(chart1) chart1.createOverlay(toolName);
-        if(chart2) chart2.createOverlay(toolName);
+        if(chart1) {
+            try { chart1.createOverlay(toolName); } catch(e) { console.error('Overlay error:', e); }
+        }
+        if(isDualChart && chart2) {
+            try { chart2.createOverlay(toolName); } catch(e) { console.error('Overlay error:', e); }
+        }
         
         // Let the user know they need to click the chart!
         showToast('Click on the chart to draw ' + toolName, 'success');
