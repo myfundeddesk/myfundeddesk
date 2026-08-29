@@ -255,8 +255,8 @@
                                                             <small class="text-muted">Acc: #{{ p.account_id }}</small>
                                                         </td>
                                                         <td>
-                                                            <span class="badge badge--{{ 'success' if p.type == 'BUY' else 'danger' }}">{{ p.type }}</span><br>
-                                                            <small>{{ p.volume }} lots</small>
+                                                            <span class="badge badge--{{ 'success' if p.order_type == 'BUY' else 'danger' }}">{{ p.order_type }}</span><br>
+                                                            <small>{{ p.volume_lots }} lots</small>
                                                         </td>
                                                         <td>{{ "%.2f"|format(p.open_price) }}</td>
                                                         <td>
