@@ -129,3 +129,8 @@ async def view_accounts(request: Request, account_type: str, user: User = Depend
             "filter_type": account_type.title()
         }
     )
+
+@router.get('/rules', response_class=HTMLResponse)
+async def rules_page(request: Request):
+    return templates.TemplateResponse(request=request, name='rules.html', context={'app_name': APP_NAME})
+

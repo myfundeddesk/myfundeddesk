@@ -65,7 +65,7 @@ async def admin_login_post(
 
 @router.get("/admin/otp", response_class=HTMLResponse)
 async def admin_otp_page(request: Request):
-    return templates.TemplateResponse("admin_otp.html", {"request": request, "app_name": APP_NAME})
+    return templates.TemplateResponse(request=request, name="admin_otp.html", context={"app_name": APP_NAME})
 
 @router.post("/admin/otp")
 async def admin_otp_post(request: Request, otp: str = Form(...)):
@@ -457,7 +457,7 @@ from app.models import DynamicPage
 @router.get('/admin/pages', response_class=HTMLResponse)
 async def admin_pages_list(request: Request, db: Session = Depends(get_db)):
     pages = db.query(DynamicPage).all()
-    return templates.TemplateResponse('admin_pages.html', {'request': request, 'pages': pages, 'app_name': APP_NAME})
+    return templates.TemplateResponse(request=request, name='admin_pages.html', context={'pages': pages, 'app_name': APP_NAME})
 
 @router.post('/admin/pages/create')
 async def admin_pages_create(slug: str = Form(...), title: str = Form(...), content: str = Form(...), db: Session = Depends(get_db)):

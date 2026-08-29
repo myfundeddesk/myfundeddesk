@@ -32,5 +32,5 @@ async def dynamic_page_view(request: Request, slug: str, db: Session = Depends(g
     page = db.query(DynamicPage).filter(DynamicPage.slug == slug, DynamicPage.is_published == True).first()
     if not page:
         return HTMLResponse('Page not found', status_code=404)
-    return templates.TemplateResponse('dynamic_page.html', {'request': request, 'page': page, 'app_name': APP_NAME})
+    return templates.TemplateResponse(request=request, name='dynamic_page.html', context={'page': page, 'app_name': APP_NAME})
 
