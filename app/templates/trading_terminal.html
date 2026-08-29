@@ -23,7 +23,6 @@
     </script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <script src="/static/js/lightweight-charts.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; }
@@ -66,6 +65,7 @@
         @keyframes slideOut { to { transform: translateX(120%); opacity: 0; } }
 
         .wl-item.active { background: #f8fafc; border-left: 3px solid #2962ff; }
+        .tf-active { background: #2a2e39 !important; color: #ffffff !important; }
     </style>
 </head>
 <body class="h-screen w-screen overflow-y-auto md:overflow-hidden flex flex-col bg-white dark:bg-darkpanel text-slate-800 dark:text-slate-200"
@@ -141,36 +141,52 @@
         <div class="flex-1 flex flex-col relative min-w-0">
             
             <!-- DUAL CHART CONTAINER -->
-            <div id="dual-chart-container" class="flex-1 flex w-full h-full relative z-0 bg-slate-200 gap-[1px]">
-                
-                <!-- Chart 1 (Left) -->
-                <div class="flex-1 h-full relative bg-white dark:bg-darkpanel">
-                    <div id="tv_chart_container_1" class="w-full h-full relative"></div>
-                      <div id="lw_chart_container_1" class="w-full h-full relative hidden" style="position: absolute; top: 0; left: 0; z-index: 10; background: white;"></div>
-                    
-                    
-                    <!-- Quick Trade Overlay for Chart 1 -->
-                    <div class="tv-floating-trade font-mono" id="quick-trade-panel">
-                        <div class="btn-trade-sell" onclick="placeTrade('SELL')">
-                            <div class="text-[10px] font-sans font-bold uppercase tracking-wider mb-0.5">Sell</div>
-                            <div class="text-sm font-black" id="qt-bid">...</div>
-                        </div>
-                        <input type="number" id="qt-qty" value="1.0" step="0.1" min="0.1" class="trade-qty-input">
-                        <div class="btn-trade-buy" onclick="placeTrade('BUY')">
-                            <div class="text-[10px] font-sans font-bold uppercase tracking-wider mb-0.5">Buy</div>
-                            <div class="text-sm font-black" id="qt-ask">...</div>
-                        </div>
+            <div id="dual-chart-container" class="flex-1 flex flex-col w-full h-full relative z-0">
+
+                <!-- Chart Toolbar -->
+                <div id="chart-toolbar" class="h-9 bg-[#131722] border-b border-[#2a2e39] flex items-center px-3 gap-1 shrink-0 z-10">
+                    <span id="chart-symbol-label" class="text-white font-bold text-xs mr-3">NIFTY50</span>
+                    <div class="flex gap-0.5">
+                        <button onclick="setChartInterval('1m')"  data-tf="1m"  class="tf-btn tf-active px-2 py-1 text-[10px] font-bold rounded text-white">1m</button>
+                        <button onclick="setChartInterval('5m')"  data-tf="5m"  class="tf-btn px-2 py-1 text-[10px] font-bold rounded text-slate-400 hover:text-white">5m</button>
+                        <button onclick="setChartInterval('15m')" data-tf="15m" class="tf-btn px-2 py-1 text-[10px] font-bold rounded text-slate-400 hover:text-white">15m</button>
+                        <button onclick="setChartInterval('1h')"  data-tf="1h"  class="tf-btn px-2 py-1 text-[10px] font-bold rounded text-slate-400 hover:text-white">1h</button>
+                        <button onclick="setChartInterval('1d')"  data-tf="1d"  class="tf-btn px-2 py-1 text-[10px] font-bold rounded text-slate-400 hover:text-white">1D</button>
+                    </div>
+                    <div class="ml-auto flex items-center gap-3 font-mono text-xs">
+                        <span id="chart-ohlc-label" class="text-slate-400 hidden"></span>
+                        <span id="chart-live-price" class="text-white font-bold">--</span>
+                        <span id="chart-live-change" class="text-slate-400">--</span>
                     </div>
                 </div>
 
-                <!-- Chart 2 (Right) - Hidden by default -->
-                <div id="right-chart-wrapper" class="flex-1 h-full relative bg-white dark:bg-darkpanel hidden">
-                    <div id="tv_chart_container_2" class="w-full h-full relative"></div>
-                    <!-- Warning overlay explaining TV restrictions to user -->
-                    
-                </div>
+                <!-- Charts Row -->
+                <div class="flex-1 flex w-full h-full relative bg-[#131722] gap-[1px]">
+                    <!-- Chart 1 (Left) -->
+                    <div class="flex-1 h-full relative" style="min-width:0">
+                        <div id="custom_chart_1" class="w-full h-full"></div>
 
+                        <!-- Quick Trade Overlay for Chart 1 -->
+                        <div class="tv-floating-trade font-mono" id="quick-trade-panel">
+                            <div class="btn-trade-sell" onclick="placeTrade('SELL')">
+                                <div class="text-[10px] font-sans font-bold uppercase tracking-wider mb-0.5">Sell</div>
+                                <div class="text-sm font-black" id="qt-bid">...</div>
+                            </div>
+                            <input type="number" id="qt-qty" value="1.0" step="0.1" min="0.1" class="trade-qty-input">
+                            <div class="btn-trade-buy" onclick="placeTrade('BUY')">
+                                <div class="text-[10px] font-sans font-bold uppercase tracking-wider mb-0.5">Buy</div>
+                                <div class="text-sm font-black" id="qt-ask">...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chart 2 (Right) - Hidden by default -->
+                    <div id="right-chart-wrapper" class="flex-1 h-full relative hidden" style="min-width:0">
+                        <div id="custom_chart_2" class="w-full h-full"></div>
+                    </div>
+                </div>
             </div>
+
 
             <!-- Bottom Positions Panel -->
             <div id="bottom-panel" class="bottom-panel h-[280px] border-t border-slate-200 dark:border-darkborder bg-white dark:bg-darkpanel flex flex-col shrink-0 z-20 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
@@ -295,184 +311,292 @@
 <script>
     lucide.createIcons();
 
-    // STATE
-    var activeSymbol = document.body.getAttribute('data-active-symbol') || 'NIFTY50';
-    var accAttr = document.body.getAttribute('data-account-id');
+    // ─── STATE ─────────────────────────────────────────────────────────────────
+    var activeSymbol   = document.body.getAttribute('data-active-symbol') || 'NIFTY50';
+    var accAttr        = document.body.getAttribute('data-account-id');
     var activeAccountId = (accAttr && accAttr !== 'null' && accAttr !== 'None') ? parseInt(accAttr) : null;
-    
-    var tvWidget1 = null;
-    var tvWidget2 = null;
-    var isDualChart = false;
-    var isTrading = false;
-    var pricesData = {};
+    var isDualChart    = false;
+    var isTrading      = false;
+    var pricesData     = {};
+    var activeInterval = '1m';  // default timeframe
 
-    // TRADINGVIEW SYMBOL FIX (Intraday / Standard Compatible)
-    // NOTE: NSE spot indices (NSE:NIFTY) are blocked by exchange rules on free widgets.
-    // We use global CFD equivalents or futures (which are allowed) to ensure the chart loads!
-    var tvSymbolMap = {
-        'NIFTY50':    'BINGX:NIFTY50USDT.P', 
-        'BANKNIFTY':  'BINGX:NIFTYBANKUSDT.P', 
-        'SENSEX':     'BINGX:NIFTY50USDT.P',       
-        'FINNIFTY':   'BINGX:NIFTY50USDT.P',  
-        'MIDCPNIFTY': 'BINGX:NIFTY50USDT.P', 
-        'RELIANCE':   'NSE:RELIANCE',   
-        'HDFCBANK':   'NSE:HDFCBANK'
+    // ─── CUSTOM CHART ENGINE ───────────────────────────────────────────────────
+    var chart1 = null, series1 = null, volSeries1 = null, priceLine1 = null;
+    var chart2 = null, series2 = null, volSeries2 = null, priceLine2 = null;
+    var isDark = true; // terminal is always dark
+
+    var chartTheme = {
+        layout:    { background: { type: 'solid', color: '#131722' }, textColor: '#9ba3af' },
+        grid:      { vertLines: { color: '#1e2230' }, horzLines: { color: '#1e2230' } },
+        crosshair: { mode: 1 },
+        rightPriceScale: { borderColor: '#2a2e39' },
+        timeScale: { borderColor: '#2a2e39', timeVisible: true, secondsVisible: false, rightOffset: 8 },
     };
 
-    function formatInr(val) {
-        if(!val || isNaN(val)) return "0.00";
-        return val.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-    }
-
-    function showToast(message, type) {
-        var container = document.getElementById('toast-container');
-        var toast = document.createElement('div');
-        toast.className = 'toast ' + (type || 'success');
-        toast.innerText = message;
-        container.appendChild(toast);
-        setTimeout(() => { toast.style.animation = 'slideOut 0.3s ease forwards'; setTimeout(() => toast.remove(), 300); }, 8000);
-    }
-
-    function initTVWidget(containerId, sym, interval) {
-        return new TradingView.widget({
-            "autosize": true,
-            "symbol": sym,
-            "interval": interval,
-            "timezone": "Asia/Kolkata",
-            "theme": localStorage.getItem("theme") === "dark" ? "dark" : "light",
-            "style": "1",
-            "locale": "in",
-            "enable_publishing": false,
-            "hide_top_toolbar": false,
-            "hide_side_toolbar": false,
-            "hide_legend": true,
-            "save_image": false,
-            "container_id": containerId,
-            "allow_symbol_change": false,
-            "disabled_features": ["header_symbol_search", "header_compare"],
-            "studies": ["Volume@tv-basicstudies"]
+    function buildChart(containerId) {
+        var el = document.getElementById(containerId);
+        if (!el) return null;
+        var ch = LightweightCharts.createChart(el, Object.assign({ width: el.clientWidth, height: el.clientHeight }, chartTheme));
+        var candleSeries = ch.addCandlestickSeries({
+            upColor: '#26a69a', downColor: '#ef5350',
+            borderUpColor: '#26a69a', borderDownColor: '#ef5350',
+            wickUpColor: '#26a69a', wickDownColor: '#ef5350',
         });
+        var volSeries = ch.addHistogramSeries({
+            color: '#26a69a', priceFormat: { type: 'volume' },
+            priceScaleId: 'vol',
+            scaleMargins: { top: 0.82, bottom: 0 },
+        });
+        ch.priceScale('vol').applyOptions({ scaleMargins: { top: 0.82, bottom: 0 } });
+
+        // Resize observer
+        var ro = new ResizeObserver(function() {
+            if (el.clientWidth > 0) ch.applyOptions({ width: el.clientWidth, height: el.clientHeight });
+        });
+        ro.observe(el);
+
+        // Crosshair OHLCV tooltip
+        ch.subscribeCrosshairMove(function(param) {
+            if (!param || !param.seriesData) return;
+            var bar = param.seriesData.get(candleSeries);
+            if (bar) {
+                var lbl = document.getElementById('chart-ohlc-label');
+                if (lbl) {
+                    lbl.textContent = 'O:' + bar.open.toFixed(2) + ' H:' + bar.high.toFixed(2) + ' L:' + bar.low.toFixed(2) + ' C:' + bar.close.toFixed(2);
+                    lbl.classList.remove('hidden');
+                }
+            }
+        });
+
+        return { chart: ch, series: candleSeries, volSeries: volSeries };
+    }
+
+    // Aggregate 1m candles into a higher timeframe
+    function aggregateCandles(candles1m, tf) {
+        if (tf === '1m') return candles1m;
+        var minutes = tf === '5m' ? 5 : tf === '15m' ? 15 : tf === '1h' ? 60 : 1440;
+        var result = [];
+        candles1m.forEach(function(c) {
+            var bucket = Math.floor(c.time / (minutes * 60)) * (minutes * 60);
+            if (result.length === 0 || result[result.length-1].time !== bucket) {
+                result.push({ time: bucket, open: c.open, high: c.high, low: c.low, close: c.close, volume: c.volume || 0 });
+            } else {
+                var last = result[result.length-1];
+                last.high   = Math.max(last.high, c.high);
+                last.low    = Math.min(last.low, c.low);
+                last.close  = c.close;
+                last.volume = (last.volume || 0) + (c.volume || 0);
+            }
+        });
+        return result;
+    }
+
+    var rawCandles1m = []; // cache of 1-min candles for chart 1
+
+    async function loadChart(symbol, interval, chartObj, seriesRef, volRef) {
+        if (!chartObj) return;
+        try {
+            var res = await fetch('/api/market/candles/' + symbol);
+            var raw = await res.json();
+
+            // Convert timestamps (add IST offset 19800s for display)
+            var candles1m = raw.map(function(c) {
+                return { time: c.time + 19800, open: c.open, high: c.high, low: c.low, close: c.close, volume: c.volume || 0 };
+            });
+
+            if (chartObj === chart1) rawCandles1m = candles1m;
+
+            var candles = aggregateCandles(candles1m, interval);
+            if (candles.length === 0) return;
+
+            seriesRef.setData(candles);
+            volRef.setData(candles.map(function(c) {
+                return { time: c.time, value: c.volume, color: c.close >= c.open ? '#26a69a55' : '#ef535055' };
+            }));
+            chartObj.timeScale().fitContent();
+
+            // Live price line
+            var last = candles[candles.length - 1];
+            if (chartObj === chart1 && priceLine1) { try { seriesRef.removePriceLine(priceLine1); } catch(e){} }
+            var pl = seriesRef.createPriceLine({ price: last.close, color: '#f0c000', lineWidth: 1, lineStyle: 2, axisLabelVisible: true });
+            if (chartObj === chart1) priceLine1 = pl;
+
+        } catch(e) { console.error('Chart load error:', e); }
     }
 
     function initCharts() {
-        var tvSym = tvSymbolMap[activeSymbol] || ('NSE:' + activeSymbol);
-        var interval = (tvSym.includes('OANDA') || tvSym.includes('1!') || tvSym.includes('BINGX') || tvSym.includes('BINANCE')) ? "5" : "D";
-        tvWidget1 = initTVWidget("tv_chart_container_1", tvSym, interval);
-        
-        // Ensure active symbol is highlighted in watchlist
+        var c1 = buildChart('custom_chart_1');
+        if (c1) { chart1 = c1.chart; series1 = c1.series; volSeries1 = c1.volSeries; }
+
+        document.getElementById('chart-symbol-label').textContent = activeSymbol;
+        loadChart(activeSymbol, activeInterval, chart1, series1, volSeries1);
+
         var wl = document.getElementById('wl-' + activeSymbol);
-        if(wl) wl.classList.add('active');
+        if (wl) wl.classList.add('active');
     }
 
-    function toggleDualChart() {
-        var wrapper2 = document.getElementById('right-chart-wrapper');
-        isDualChart = !isDualChart;
-        
-        if (isDualChart) {
-            wrapper2.classList.remove('hidden');
-            if (!tvWidget2) {
-                // Initialize second chart to BankNifty equivalent
-                var tvSym2 = tvSymbolMap['BANKNIFTY'] || 'NSE:BANKNIFTY';
-                var interval = (tvSym2.includes('OANDA') || tvSym2.includes('1!') || tvSym2.includes('BINGX')) ? "5" : "D";
-                tvWidget2 = initTVWidget("tv_chart_container_2", tvSym2, interval);
+    function setChartInterval(tf) {
+        activeInterval = tf;
+        // Update button styling
+        document.querySelectorAll('.tf-btn').forEach(function(btn) {
+            if (btn.getAttribute('data-tf') === tf) {
+                btn.classList.add('tf-active');
+                btn.classList.remove('text-slate-400');
+                btn.classList.add('text-white');
+            } else {
+                btn.classList.remove('tf-active');
+                btn.classList.add('text-slate-400');
+                btn.classList.remove('text-white');
             }
-        } else {
-            wrapper2.classList.add('hidden');
+        });
+
+        // Re-aggregate from cached 1m candles (no extra network request)
+        if (rawCandles1m.length > 0 && series1 && volSeries1) {
+            var candles = aggregateCandles(rawCandles1m, tf);
+            series1.setData(candles);
+            volSeries1.setData(candles.map(function(c) {
+                return { time: c.time, value: c.volume, color: c.close >= c.open ? '#26a69a55' : '#ef535055' };
+            }));
+            chart1.timeScale().fitContent();
         }
     }
 
-    function toggleFullscreen() {
-        var elem = document.getElementById("dual-chart-container");
-        if (!document.fullscreenElement) {
-            if (elem.requestFullscreen) {
-                elem.requestFullscreen();
-            } else if (elem.webkitRequestFullscreen) { /* Safari */
-                elem.webkitRequestFullscreen();
-            } else if (elem.msRequestFullscreen) { /* IE11 */
-                elem.msRequestFullscreen();
-            }
-        } else {
-            if (document.exitFullscreen) {
-                document.exitFullscreen();
-            } else if (document.webkitExitFullscreen) { /* Safari */
-                document.webkitExitFullscreen();
-            } else if (document.msExitFullscreen) { /* IE11 */
-                document.msExitFullscreen();
-            }
-        }
-    }
-
-
-
-
+    // ─── PRICE POLLING ─────────────────────────────────────────────────────────
     async function pollPrices() {
         try {
             var res = await fetch('/api/market/prices?active_symbol=' + activeSymbol);
             var prices = await res.json();
-            
-            for(var i = 0; i < prices.length; i++) {
+
+            for (var i = 0; i < prices.length; i++) {
                 var p = prices[i];
                 pricesData[p.symbol] = p;
-                
+
                 var wlBid = document.getElementById('wl-bid-' + p.symbol);
                 var wlAsk = document.getElementById('wl-ask-' + p.symbol);
-                if(wlBid) wlBid.innerText = p.bid.toFixed(2);
-                if(wlAsk) wlAsk.innerText = p.ask.toFixed(2);
+                if (wlBid) wlBid.innerText = p.bid.toFixed(2);
+                if (wlAsk) wlAsk.innerText = p.ask.toFixed(2);
 
-                if(p.symbol === activeSymbol) {
+                if (p.symbol === activeSymbol) {
                     var qtBid = document.getElementById('qt-bid');
                     var qtAsk = document.getElementById('qt-ask');
-                    if(qtBid) qtBid.innerText = p.bid.toFixed(2);
-                    if(qtAsk) qtAsk.innerText = p.ask.toFixed(2);
-                    
-                    if (typeof lwSeries !== 'undefined' && lwSeries && lastLwCandle && (activeSymbol.endsWith("CE") || activeSymbol.endsWith("PE"))) {
-                        var now = Math.floor(Date.now() / 1000) + 19800; // IST rough
-                        if (now - lastLwCandle.time > 300) {
-                            lastLwCandle = {time: now, open: p.mid, high: p.mid, low: p.mid, close: p.mid};
+                    if (qtBid) qtBid.innerText = p.bid.toFixed(2);
+                    if (qtAsk) qtAsk.innerText = p.ask.toFixed(2);
+
+                    // Update toolbar live price
+                    var lp = document.getElementById('chart-live-price');
+                    if (lp) lp.textContent = '₹' + p.mid.toFixed(2);
+                    var lc = document.getElementById('chart-live-change');
+                    if (lc) {
+                        var chg = p.change_24h || 0;
+                        lc.textContent = (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%';
+                        lc.className = chg >= 0 ? 'text-[#26a69a] font-bold text-xs' : 'text-[#ef5350] font-bold text-xs';
+                    }
+
+                    // Push latest tick onto the live chart candle
+                    if (series1 && rawCandles1m.length > 0) {
+                        var nowTs = Math.floor(Date.now() / 1000) + 19800;
+                        var lastC = rawCandles1m[rawCandles1m.length - 1];
+                        var bucketSize = 60;
+                        if (nowTs - lastC.time < bucketSize) {
+                            lastC.close = p.mid;
+                            lastC.high  = Math.max(lastC.high, p.mid);
+                            lastC.low   = Math.min(lastC.low, p.mid);
                         } else {
-                            lastLwCandle.close = p.mid;
-                            lastLwCandle.high = Math.max(lastLwCandle.high, p.mid);
-                            lastLwCandle.low = Math.min(lastLwCandle.low, p.mid);
+                            lastC = { time: nowTs, open: p.mid, high: p.mid, low: p.mid, close: p.mid, volume: 0 };
+                            rawCandles1m.push(lastC);
                         }
-                        lwSeries.update(lastLwCandle);
+                        // Update aggregated view
+                        var agg = aggregateCandles(rawCandles1m, activeInterval);
+                        if (agg.length > 0) {
+                            series1.update(agg[agg.length - 1]);
+                            // Update price line
+                            if (priceLine1) { try { series1.removePriceLine(priceLine1); } catch(e){} }
+                            priceLine1 = series1.createPriceLine({ price: p.mid, color: '#f0c000', lineWidth: 1, lineStyle: 2, axisLabelVisible: true });
+                        }
                     }
                 }
             }
         } catch (e) {}
     }
 
+    // ─── ACCOUNT SWITCHING ─────────────────────────────────────────────────────
     function switchAccount(accountId) {
         if (!accountId) return;
-        window.location.href = `/trading?account_id=${accountId}&symbol=${activeSymbol}`;
+        window.location.href = `/trading?account_id=${accountId}&symbol=${activeSymbol}&t=${new Date().getTime()}`;
     }
 
+    // ─── SYMBOL SELECTION ──────────────────────────────────────────────────────
+    function selectSymbol(sym) {
+        var oldWl = document.getElementById('wl-' + activeSymbol);
+        if (oldWl) oldWl.classList.remove('active');
+
+        activeSymbol = sym;
+
+        var newWl = document.getElementById('wl-' + activeSymbol);
+        if (newWl) newWl.classList.add('active');
+
+        document.getElementById('order-symbol-title').innerText = sym;
+        document.getElementById('chart-symbol-label').textContent = sym;
+
+        // Clear cached candles before loading new symbol
+        rawCandles1m = [];
+        loadChart(sym, activeInterval, chart1, series1, volSeries1);
+    }
+
+    // ─── DUAL CHART ────────────────────────────────────────────────────────────
+    function toggleDualChart() {
+        var wrapper2 = document.getElementById('right-chart-wrapper');
+        isDualChart = !isDualChart;
+        if (isDualChart) {
+            wrapper2.classList.remove('hidden');
+            if (!chart2) {
+                var c2 = buildChart('custom_chart_2');
+                if (c2) { chart2 = c2.chart; series2 = c2.series; volSeries2 = c2.volSeries; }
+                loadChart('BANKNIFTY', activeInterval, chart2, series2, volSeries2);
+            }
+        } else {
+            wrapper2.classList.add('hidden');
+        }
+    }
+
+    // ─── FULLSCREEN ────────────────────────────────────────────────────────────
+    function toggleFullscreen() {
+        var elem = document.getElementById('dual-chart-container');
+        if (!document.fullscreenElement) {
+            (elem.requestFullscreen || elem.webkitRequestFullscreen || elem.msRequestFullscreen).call(elem);
+        } else {
+            (document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen).call(document);
+        }
+    }
+
+    // ─── ACCOUNT STATE ─────────────────────────────────────────────────────────
     async function pollAccountState() {
         if (!activeAccountId) return;
         try {
-            var url = '/api/account/' + activeAccountId + '/state';
-            var res = await fetch(url);
+            var res = await fetch('/api/account/' + activeAccountId + '/state');
             var data = await res.json();
             var st = data.state;
 
-            document.getElementById('top-balance').innerText = '\u20B9' + formatInr(st.balance);
-            document.getElementById('top-equity').innerText = '\u20B9' + formatInr(st.equity);
-            
-            var pnlVal = st.floating_pnl || 0;
+            document.getElementById('top-balance').innerText = '₹' + formatInr(st.balance);
+            document.getElementById('top-equity').innerText  = '₹' + formatInr(st.equity);
+
+            var pnlVal  = st.floating_pnl || 0;
             var pnlColor = pnlVal >= 0 ? 'text-emerald-500' : 'text-rose-500';
-            var pnlSign = pnlVal >= 0 ? '+\u20B9' : '-\u20B9';
+            var pnlSign  = pnlVal >= 0 ? '+₹' : '-₹';
             document.getElementById('top-pnl').innerHTML = '<span class="' + pnlColor + '">' + pnlSign + formatInr(Math.abs(pnlVal)) + '</span>';
 
             var tbody = document.getElementById('pos-tbody');
             var posCount = data.positions ? data.positions.length : 0;
             document.getElementById('pos-count').innerText = posCount;
-            
+
             var html = '';
-            if(posCount > 0) {
-                for(var i = 0; i < data.positions.length; i++) {
+            if (posCount > 0) {
+                document.getElementById('btn-close-all').classList.remove('hidden');
+                for (var i = 0; i < data.positions.length; i++) {
                     var pos = data.positions[i];
                     var isBuy = pos.order_type === 'BUY';
                     var pC = pos.pnl >= 0 ? 'text-emerald-600' : 'text-rose-600';
-                    var pS = pos.pnl >= 0 ? '+\u20B9' : '-\u20B9';
+                    var pS = pos.pnl >= 0 ? '+₹' : '-₹';
                     html += '<tr class="hover:bg-slate-50 dark:bg-darkbg">';
                     html += '<td class="py-2.5 px-4 font-semibold text-slate-500">' + pos.ticket + '</td>';
                     html += '<td class="py-2.5 px-4 font-bold text-slate-900 dark:text-white">' + pos.symbol + '</td>';
@@ -486,13 +610,14 @@
                     html += '</tr>';
                 }
             } else {
+                document.getElementById('btn-close-all').classList.add('hidden');
                 html = '<tr><td colspan="9" class="text-center py-8 text-slate-400 font-sans text-xs">No open positions</td></tr>';
             }
             tbody.innerHTML = html;
-            
-            if(data.notifications && data.notifications.length > 0) {
-                for(var i=0; i < data.notifications.length; i++) {
-                    showToast('LIVEMESSAGE: ' + data.notifications[i], 'success');
+
+            if (data.notifications && data.notifications.length > 0) {
+                for (var i = 0; i < data.notifications.length; i++) {
+                    showToast(data.notifications[i], 'success');
                     playNotificationSound();
                     showBrowserNotification('Terminal Alert', data.notifications[i]);
                 }
@@ -500,8 +625,9 @@
         } catch (e) { console.error(e); }
     }
 
+    // ─── TRADE ACTIONS ─────────────────────────────────────────────────────────
     async function placeTrade(orderType) {
-        if(isTrading) return;
+        if (isTrading) return;
         var qtyInput = document.getElementById('qt-qty');
         var lots = parseFloat(qtyInput.value);
         if (!lots || lots <= 0) return showToast('Invalid volume', 'error');
@@ -514,28 +640,34 @@
         formData.append('volume_lots', lots);
 
         try {
-            var res = await fetch('/api/trade/open', { method: 'POST', body: formData });
+            var res  = await fetch('/api/trade/open', { method: 'POST', body: formData });
             var data = await res.json();
             if (data.success) {
                 showToast('Filled: ' + orderType + ' ' + lots + ' ' + activeSymbol, 'success');
                 pollAccountState();
-            } else {
-                showToast(data.error || 'Trade rejected', 'error');
-            }
+            } else { showToast(data.error || 'Trade rejected', 'error'); }
         } catch (err) { showToast('Network error', 'error'); } finally { isTrading = false; }
     }
 
     async function closeTrade(tradeId) {
         try {
-            var url = '/api/trade/close/' + tradeId;
-            var res = await fetch(url, { method: 'POST' });
+            var res  = await fetch('/api/trade/close/' + tradeId, { method: 'POST' });
             var data = await res.json();
             if (data.success) { showToast('Position closed', 'success'); pollAccountState(); }
         } catch (err) {}
     }
 
+    async function closeAllTrades() {
+        try {
+            var res  = await fetch('/api/trade/close-all', { method: 'POST', body: new URLSearchParams({ account_id: activeAccountId }) });
+            var data = await res.json();
+            showToast(data.message || 'All positions closed', 'success');
+            pollAccountState();
+        } catch (err) { showToast('Error closing positions', 'error'); }
+    }
+
     function switchTab(tab) {
-        if(tab === 'positions') {
+        if (tab === 'positions') {
             document.getElementById('view-pos').classList.remove('hidden');
             document.getElementById('view-hist').classList.add('hidden');
         } else {
@@ -544,6 +676,22 @@
         }
     }
 
+    // ─── HELPERS ───────────────────────────────────────────────────────────────
+    function formatInr(val) {
+        if (!val || isNaN(val)) return '0.00';
+        return val.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function showToast(message, type) {
+        var container = document.getElementById('toast-container');
+        var toast = document.createElement('div');
+        toast.className = 'toast ' + (type || 'success');
+        toast.innerText = message;
+        container.appendChild(toast);
+        setTimeout(function() { toast.style.animation = 'slideOut 0.3s ease forwards'; setTimeout(function() { toast.remove(); }, 300); }, 8000);
+    }
+
+    // ─── INIT ──────────────────────────────────────────────────────────────────
     document.addEventListener('DOMContentLoaded', function() {
         initCharts();
         pollPrices();
@@ -552,6 +700,7 @@
         setInterval(pollAccountState, 1000);
     });
 </script>
+
     <!-- Option Chain Modal -->
     <div id="option-chain-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
         <div class="bg-white dark:bg-darkpanel w-full max-w-6xl h-[85vh] rounded-xl shadow-2xl flex flex-col overflow-hidden border border-slate-200 dark:border-darkborder">
@@ -584,7 +733,7 @@
                 </div>
             </div>
             
-            <!-- Table Container -->
+            <!-- Table -->
             <div class="flex-1 overflow-auto bg-slate-100 dark:bg-slate-800/50 relative custom-scrollbar">
                 <table class="w-full text-center text-xs whitespace-nowrap border-collapse">
                     <thead class="sticky top-0 z-10 bg-slate-800 text-slate-300 text-[10px] uppercase tracking-wider font-bold">
@@ -598,18 +747,14 @@
                             <th class="py-2 px-2 border-r border-slate-600">IV</th>
                             <th class="py-2 px-2 border-r border-slate-600">OI</th>
                             <th class="py-2 px-4 border-r border-slate-600 text-right text-emerald-400">LTP</th>
-                            
                             <th class="py-2 px-4 bg-slate-900 text-white border-r border-l border-slate-800">PRICE</th>
-                            
                             <th class="py-2 px-4 border-l border-slate-600 text-left text-rose-400">LTP</th>
                             <th class="py-2 px-2 border-l border-slate-600">OI</th>
                             <th class="py-2 px-2 border-l border-slate-600">IV</th>
                             <th class="py-2 px-2 border-l border-slate-600">Action</th>
                         </tr>
                     </thead>
-                    <tbody id="oc-tbody" class="divide-y divide-slate-200 font-mono">
-                        <!-- Filled by JS -->
-                    </tbody>
+                    <tbody id="oc-tbody" class="divide-y divide-slate-200 font-mono"></tbody>
                 </table>
                 <div id="oc-loader" class="absolute inset-0 bg-white dark:bg-darkpanel/50 backdrop-blur-sm flex items-center justify-center hidden">
                     <div class="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
@@ -619,307 +764,131 @@
     </div>
 
 <script>
-    /* --- OPTION CHAIN LOGIC --- */
-    
-    function directOpenChart(sym) {
-        closeOptionChain();
-        addSymbolToWatchlist(sym);
-        selectSymbol(sym);
-    }
+    /* --- OPTION CHAIN --- */
+    function directOpenChart(sym) { closeOptionChain(); addSymbolToWatchlist(sym); selectSymbol(sym); }
+    function openOptionChain() { document.getElementById('option-chain-modal').classList.remove('hidden'); loadOptionChain(); }
+    function closeOptionChain() { document.getElementById('option-chain-modal').classList.add('hidden'); }
 
-    function openOptionChain() {
-        document.getElementById('option-chain-modal').classList.remove('hidden');
-        loadOptionChain();
-    }
-    
-    function closeOptionChain() {
-        document.getElementById('option-chain-modal').classList.add('hidden');
-    }
-    
     async function loadOptionChain() {
         const sym = document.getElementById('oc-symbol-select').value;
         const loader = document.getElementById('oc-loader');
-        const tbody = document.getElementById('oc-tbody');
-        
+        const tbody  = document.getElementById('oc-tbody');
         loader.classList.remove('hidden');
         try {
-            const res = await fetch(`/api/options/${sym}`);
+            const res  = await fetch(`/api/options/${sym}`);
             const data = await res.json();
-            
             document.getElementById('oc-spot-price').innerText = data.spot.toFixed(2);
-            
             tbody.innerHTML = '';
-            
             data.chain.forEach(row => {
+                const isCallITM = row.strike < data.spot;
+                const isPutITM  = row.strike > data.spot;
+                const callBg = isCallITM ? 'bg-amber-50/30' : '';
+                const putBg  = isPutITM  ? 'bg-amber-50/30' : '';
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-indigo-50/50 transition-colors bg-white dark:bg-darkpanel';
-                
-                // ITM Highlighting logic
-                const isCallITM = row.strike < data.spot;
-                const isPutITM = row.strike > data.spot;
-                
-                const callBg = isCallITM ? 'bg-amber-50/30' : '';
-                const putBg = isPutITM ? 'bg-amber-50/30' : '';
-                
                 tr.innerHTML = `
                     <td class="py-1 px-2 border-r border-slate-200 dark:border-darkborder ${callBg}">
                         <div class="flex gap-1 justify-center">
-                            <button onclick="prepareOptionTrade('${row.ce_symbol}', 'BUY')" class="bg-emerald-100 text-emerald-700 hover:bg-emerald-500 hover:text-white px-2 py-0.5 rounded text-[10px] font-bold transition-colors">B</button>
+                            <button onclick="prepareOptionTrade('${row.ce_symbol}', 'BUY')"  class="bg-emerald-100 text-emerald-700 hover:bg-emerald-500 hover:text-white px-2 py-0.5 rounded text-[10px] font-bold transition-colors">B</button>
                             <button onclick="prepareOptionTrade('${row.ce_symbol}', 'SELL')" class="bg-rose-100 text-rose-700 hover:bg-rose-500 hover:text-white px-2 py-0.5 rounded text-[10px] font-bold transition-colors">S</button>
                         </div>
                     </td>
                     <td class="py-1 px-2 border-r border-slate-200 dark:border-darkborder text-slate-500 ${callBg}">${row.ce_iv}%</td>
                     <td class="py-1 px-2 border-r border-slate-200 dark:border-darkborder text-slate-600 dark:text-slate-400 ${callBg}">${(row.ce_oi/1000).toFixed(1)}k</td>
-                    <td class="py-1 px-4 border-r border-slate-200 dark:border-darkborder text-right font-bold text-emerald-600 ${callBg} cursor-pointer hover:bg-emerald-100" onclick="directOpenChart('${row.ce_symbol}')" title="Open Chart">${row.ce_price.toFixed(2)}</td>
-                    
+                    <td class="py-1 px-4 border-r border-slate-200 dark:border-darkborder text-right font-bold text-emerald-600 ${callBg} cursor-pointer hover:bg-emerald-100" onclick="directOpenChart('${row.ce_symbol}')">${row.ce_price.toFixed(2)}</td>
                     <td class="py-2 px-4 bg-slate-50 dark:bg-darkbg font-black text-slate-800 dark:text-slate-200 border-x border-slate-300 text-sm shadow-inner">${row.strike}</td>
-                    
-                    <td class="py-1 px-4 border-l border-slate-200 dark:border-darkborder text-left font-bold text-rose-600 ${putBg} cursor-pointer hover:bg-rose-100" onclick="directOpenChart('${row.pe_symbol}')" title="Open Chart">${row.pe_price.toFixed(2)}</td>
+                    <td class="py-1 px-4 border-l border-slate-200 dark:border-darkborder text-left font-bold text-rose-600 ${putBg} cursor-pointer hover:bg-rose-100" onclick="directOpenChart('${row.pe_symbol}')">${row.pe_price.toFixed(2)}</td>
                     <td class="py-1 px-2 border-l border-slate-200 dark:border-darkborder text-slate-600 dark:text-slate-400 ${putBg}">${(row.pe_oi/1000).toFixed(1)}k</td>
                     <td class="py-1 px-2 border-l border-slate-200 dark:border-darkborder text-slate-500 ${putBg}">${row.pe_iv}%</td>
                     <td class="py-1 px-2 border-l border-slate-200 dark:border-darkborder ${putBg}">
                         <div class="flex gap-1 justify-center">
-                            <button onclick="prepareOptionTrade('${row.pe_symbol}', 'BUY')" class="bg-emerald-100 text-emerald-700 hover:bg-emerald-500 hover:text-white px-2 py-0.5 rounded text-[10px] font-bold transition-colors">B</button>
+                            <button onclick="prepareOptionTrade('${row.pe_symbol}', 'BUY')"  class="bg-emerald-100 text-emerald-700 hover:bg-emerald-500 hover:text-white px-2 py-0.5 rounded text-[10px] font-bold transition-colors">B</button>
                             <button onclick="prepareOptionTrade('${row.pe_symbol}', 'SELL')" class="bg-rose-100 text-rose-700 hover:bg-rose-500 hover:text-white px-2 py-0.5 rounded text-[10px] font-bold transition-colors">S</button>
                         </div>
-                    </td>
-                `;
+                    </td>`;
                 tbody.appendChild(tr);
             });
-            
-            // Scroll to ATM
             setTimeout(() => {
                 const rows = Array.from(tbody.children);
                 const atmRow = rows[Math.floor(rows.length/2)];
-                if(atmRow) atmRow.scrollIntoView({block: "center", behavior: "smooth"});
+                if(atmRow) atmRow.scrollIntoView({block: 'center', behavior: 'smooth'});
             }, 100);
-            
-        } catch(e) {
-            console.error(e);
-            showToast('Failed to load option chain.', 'error');
-        } finally {
-            loader.classList.add('hidden');
-        }
-    }
-    
-
-
-    var lwChart = null;
-    var lwSeries = null;
-    var lastLwCandle = null;
-
-    async function renderOptionChart(symbol) {
-        try {
-            document.getElementById("tv_chart_container_1").style.display = "none";
-            var lwContainer = document.getElementById("lw_chart_container_1");
-            lwContainer.style.display = "block";
-            lwContainer.innerHTML = "";
-            
-            // Allow DOM to reflow so clientWidth is populated
-            await new Promise(r => setTimeout(r, 50));
-            
-            var w = lwContainer.clientWidth || 800;
-            var h = lwContainer.clientHeight || 500;
-            
-            lwChart = LightweightCharts.createChart(lwContainer, {
-                width: w,
-                height: h,
-                layout: { backgroundColor: '#ffffff', textColor: '#333' },
-                grid: { vertLines: { color: '#f0f0f0' }, horzLines: { color: '#f0f0f0' } },
-                timeScale: { timeVisible: true, secondsVisible: false },
-            });
-            
-            lwSeries = lwChart.addCandlestickSeries({
-                upColor: '#22c55e', downColor: '#ef4444', borderVisible: false,
-                wickUpColor: '#22c55e', wickDownColor: '#ef4444'
-            });
-
-            var res = await fetch('/api/market/candles/' + symbol);
-            var data = await res.json();
-            var cData = data.map(c => ({
-                time: c.time + 19800,
-                open: c.open, high: c.high, low: c.low, close: c.close
-            }));
-            lwSeries.setData(cData);
-            if(cData.length > 0) lastLwCandle = cData[cData.length - 1];
-        } catch(e) {
-            console.error("Option Chart Error:", e);
-            document.getElementById("lw_chart_container_1").innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#94a3b8;font-family:monospace;">Option Chart Loading Failed: ' + e.message + ' <br> Stack: ' + e.stack + '</div>';
-        }
+        } catch(e) { showToast('Failed to load option chain.', 'error'); }
+        finally { loader.classList.add('hidden'); }
     }
 
-    
-    const searchInput = document.getElementById('symbol-search');
+    /* --- SYMBOL SEARCH / WATCHLIST --- */
+    const searchInput   = document.getElementById('symbol-search');
     const searchResults = document.getElementById('search-results');
-    const baseInstruments = ['NIFTY50', 'BANKNIFTY', 'SENSEX', 'CRUDEOIL', 'GOLD', 'EURINR', 'BTCINR'];
+    const baseInstruments = ['NIFTY50', 'BANKNIFTY', 'SENSEX', 'FINNIFTY', 'MIDCPNIFTY', 'RELIANCE', 'HDFCBANK'];
 
-    searchInput.addEventListener('input', function(e) {
-        const query = this.value.toUpperCase().replace(/\s+/g, '');
-        if (query.length < 2) {
-            searchResults.classList.add('hidden');
-            return;
-        }
-
-        let suggestions = [];
-        baseInstruments.forEach(inst => {
-            if (inst.includes(query)) suggestions.push(inst);
-        });
-
+    searchInput.addEventListener('input', function() {
+        const query = this.value.toUpperCase().replace(/\s+/g,'');
+        if (query.length < 2) { searchResults.classList.add('hidden'); return; }
+        let suggestions = baseInstruments.filter(s => s.includes(query));
         const optMatch = query.match(/^([A-Z]+)(\d{2,})?(C|P|CE|PE)?$/);
         if (optMatch) {
-            const base = optMatch[1];
-            const strikePart = optMatch[2] || '';
-            
-            if (['NIFTY', 'BANKNIFTY', 'SENSEX'].includes(base)) {
-                let strikeBase = 24000;
-                let step = 50;
+            const base = optMatch[1], strikePart = optMatch[2] || '';
+            if (['NIFTY','BANKNIFTY','SENSEX'].includes(base)) {
+                let strikeBase = 24000, step = 50;
                 if (base === 'BANKNIFTY') { strikeBase = 52000; step = 100; }
-                if (base === 'SENSEX') { strikeBase = 80000; step = 100; }
-
+                if (base === 'SENSEX')    { strikeBase = 80000; step = 100; }
                 if (strikePart.length >= 2) {
-                    const targetStr = strikePart.padEnd(5, '0');
-                    const targetVal = parseInt(targetStr);
-                    const nearest = Math.round(targetVal / step) * step;
-                    for (let i = -3; i <= 3; i++) {
-                        const s = nearest + (i * step);
-                        suggestions.push(`${base}${s}CE`);
-                        suggestions.push(`${base}${s}PE`);
-                    }
+                    const nearest = Math.round(parseInt(strikePart.padEnd(5,'0')) / step) * step;
+                    for (let i = -3; i <= 3; i++) { suggestions.push(`${base}${nearest + i*step}CE`); suggestions.push(`${base}${nearest + i*step}PE`); }
                 } else {
-                    for (let i = -2; i <= 2; i++) {
-                        const s = strikeBase + (i * step);
-                        suggestions.push(`${base}${s}CE`);
-                        suggestions.push(`${base}${s}PE`);
-                    }
+                    for (let i = -2; i <= 2; i++) { suggestions.push(`${base}${strikeBase + i*step}CE`); suggestions.push(`${base}${strikeBase + i*step}PE`); }
                 }
             }
         }
-
-        suggestions = suggestions.filter(s => s.includes(query));
-        suggestions = [...new Set(suggestions)].slice(0, 8);
-
+        suggestions = [...new Set(suggestions.filter(s => s.includes(query)))].slice(0,8);
         if (suggestions.length > 0) {
-            searchResults.innerHTML = suggestions.map(sym => 
-                `<div class="px-4 py-2 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-indigo-50 hover:text-indigo-700 cursor-pointer border-b border-slate-50 last:border-0" 
-                      onclick="addSymbolToWatchlist('${sym}'); selectSymbol('${sym}'); searchResults.classList.add('hidden'); searchInput.value='';">
-                    ${sym}
-                </div>`
+            searchResults.innerHTML = suggestions.map(sym =>
+                `<div class="px-4 py-2 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-indigo-50 hover:text-indigo-700 cursor-pointer border-b border-slate-50 last:border-0"
+                      onclick="addSymbolToWatchlist('${sym}');selectSymbol('${sym}');searchResults.classList.add('hidden');searchInput.value=''">${sym}</div>`
             ).join('');
             searchResults.classList.remove('hidden');
-        } else {
-            searchResults.classList.add('hidden');
-        }
+        } else { searchResults.classList.add('hidden'); }
     });
 
     searchInput.addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
-            var sym = this.value.toUpperCase().replace(/\s+/g, '');
-            if (sym) {
-                addSymbolToWatchlist(sym);
-                selectSymbol(sym);
-                this.value = '';
-                searchResults.classList.add('hidden');
-            }
+            var sym = this.value.toUpperCase().replace(/\s+/g,'');
+            if (sym) { addSymbolToWatchlist(sym); selectSymbol(sym); this.value = ''; searchResults.classList.add('hidden'); }
         }
     });
-    
     document.addEventListener('click', function(e) {
-        if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
-            searchResults.classList.add('hidden');
-        }
+        if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) searchResults.classList.add('hidden');
     });
 
     function addSymbolToWatchlist(sym) {
-        // Check if already exists
         if (document.getElementById('wl-' + sym)) return;
-        
         var container = document.getElementById('watchlist-container');
         var div = document.createElement('div');
         div.onclick = () => selectSymbol(sym);
         div.id = 'wl-' + sym;
         div.className = 'wl-item flex items-center px-4 py-2.5 border-b border-slate-50 cursor-pointer transition-colors border-l-2 border-l-transparent hover:bg-slate-50 dark:bg-darkbg group';
-        div.innerHTML = `
-            <div class="flex-1">
-                <div class="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-blue-600 transition-colors">${sym}</div>
-            </div>
-            <div class="w-16 text-right text-xs font-mono font-bold text-slate-700 dark:text-slate-300" id="wl-bid-${sym}">...</div>
-            <div class="w-16 text-right text-xs font-mono font-bold text-slate-700 dark:text-slate-300" id="wl-ask-${sym}">...</div>
-        `;
+        div.innerHTML = `<div class="flex-1"><div class="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-blue-600 transition-colors">${sym}</div></div><div class="w-16 text-right text-xs font-mono font-bold text-slate-700 dark:text-slate-300" id="wl-bid-${sym}">...</div><div class="w-16 text-right text-xs font-mono font-bold text-slate-700 dark:text-slate-300" id="wl-ask-${sym}">...</div>`;
         container.prepend(div);
-        
-        // Add to activeSymbol tracking if not already there
-        if (typeof priceUpdateLoop === 'undefined') {
-            // We just let the websocket or price poller update it
-        }
-    }
-
-    function selectSymbol(sym) {
-        var oldWl = document.getElementById('wl-' + activeSymbol);
-        if(oldWl) oldWl.classList.remove('active');
-        
-        activeSymbol = sym;
-        
-        var newWl = document.getElementById('wl-' + activeSymbol);
-        if(newWl) newWl.classList.add('active');
-        
-        document.getElementById('order-symbol-title').innerText = sym;
-        
-        if (sym.endsWith("CE") || sym.endsWith("PE")) {
-            renderOptionChart(sym);
-        } else {
-            document.getElementById("lw_chart_container_1").style.display = "none";
-            document.getElementById("tv_chart_container_1").style.display = "block";
-            
-            var tvSym = tvSymbolMap[sym] || ('NSE:' + sym);
-            var interval = (tvSym.includes('OANDA') || tvSym.includes('1!') || tvSym.includes('BINGX') || tvSym.includes('BINANCE')) ? "5" : "D"; 
-            
-            document.getElementById("tv_chart_container_1").innerHTML = "";
-            tvWidget1 = initTVWidget("tv_chart_container_1", tvSym, interval);
-        }
     }
 
     function prepareOptionTrade(symbol, action) {
         closeOptionChain();
-        selectSymbol(symbol); // Now actually select it so the chart changes!
-        
+        selectSymbol(symbol);
         var qtyInput = document.getElementById('qt-qty');
-        if (symbol.includes('BANK')) {
-            qtyInput.value = '15';
-        } else {
-            qtyInput.value = '25';
-        }
-        
+        qtyInput.value = symbol.includes('BANK') ? '15' : '25';
         placeTrade(action);
         showToast(`Placing ${action} order for ${symbol}...`, 'success');
     }
 
+    /* --- NOTIFICATIONS --- */
+    function requestBrowserPermission() {
+        if (!("Notification" in window)) { alert("Browser doesn't support notifications"); return; }
+        if (Notification.permission === "granted") { showToast("Notifications already enabled!", "success"); return; }
+        if (Notification.permission !== "denied") Notification.requestPermission().then(p => { if(p==="granted") new Notification("MyFundedDesk",{body:"Notifications enabled!"}); });
+    }
+    function playNotificationSound() { new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3").play().catch(()=>{}); }
+    function showBrowserNotification(title, body) { if (window.Notification && Notification.permission === "granted") new Notification(title, { body }); }
 </script>
 </body>
 </html>
-<script>
-    function requestBrowserPermission() {
-        if (!("Notification" in window)) {
-            alert("This browser does not support desktop notification");
-        } else if (Notification.permission === "granted") {
-            showToast("Notifications are already enabled!", "success");
-        } else if (Notification.permission !== "denied") {
-            Notification.requestPermission().then((permission) => {
-                if (permission === "granted") {
-                    new Notification("MyFundedDesk", { body: "Notifications enabled!" });
-                }
-            });
-        }
-    }
-
-    function playNotificationSound() {
-        let audio = new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3");
-        audio.play().catch(e=>console.log("Audio blocked:", e));
-    }
-
-    function showBrowserNotification(title, body) {
-        if (window.Notification && Notification.permission === "granted") {
-            new Notification(title, { body: body });
-        }
-    }
-</script>
-
