@@ -193,7 +193,7 @@
             formData.append('platform', platform);
             if (coupon) formData.append('coupon_code', coupon);
 
-            const response = await fetch('/api/store/create_order', {
+            const response = await fetch('/api/payment/create-order', {
                 method: 'POST',
                 body: formData
             });
@@ -217,8 +217,11 @@
                     verifyData.append('razorpay_order_id', response.razorpay_order_id);
                     verifyData.append('razorpay_payment_id', response.razorpay_payment_id);
                     verifyData.append('razorpay_signature', response.razorpay_signature);
+                    verifyData.append('package_id', pkgId);
+                    verifyData.append('platform', platform);
+                    if (coupon) verifyData.append('coupon_code', coupon);
                     
-                    const verifyRes = await fetch('/api/store/verify_payment', {
+                    const verifyRes = await fetch('/api/payment/verify', {
                         method: 'POST',
                         body: verifyData
                     });

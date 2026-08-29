@@ -87,17 +87,14 @@
             <div class="flex items-center gap-4 text-xs font-medium">
                 <div class="flex items-center gap-2">
                     <span class="text-slate-500">Account</span>
-                    <form method="GET" action="/trading" id="account-switch-form" class="m-0 p-0">
-                        <input type="hidden" name="symbol" value="{{ current_symbol }}">
-                        <select id="account-selector" name="account_id" onchange="document.getElementById('account-switch-form').submit()" class="bg-[#1c212d] border border-[#2a2e39] rounded px-2 py-1 text-white outline-none cursor-pointer">
+                    <select id="account-selector" onchange="switchAccount(this.value)" class="bg-[#1c212d] border border-[#2a2e39] rounded px-2 py-1 text-white outline-none cursor-pointer">
                         {% for acc in accounts %}
                             <option value="{{ acc.id }}" {% if current_account and current_account.id == acc.id %}selected{% endif %}>
                                 {{ acc.account_number }} ({{ acc.model_type }}) - {{ acc.phase }}
                             </option>
                         {% endfor %}
                     </select>
-</form>
-</div>
+                </div>
             </div>
             
             <div class="h-6 w-px bg-[#2a2e39]"></div>
