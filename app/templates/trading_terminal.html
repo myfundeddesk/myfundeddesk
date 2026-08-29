@@ -312,9 +312,9 @@
     var tvSymbolMap = {
         'NIFTY50':    'BINGX:NIFTY50USDT.P', 
         'BANKNIFTY':  'BINGX:NIFTYBANKUSDT.P', 
-        'SENSEX':     'BINGX:NIFTY50USDT.P',       
-        'FINNIFTY':   'BINGX:NIFTY50USDT.P',  
-        'MIDCPNIFTY': 'BINGX:NIFTY50USDT.P', 
+        'SENSEX':     'BSE:SENSEX',       
+        'FINNIFTY':   'NSE:FINNIFTY1!',  
+        'MIDCPNIFTY': 'NSE:MIDCPNIFTY1!', 
         'RELIANCE':   'NSE:RELIANCE',   
         'HDFCBANK':   'NSE:HDFCBANK'
     };
@@ -359,7 +359,7 @@
             renderOptionChart(activeSymbol);
         } else {
             var tvSym = tvSymbolMap[activeSymbol] || ('NSE:' + activeSymbol);
-            var interval = (tvSym.includes('OANDA') || tvSym.includes('1!') || tvSym.includes('BINGX') || tvSym.includes('BINANCE')) ? "5" : "D";
+            var interval = "5";
             tvWidget1 = initTVWidget("tv_chart_container_1", tvSym, interval);
         }
         
@@ -376,7 +376,7 @@
             if (!tvWidget2) {
                 // Initialize second chart to BankNifty equivalent
                 var tvSym2 = tvSymbolMap['BANKNIFTY'] || 'NSE:BANKNIFTY';
-                var interval = (tvSym2.includes('OANDA') || tvSym2.includes('1!') || tvSym2.includes('BINGX')) ? "5" : "D";
+                var interval = "5";
                 tvWidget2 = initTVWidget("tv_chart_container_2", tvSym2, interval);
             }
         } else {
@@ -874,7 +874,7 @@
             document.getElementById("tv_chart_container_1").style.display = "block";
             
             var tvSym = tvSymbolMap[sym] || ('NSE:' + sym);
-            var interval = (tvSym.includes('OANDA') || tvSym.includes('1!') || tvSym.includes('BINGX') || tvSym.includes('BINANCE')) ? "5" : "D"; 
+            var interval = "5"; 
             
             document.getElementById("tv_chart_container_1").innerHTML = "";
             tvWidget1 = initTVWidget("tv_chart_container_1", tvSym, interval);
