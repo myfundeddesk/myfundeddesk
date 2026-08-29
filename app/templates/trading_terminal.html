@@ -355,7 +355,7 @@
     }
 
     function initCharts() {
-        if (activeSymbol.endsWith("CE") || activeSymbol.endsWith("PE") || activeSymbol.includes("24") || activeSymbol.includes("25") || activeSymbol.includes("26")) {
+        if (activeSymbol.endsWith("CE") || activeSymbol.endsWith("PE") || activeSymbol.includes("24") || activeSymbol.includes("25") || activeSymbol.includes("26") || activeSymbol === "SENSEX" || activeSymbol === "FINNIFTY" || activeSymbol === "MIDCPNIFTY" || activeSymbol === "BANKNIFTY" || activeSymbol === "NIFTY50") {
             renderOptionChart(activeSymbol);
         } else {
             var tvSym = tvSymbolMap[activeSymbol] || ('NSE:' + activeSymbol);
@@ -867,7 +867,7 @@
         
         document.getElementById('order-symbol-title').innerText = sym;
         
-        if (sym.endsWith("CE") || sym.endsWith("PE") || sym.includes("24") || sym.includes("25") || sym.includes("26")) {
+        if (sym.endsWith("CE") || sym.endsWith("PE") || sym.includes("24") || sym.includes("25") || sym.includes("26") || sym === "SENSEX" || sym === "FINNIFTY" || sym === "MIDCPNIFTY" || sym === "BANKNIFTY" || sym === "NIFTY50") {
             renderOptionChart(sym);
         } else {
             document.getElementById("lw_chart_container_1").style.display = "none";
