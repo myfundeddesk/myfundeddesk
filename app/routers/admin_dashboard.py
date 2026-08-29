@@ -525,40 +525,14 @@ async def save_customizer(
 async def admin_forgot_password(request: Request):
     try:
         from app.core.email import send_email
-        # We reuse the SMTP setup from send_admin_otp_email to send the password.
-        # But wait, send_admin_otp_email takes (to_email, otp). We can just pass the password as the "OTP" 
-        # or craft a specific email. Let's just use it to send the password!
         subject = "Admin Password Recovery - PropLab"
-        body = f"Your admin password is: {ADMIN_PASSWORD}"
+        body = f"<p>Your admin password is: <strong>{ADMIN_PASSWORD}</strong></p>"
         
-        import smtplib
-        from email.mime.text import MIMEText
-        from email.mime.multipart import MIMEMultipart
-        import os
-
-        smtp_server = os.getenv("SMTP_SERVER", "smtp.gmail.com")
-        smtp_port = int(os.getenv("SMTP_PORT", 587))
-        smtp_user = os.getenv("SMTP_USER")
-        smtp_pass = os.getenv("SMTP_PASS")
-        
-        if not smtp_user or not smtp_pass:
-            # Fallback for dev if no SMTP
-            print(f"Admin Recovery Triggered. Password is: {ADMIN_PASSWORD}")
+        success = send_email(ADMIN_USERNAME, subject, body)
+        if success:
             return JSONResponse({"success": True})
-            
-        msg = MIMEMultipart()
-        msg["From"] = smtp_user
-        msg["To"] = ADMIN_USERNAME
-        msg["Subject"] = subject
-        msg.attach(MIMEText(body, "plain"))
-
-        server = smtplib.SMTP(smtp_server, smtp_port)
-        server.starttls()
-        server.login(smtp_user, smtp_pass)
-        server.send_message(msg)
-        server.quit()
-        
-        return JSONResponse({"success": True})
+        else:
+            return JSONResponse({"success": False, "error": "Email dispatch failed"})
     except Exception as e:
         print("Error sending admin recovery:", e)
         return JSONResponse({"success": False, "error": str(e)})

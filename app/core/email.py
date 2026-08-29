@@ -1,36 +1,29 @@
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 import os
+import resend
 
-SMTP_HOST = os.getenv("SMTP_HOST", "smtp.gmail.com")
-SMTP_PORT = int(os.getenv("SMTP_PORT", 587))
-SMTP_USER = os.getenv("SMTP_USER", "")
-SMTP_PASS = os.getenv("SMTP_PASS", "")
-FROM_EMAIL = os.getenv("FROM_EMAIL", "noreply@myfundeddesk.com")
-ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "myfundeddesk@gmail.com") # Default admin email
+RESEND_API_KEY = os.getenv("RESEND_API_KEY")
+if RESEND_API_KEY:
+    resend.api_key = RESEND_API_KEY
+
+FROM_EMAIL = os.getenv("FROM_EMAIL", "onboarding@resend.dev")
+ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "myfundeddesk@gmail.com")
 
 def send_email(to_email: str, subject: str, body: str):
-    if not SMTP_USER or not SMTP_PASS:
+    if not RESEND_API_KEY:
         print(f"--- MOCK EMAIL TO {to_email} ---")
         print(f"Subject: {subject}")
         print(f"Body:\n{body}")
         print("---------------------------------")
         return True
 
-    msg = MIMEMultipart()
-    msg['From'] = FROM_EMAIL
-    msg['To'] = to_email
-    msg['Subject'] = subject
-    msg.attach(MIMEText(body, 'html'))
-
     try:
-        with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
-            server.starttls()
-            server.login(SMTP_USER, SMTP_PASS)
-            server.send_message(msg)
+        r = resend.Emails.send({
+            "from": FROM_EMAIL,
+            "to": to_email,
+            "subject": subject,
+            "html": body
+        })
         return True
     except Exception as e:
         print(f"Failed to send email: {e}")
         return False
-

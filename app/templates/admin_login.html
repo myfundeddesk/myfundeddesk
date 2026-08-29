@@ -38,7 +38,7 @@
             <div>
                                 <div class="flex justify-between items-center mb-2">
                     <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider">Secure Password</label>
-                    <a href="#" onclick="adminForgotPassword()" class="text-xs text-indigo-400 hover:text-indigo-300">Forgot Password?</a>
+                    <a href="#" onclick="adminForgotPassword(event)" class="text-xs text-indigo-400 hover:text-indigo-300">Forgot Password?</a>
                 </div>
                 <input type="password" name="password" required class="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-4 py-3 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-colors" placeholder="Enter password">
             </div>
@@ -56,6 +56,23 @@
 <script>
     lucide.createIcons();
 </script>
+
+    <script>
+        function adminForgotPassword(e) {
+            e.preventDefault();
+            const btn = e.target;
+            btn.innerText = "Sending...";
+            fetch('/admin/forgot-password', {method: 'POST'}).then(r => r.json()).then(d => {
+                if(d.success) {
+                    btn.innerText = "Sent to Admin Email!";
+                    btn.classList.add('text-emerald-400');
+                } else {
+                    btn.innerText = "Failed";
+                }
+            }).catch(() => { btn.innerText = "Error"; });
+        }
+    </script>
 </body>
+
 </html>
 
