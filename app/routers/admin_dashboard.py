@@ -472,3 +472,18 @@ async def admin_pages_delete(page_id: int, db: Session = Depends(get_db)):
     db.commit()
     return RedirectResponse(url='/admin/pages', status_code=303)
 
+
+
+@router.post('/admin/accounts/{account_id}/edit-capital')
+async def edit_capital(account_id: int, request: Request, balance: float = Form(...), equity: float = Form(...), db: Session = Depends(get_db)):
+    user = check_admin(request, db)
+    if not user:
+        return RedirectResponse('/admin/login', status_code=302)
+    
+    acc = db.query(TradingAccount).filter(TradingAccount.id == account_id).first()
+    if acc:
+        acc.current_balance = balance
+        acc.current_equity = equity
+        db.commit()
+    
+    return RedirectResponse('/admin', status_code=302)

@@ -59,6 +59,100 @@
                                 <span class="menu-title">Manage Orders</span>
                             </a>
                         </li>
+                        
+                        <!-- Deposits Dropdown -->
+                        <li class="sidebar-menu-item sidebar-dropdown">
+                            <a href="javascript:void(0)" class="nav-link">
+                                <i class="menu-icon las la-file-invoice-dollar"></i>
+                                <span class="menu-title">Deposits</span>
+                                <span class="menu-badge bg--warning ms-auto"><i class="las la-exclamation"></i></span>
+                            </a>
+                            <div class="sidebar-submenu">
+                                <ul>
+                                    <li class="sidebar-menu-item">
+                                        <a href="#" class="nav-link" onclick="switchTab('deposits', this)">
+                                            <i class="menu-icon las la-dot-circle"></i>
+                                            <span class="menu-title">Pending Deposits</span>
+                                            <span class="menu-badge bg--info ms-auto">149</span>
+                                        </a>
+                                    </li>
+                                    <li class="sidebar-menu-item"><a href="#" class="nav-link" onclick="switchTab('deposits', this)"><i class="menu-icon las la-dot-circle"></i><span class="menu-title">Approved Deposits</span></a></li>
+                                    <li class="sidebar-menu-item"><a href="#" class="nav-link" onclick="switchTab('deposits', this)"><i class="menu-icon las la-dot-circle"></i><span class="menu-title">Successful Deposits</span></a></li>
+                                    <li class="sidebar-menu-item"><a href="#" class="nav-link" onclick="switchTab('deposits', this)"><i class="menu-icon las la-dot-circle"></i><span class="menu-title">Rejected Deposits</span></a></li>
+                                    <li class="sidebar-menu-item"><a href="#" class="nav-link" onclick="switchTab('deposits', this)"><i class="menu-icon las la-dot-circle"></i><span class="menu-title">Initiated Deposits</span></a></li>
+                                    <li class="sidebar-menu-item"><a href="#" class="nav-link" onclick="switchTab('deposits', this)"><i class="menu-icon las la-dot-circle"></i><span class="menu-title">All Deposits</span></a></li>
+                                </ul>
+                            </div>
+                        </li>
+
+                        <!-- Withdrawals Dropdown -->
+                        <li class="sidebar-menu-item sidebar-dropdown">
+                            <a href="javascript:void(0)" class="nav-link">
+                                <i class="menu-icon las la-university"></i>
+                                <span class="menu-title">Withdrawals</span>
+                                <span class="menu-badge bg--warning ms-auto"><i class="las la-exclamation"></i></span>
+                            </a>
+                            <div class="sidebar-submenu">
+                                <ul>
+                                    <li class="sidebar-menu-item">
+                                        <a href="#" class="nav-link" onclick="switchTab('withdrawals', this)">
+                                            <i class="menu-icon las la-dot-circle"></i>
+                                            <span class="menu-title">Pending Withdrawals</span>
+                                            <span class="menu-badge bg--info ms-auto">9</span>
+                                        </a>
+                                    </li>
+                                    <li class="sidebar-menu-item"><a href="#" class="nav-link" onclick="switchTab('withdrawals', this)"><i class="menu-icon las la-dot-circle"></i><span class="menu-title">Approved Withdrawals</span></a></li>
+                                    <li class="sidebar-menu-item"><a href="#" class="nav-link" onclick="switchTab('withdrawals', this)"><i class="menu-icon las la-dot-circle"></i><span class="menu-title">Rejected Withdrawals</span></a></li>
+                                    <li class="sidebar-menu-item"><a href="#" class="nav-link" onclick="switchTab('withdrawals', this)"><i class="menu-icon las la-dot-circle"></i><span class="menu-title">All Withdrawals</span></a></li>
+                                </ul>
+                            </div>
+                        </li>
+
+                        <!-- Support Ticket Dropdown -->
+                        <li class="sidebar-menu-item sidebar-dropdown">
+                            <a href="javascript:void(0)" class="nav-link">
+                                <i class="menu-icon las la-ticket-alt"></i>
+                                <span class="menu-title">Support Ticket</span>
+                                <span class="menu-badge bg--warning ms-auto"><i class="las la-exclamation"></i></span>
+                            </a>
+                            <div class="sidebar-submenu">
+                                <ul>
+                                    <li class="sidebar-menu-item">
+                                        <a href="#" class="nav-link" onclick="switchTab('support', this)">
+                                            <i class="menu-icon las la-dot-circle"></i>
+                                            <span class="menu-title">Pending Ticket</span>
+                                            <span class="menu-badge bg--info ms-auto">57</span>
+                                        </a>
+                                    </li>
+                                    <li class="sidebar-menu-item"><a href="#" class="nav-link" onclick="switchTab('support', this)"><i class="menu-icon las la-dot-circle"></i><span class="menu-title">Closed Ticket</span></a></li>
+                                    <li class="sidebar-menu-item"><a href="#" class="nav-link" onclick="switchTab('support', this)"><i class="menu-icon las la-dot-circle"></i><span class="menu-title">Answered Ticket</span></a></li>
+                                    <li class="sidebar-menu-item"><a href="#" class="nav-link" onclick="switchTab('support', this)"><i class="menu-icon las la-dot-circle"></i><span class="menu-title">All Ticket</span></a></li>
+                                </ul>
+                            </div>
+                        </li>
+
+                        <!-- Report Dropdown -->
+                        <li class="sidebar-menu-item sidebar-dropdown">
+                            <a href="javascript:void(0)" class="nav-link">
+                                <i class="menu-icon las la-list"></i>
+                                <span class="menu-title">Report</span>
+                            </a>
+                            <div class="sidebar-submenu">
+                                <ul>
+                                    <li class="sidebar-menu-item"><a href="#" class="nav-link" onclick="switchTab('reports', this)"><i class="menu-icon las la-dot-circle"></i><span class="menu-title">Transaction History</span></a></li>
+                                    <li class="sidebar-menu-item"><a href="#" class="nav-link" onclick="switchTab('reports', this)"><i class="menu-icon las la-dot-circle"></i><span class="menu-title">Login History</span></a></li>
+                                    <li class="sidebar-menu-item"><a href="#" class="nav-link" onclick="switchTab('reports', this)"><i class="menu-icon las la-dot-circle"></i><span class="menu-title">Notification History</span></a></li>
+                                </ul>
+                            </div>
+                        </li>
+
+                        <li class="sidebar-menu-item">
+                            <a href="#" class="nav-link" onclick="switchTab('subscribers', this)">
+                                <i class="menu-icon las la-thumbs-up"></i>
+                                <span class="menu-title">Subscribers</span>
+                            </a>
+                        </li>
+
                         <li class="sidebar-menu-item">
                             <a href="#" class="nav-link" onclick="switchTab('packages', this)">
                                 <i class="menu-icon las la-signal"></i>
@@ -77,6 +171,23 @@
                                 <span class="menu-title">System Setting</span>
                             </a>
                         </li>
+
+                        <!-- Extra Dropdown -->
+                        <li class="sidebar-menu-item sidebar-dropdown">
+                            <a href="javascript:void(0)" class="nav-link">
+                                <i class="menu-icon las la-server"></i>
+                                <span class="menu-title">Extra</span>
+                            </a>
+                            <div class="sidebar-submenu">
+                                <ul>
+                                    <li class="sidebar-menu-item"><a href="#" class="nav-link" onclick="switchTab('extra', this)"><i class="menu-icon las la-dot-circle"></i><span class="menu-title">Application</span></a></li>
+                                    <li class="sidebar-menu-item"><a href="#" class="nav-link" onclick="switchTab('extra', this)"><i class="menu-icon las la-dot-circle"></i><span class="menu-title">Server</span></a></li>
+                                    <li class="sidebar-menu-item"><a href="#" class="nav-link" onclick="switchTab('extra', this)"><i class="menu-icon las la-dot-circle"></i><span class="menu-title">Cache</span></a></li>
+                                    <li class="sidebar-menu-item"><a href="#" class="nav-link" onclick="switchTab('extra', this)"><i class="menu-icon las la-dot-circle"></i><span class="menu-title">Update</span></a></li>
+                                </ul>
+                            </div>
+                        </li>
+
                         <li class="sidebar-menu-item mt-5">
                             <a href="/trading" target="_blank" class="nav-link">
                                 <i class="menu-icon las la-globe"></i>
@@ -330,7 +441,65 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    
+                        <!-- User Analytics & IP Management -->
+                        <div class="row gy-4 mt-4">
+                            <div class="col-lg-6">
+                                <div class="card b-radius--10 h-100">
+                                    <div class="card-header">
+                                        <h5 class="card-title mb-0">Users by Region</h5>
+                                    </div>
+                                    <div class="card-body p-4 d-flex justify-content-center align-items-center">
+                                        <div style="width: 100%; max-width: 300px;">
+                                            <canvas id="userPieChart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="card b-radius--10 h-100">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <h5 class="card-title mb-0">Recent IP Logins & Blocker</h5>
+                                        <button class="btn btn-sm btn-outline--danger"><i class="las la-ban"></i> Block IP</button>
+                                    </div>
+                                    <div class="card-body p-0">
+                                        <div class="table-responsive">
+                                            <table class="table table--light style--two mb-0">
+                                                <thead>
+                                                    <tr>
+                                                        <th>User</th>
+                                                        <th>IP Address</th>
+                                                        <th>Country</th>
+                                                        <th>Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>admin@myfundeddesk.com</td>
+                                                        <td class="text-info fw-bold">192.168.1.1</td>
+                                                        <td>India</td>
+                                                        <td><button class="btn btn-sm btn-outline--danger px-2 py-1"><i class="las la-ban"></i> Block</button></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>trader1@gmail.com</td>
+                                                        <td class="text-info fw-bold">103.45.22.19</td>
+                                                        <td>UAE</td>
+                                                        <td><button class="btn btn-sm btn-outline--danger px-2 py-1"><i class="las la-ban"></i> Block</button></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>guest@viserlab.com</td>
+                                                        <td class="text-info fw-bold">45.22.10.99</td>
+                                                        <td>UK</td>
+                                                        <td><button class="btn btn-sm btn-outline--danger px-2 py-1"><i class="las la-ban"></i> Block</button></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+</div>
 
                     <!-- TAB: USERS -->
                     <div id="tab-users" class="admin-tab" style="display: none;">
@@ -394,6 +563,37 @@
                                                     {% else %}
                                                     <span class="badge badge--danger">{{ a.status }}</span>
                                                     {% endif %}
+                                                </td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline--primary" data-bs-toggle="modal" data-bs-target="#editCapitalModal{{ a.id }}">
+                                                        <i class="las la-pen"></i> Edit Capital
+                                                    </button>
+                                                    
+                                                    <!-- Edit Capital Modal -->
+                                                    <div class="modal fade" id="editCapitalModal{{ a.id }}" tabindex="-1">
+                                                        <div class="modal-dialog">
+                                                            <form action="/admin/accounts/{{ a.id }}/edit-capital" method="POST" class="modal-content bg--dark border-0">
+                                                                <div class="modal-header border-0">
+                                                                    <h5 class="modal-title text-white">Edit Capital (Acc #{{ a.account_number }})</h5>
+                                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                                                </div>
+                                                                <div class="modal-body">
+                                                                    <div class="form-group">
+                                                                        <label class="text-white">Current Balance</label>
+                                                                        <input type="number" step="0.01" name="balance" class="form-control bg-dark text-white" value="{{ a.current_balance }}" required>
+                                                                    </div>
+                                                                    <div class="form-group mt-3">
+                                                                        <label class="text-white">Current Equity</label>
+                                                                        <input type="number" step="0.01" name="equity" class="form-control bg-dark text-white" value="{{ a.current_equity }}" required>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="modal-footer border-0">
+                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
                                                 </td>
                                             </tr>
                                             {% else %}
@@ -515,6 +715,16 @@
             document.getElementById('page-title-text').innerText = titles[tabId] || 'Dashboard';
         }
 
+        
+        // Sidebar Dropdown
+        $('.sidebar-dropdown > a').on('click', function () {
+            var submenu = $(this).siblings('.sidebar-submenu');
+            if (submenu.length > 0) {
+                submenu.slideToggle();
+                $(this).parent().toggleClass('active');
+            }
+        });
+
         // Fix toggling sidebar for responsive design
         $('.res-sidebar-open-btn').on('click', function () {
             $('.sidebar').addClass('open');
@@ -525,5 +735,45 @@
             $('.sidebar-mobile-overlay').removeClass('open');
         });
     </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var ctx = document.getElementById('userPieChart').getContext('2d');
+            var userPieChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['India', 'UAE', 'UK', 'USA', 'Other'],
+                    datasets: [{
+                        data: [45, 25, 10, 15, 5],
+                        backgroundColor: ['#4634ff', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: '#a0aec0' } }
+                    }
+                }
+            });
+        });
+    </script>
+
+
+<!--Start of Tawk.to Script-->
+<script type="text/javascript">
+var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+(function(){
+var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+s1.async=true;
+s1.src='https://embed.tawk.to/67890abcdef/123456789';
+s1.charset='UTF-8';
+s1.setAttribute('crossorigin','*');
+s0.parentNode.insertBefore(s1,s0);
+})();
+</script>
+<!--End of Tawk.to Script-->
+
 </body>
 </html>
