@@ -7,12 +7,7 @@ def seed_database():
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
 
-    
-        db.refresh(user)
-    else:
-        if not user.hashed_password:
-            user.hashed_password = hash_password("trader123")
-            db.commit()
+        
 
     # Seed challenge packages if missing
     packages = [
