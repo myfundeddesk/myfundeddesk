@@ -310,13 +310,13 @@
     // NOTE: NSE spot indices (NSE:NIFTY) are blocked by exchange rules on free widgets.
     // We use global CFD equivalents or futures (which are allowed) to ensure the chart loads!
     var tvSymbolMap = {
-        'NIFTY50': 'BINANCE:BTCUSDT', 
-        'BANKNIFTY': 'BINANCE:ETHUSDT', 
-        'SENSEX': 'BINANCE:BNBUSDT',       
-        'FINNIFTY': 'BINANCE:SOLUSDT',  
-        'MIDCPNIFTY': 'BINANCE:ADAUSDT', 
-        'RELIANCE': 'BINANCE:XRPUSDT',   
-        'HDFCBANK': 'BINANCE:MATICUSDT'
+        'NIFTY50': 'NSE:NIFTY1!', 
+        'BANKNIFTY': 'NSE:BANKNIFTY1!', 
+        'SENSEX': 'BSE:SENSEX',       
+        'FINNIFTY': 'NSE:FINNIFTY1!',  
+        'MIDCPNIFTY': 'NSE:MIDCPNIFTY1!', 
+        'RELIANCE': 'NSE:RELIANCE',   
+        'HDFCBANK': 'NSE:HDFCBANK'
     };
 
     function formatInr(val) {
