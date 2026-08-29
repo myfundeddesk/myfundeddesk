@@ -381,7 +381,7 @@
                                                 <td class="fw-bold">#{{ a.id }}</td>
                                                 <td>#{{ a.user_id }}</td>
                                                 <td>{{ a.package_id }}</td>
-                                                <td class="fw-bold">${{ "%.2f"|format(a.balance) }}</td>
+                                                <td class="fw-bold">${{ "%.2f"|format(a.current_balance) }}</td>
                                                 <td>
                                                     {% if a.status == 'ACTIVE' %}
                                                     <span class="badge badge--success">Active</span>
