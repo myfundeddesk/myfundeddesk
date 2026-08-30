@@ -293,8 +293,6 @@
     </div>
 
 <script>
-    lucide.createIcons();
-
     // STATE
     var activeSymbol = document.body.getAttribute('data-active-symbol') || 'NIFTY50';
     var accAttr = document.body.getAttribute('data-account-id');
@@ -555,6 +553,7 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
+        lucide.createIcons();
         initCharts();
         pollPrices();
         pollAccountState();
