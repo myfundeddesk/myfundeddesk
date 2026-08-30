@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from pathlib import Path
 from ..database import get_db
-from ..models import User, TradingAccount, TradePosition, ChallengePackage
+from ..models import User, TradingAccount, TradePosition, ChallengePackage, AppSetting
 from ..config import APP_NAME
 
 router = APIRouter()
@@ -484,9 +484,7 @@ async def admin_pages_delete(page_id: int, db: Session = Depends(get_db)):
 
 @router.post('/admin/accounts/{account_id}/edit-capital')
 async def edit_capital(account_id: int, request: Request, balance: float = Form(...), equity: float = Form(...), db: Session = Depends(get_db)):
-    user = check_admin(request, db)
-    if not user:
-        return RedirectResponse('/admin/login', status_code=302)
+    require_super_admin(request)
     
     acc = db.query(TradingAccount).filter(TradingAccount.id == account_id).first()
     if acc:

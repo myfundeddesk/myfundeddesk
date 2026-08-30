@@ -13,7 +13,7 @@
     
     <style>
         /* Hide TinyMCE API Key Warning */
-        .tox-notifications-container, .tox-notification, .tox-notification--warning { display: none !important; visibility: hidden !important; opacity: 0 !important; z-index: -9999 !important; }
+        .tox-notifications-container, .tox-notification, .tox-notification--warning, .tox-statusbar__branding { display: none !important; visibility: hidden !important; opacity: 0 !important; z-index: -9999 !important; height: 0 !important; overflow: hidden !important; }
 
         .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
@@ -840,7 +840,7 @@
     function showToast(msg, type='success') {
         const container = document.getElementById('toast-container');
         const t = document.createElement('div');
-        t.className = `px-4 py-3 rounded-lg text-sm font-bold text-white shadow-lg transform transition-all duration-300 translate-x-full Γé╣{type==='success' ? 'bg-emerald-600' : 'bg-rose-600'}`;
+        t.className = `px-4 py-3 rounded-lg text-sm font-bold text-white shadow-lg transform transition-all duration-300 translate-x-full ${type==='success' ? 'bg-emerald-600' : 'bg-rose-600'}`;
         t.innerText = msg;
         container.appendChild(t);
         
@@ -850,31 +850,6 @@
             t.style.opacity = '0';
             setTimeout(() => t.remove(), 300);
         }, 3000);
-    }
-
-    function switchTab(tab) {
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('nav button').forEach(el => {
-            el.classList.remove('bg-slate-800/50', 'text-white');
-            el.classList.add('text-slate-400');
-        });
-        
-        document.getElementById('tab-' + tab).classList.add('active');
-        const navBtn = document.getElementById('nav-' + tab);
-        navBtn.classList.remove('text-slate-400');
-        navBtn.classList.add('bg-slate-800/50', 'text-white');
-        
-        const titles = {
-            'overview': 'Platform Overview',
-            'users': 'User Management',
-            'accounts': 'Trading Accounts',
-            'trades': 'Live Market Positions',
-            'rules': 'Prop Firm Rules Engine',
-            'payouts': 'Payout Requests',
-            'ops': 'Market Operations & Risk',
-            'settings': 'Platform Settings'
-        };
-        document.getElementById('page-title').innerText = titles[tab];
     }
     
     function openEditUserModal(id, name, email, password) {
@@ -982,55 +957,7 @@
 </script>
 
     
-    <div id="packageEditModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-white/10 rounded-2xl p-6 w-full max-w-lg">
-            <h3 class="text-xl font-bold text-white mb-4">Edit Capital Price</h3>
-            <input type="hidden" id="editPkgId">
-            <label class="text-slate-400 text-sm mb-1 block">New Price (Γé╣)</label>
-            <input type="number" step="0.01" id="editPkgPrice" class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-primary mb-4">
-            <div class="flex justify-end gap-3">
-                <button onclick="closePackageEditModal()" class="px-4 py-2 rounded-xl text-slate-400 hover:bg-white/5 transition-colors">Cancel</button>
-                <button onclick="savePackagePrice()" class="px-4 py-2 rounded-xl bg-primary text-white font-bold hover:bg-primary/80 transition-colors">Save Details</button>
-            </div>
-        </div>
-    </div>
-
-
-    <div id="promoModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-white/10 rounded-2xl p-6 w-full max-w-lg">
-            <h3 class="text-xl font-bold text-white mb-4">Generate Master Promo</h3>
-            <input type="text" id="promoCodeInput" class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-primary mb-4" placeholder="Promo Code (e.g. SUMMER50)">
-            <input type="number" id="promoDiscountInput" class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-primary mb-4" placeholder="Discount % (e.g. 50)">
-            <div class="flex justify-end gap-3">
-                <button onclick="closePromoModal()" class="px-4 py-2 rounded-xl text-slate-400 hover:bg-white/5 transition-colors">Cancel</button>
-                <button onclick="generateCustomPromo()" class="px-4 py-2 rounded-xl bg-primary text-white font-bold hover:bg-primary/80 transition-colors">Generate</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="broadcastModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-white/10 rounded-2xl p-6 w-full max-w-lg">
-            <h3 class="text-xl font-bold text-white mb-4">Broadcast Custom Message</h3>
-            <textarea id="broadcastMessage" rows="4" class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-primary mb-4" placeholder="Type message here..."></textarea>
-            <div class="flex justify-end gap-3">
-                <button onclick="closeBroadcastModal()" class="px-4 py-2 rounded-xl text-slate-400 hover:bg-white/5 transition-colors">Cancel</button>
-                <button onclick="sendBroadcast()" class="px-4 py-2 rounded-xl bg-primary text-white font-bold hover:bg-primary/80 transition-colors">Send Broadcast</button>
-            </div>
-        </div>
-    </div>
     
-    <div id="settingsModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-white/10 rounded-2xl p-6 w-full max-w-lg">
-            <h3 class="text-xl font-bold text-white mb-4">Update Certificate Director</h3>
-            <input type="text" id="directorNameInput" class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-primary mb-4" placeholder="Dr. S. K. Vance">
-            <div class="flex justify-end gap-3">
-                <button onclick="closeSettingsModal()" class="px-4 py-2 rounded-xl text-slate-400 hover:bg-white/5 transition-colors">Cancel</button>
-                <button onclick="saveDirectorName()" class="px-4 py-2 rounded-xl bg-primary text-white font-bold hover:bg-primary/80 transition-colors">Save Name</button>
-            </div>
-        </div>
-    </div>
-</body>
-</html>
 
 <!-- TAB: USERS -->
                     <div id="tab-users" class="admin-tab" style="display: none;">
@@ -1220,7 +1147,56 @@
         </div>
     </div>
 
-    <script src="https://script.viserlab.com/proplab/assets/global/js/jquery-3.7.1.min.js"></script>
+    
+<div id="packageEditModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-white/10 rounded-2xl p-6 w-full max-w-lg">
+            <h3 class="text-xl font-bold text-white mb-4">Edit Capital Price</h3>
+            <input type="hidden" id="editPkgId">
+            <label class="text-slate-400 text-sm mb-1 block">New Price (Γé╣)</label>
+            <input type="number" step="0.01" id="editPkgPrice" class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-primary mb-4">
+            <div class="flex justify-end gap-3">
+                <button onclick="closePackageEditModal()" class="px-4 py-2 rounded-xl text-slate-400 hover:bg-white/5 transition-colors">Cancel</button>
+                <button onclick="savePackagePrice()" class="px-4 py-2 rounded-xl bg-primary text-white font-bold hover:bg-primary/80 transition-colors">Save Details</button>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="promoModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-white/10 rounded-2xl p-6 w-full max-w-lg">
+            <h3 class="text-xl font-bold text-white mb-4">Generate Master Promo</h3>
+            <input type="text" id="promoCodeInput" class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-primary mb-4" placeholder="Promo Code (e.g. SUMMER50)">
+            <input type="number" id="promoDiscountInput" class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-primary mb-4" placeholder="Discount % (e.g. 50)">
+            <div class="flex justify-end gap-3">
+                <button onclick="closePromoModal()" class="px-4 py-2 rounded-xl text-slate-400 hover:bg-white/5 transition-colors">Cancel</button>
+                <button onclick="generateCustomPromo()" class="px-4 py-2 rounded-xl bg-primary text-white font-bold hover:bg-primary/80 transition-colors">Generate</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="broadcastModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-white/10 rounded-2xl p-6 w-full max-w-lg">
+            <h3 class="text-xl font-bold text-white mb-4">Broadcast Custom Message</h3>
+            <textarea id="broadcastMessage" rows="4" class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-primary mb-4" placeholder="Type message here..."></textarea>
+            <div class="flex justify-end gap-3">
+                <button onclick="closeBroadcastModal()" class="px-4 py-2 rounded-xl text-slate-400 hover:bg-white/5 transition-colors">Cancel</button>
+                <button onclick="sendBroadcast()" class="px-4 py-2 rounded-xl bg-primary text-white font-bold hover:bg-primary/80 transition-colors">Send Broadcast</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="settingsModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-white/10 rounded-2xl p-6 w-full max-w-lg">
+            <h3 class="text-xl font-bold text-white mb-4">Update Certificate Director</h3>
+            <input type="text" id="directorNameInput" class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-primary mb-4" placeholder="Dr. S. K. Vance">
+            <div class="flex justify-end gap-3">
+                <button onclick="closeSettingsModal()" class="px-4 py-2 rounded-xl text-slate-400 hover:bg-white/5 transition-colors">Cancel</button>
+                <button onclick="saveDirectorName()" class="px-4 py-2 rounded-xl bg-primary text-white font-bold hover:bg-primary/80 transition-colors">Save Name</button>
+            </div>
+        </div>
+    </div>
+
+<script src="https://script.viserlab.com/proplab/assets/global/js/jquery-3.7.1.min.js"></script>
     <script src="https://script.viserlab.com/proplab/assets/global/js/bootstrap.bundle.min.js"></script>
     <script src="https://script.viserlab.com/proplab/assets/admin/js/app.js"></script>
 
@@ -1306,6 +1282,8 @@ s0.parentNode.insertBefore(s1,s0);
 })();
 </script>
 <!--End of Tawk.to Script-->
+<script>
+
 
 
         // Broadcast Form
@@ -1328,6 +1306,8 @@ s0.parentNode.insertBefore(s1,s0);
                 document.getElementById('broadcastMessage').value = '';
                 setTimeout(() => stat.style.display = 'none', 3000);
             });
+</script>
+
         });
     
 
@@ -1353,6 +1333,5 @@ s0.parentNode.insertBefore(s1,s0);
           }
       });
     </script>
-
 </body>
 </html>

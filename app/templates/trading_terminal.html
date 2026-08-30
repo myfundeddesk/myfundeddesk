@@ -503,7 +503,13 @@
         } catch (e) { console.error(e); }
     }
 
-    async function placeTrade(orderType) {
+    async 
+    function closeAllTrades() {
+        if (!confirm('Close ALL open positions?')) return;
+        document.querySelectorAll('.btn-close-trade').forEach(btn => btn.click());
+    }
+
+    function placeTrade(orderType) {
         if(isTrading) return;
         var qtyInput = document.getElementById('qt-qty');
         var lots = parseFloat(qtyInput.value);
@@ -727,7 +733,7 @@
             lwChart = LightweightCharts.createChart(lwContainer, {
                 width: w,
                 height: h,
-                layout: { backgroundColor: '#ffffff', textColor: '#333' },
+                layout: { background: { type: 'solid', color: '#0f172a' }, textColor: '#94a3b8' },
                 grid: { vertLines: { color: '#f0f0f0' }, horzLines: { color: '#f0f0f0' } },
                 timeScale: { timeVisible: true, secondsVisible: false },
             });

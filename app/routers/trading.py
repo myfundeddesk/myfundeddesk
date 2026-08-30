@@ -105,7 +105,18 @@ async def open_trade(
         slippage_factor = 1.0001 if order_type == "BUY" else 0.9999
         open_price = round(base_open * slippage_factor, 2)
     elif symbol.endswith("CE") or symbol.endswith("PE"):
-        underlying = "NIFTY50" if "NIFTY" in symbol else "BANKNIFTY"
+        if "BANKNIFTY" in symbol:
+            underlying = "BANKNIFTY"
+        elif "FINNIFTY" in symbol:
+            underlying = "FINNIFTY"
+        elif "MIDCPNIFTY" in symbol:
+            underlying = "MIDCPNIFTY"
+        elif "SENSEX" in symbol:
+            underlying = "SENSEX"
+        elif "NIFTY" in symbol:
+            underlying = "NIFTY50"
+        else:
+            underlying = "NIFTY50" 
         underlying_spot = market_engine.prices[underlying]["mid"]
         opt_price = calculate_option_price_live(symbol, underlying_spot)
         if opt_price is None:
@@ -125,7 +136,18 @@ async def open_trade(
         leverage = 100
         
     is_option_trade = symbol.endswith("CE") or symbol.endswith("PE")
-    contract_size = 25 if "NIFTY" in symbol else 15
+    if "BANKNIFTY" in symbol:
+        contract_size = 15
+    elif "FINNIFTY" in symbol:
+        contract_size = 40
+    elif "MIDCPNIFTY" in symbol:
+        contract_size = 75
+    elif "SENSEX" in symbol:
+        contract_size = 10
+    elif "NIFTY" in symbol:
+        contract_size = 25
+    else:
+        contract_size = 25
     
     if is_option_trade:
         if order_type == "BUY":
@@ -281,7 +303,18 @@ async def get_prices(active_symbol: str = None):
     
     # If the user is viewing an option, calculate its live price and append it to the list
     if active_symbol and (active_symbol.endswith("CE") or active_symbol.endswith("PE")):
-        underlying = "NIFTY50" if "NIFTY" in active_symbol else "BANKNIFTY"
+        if "BANKNIFTY" in active_symbol:
+            underlying = "BANKNIFTY"
+        elif "FINNIFTY" in active_symbol:
+            underlying = "FINNIFTY"
+        elif "MIDCPNIFTY" in active_symbol:
+            underlying = "MIDCPNIFTY"
+        elif "SENSEX" in active_symbol:
+            underlying = "SENSEX"
+        elif "NIFTY" in active_symbol:
+            underlying = "NIFTY50"
+        else:
+            underlying = "NIFTY50" 
         underlying_spot = market_engine.prices.get(underlying, {}).get("mid", 0)
         if underlying_spot > 0:
             opt_price = calculate_option_price_live(active_symbol, underlying_spot)
