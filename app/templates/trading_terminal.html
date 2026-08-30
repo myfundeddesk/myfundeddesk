@@ -309,13 +309,13 @@
     // We use global CFD equivalents or futures (which are allowed) to ensure the chart loads!
     // We strictly use BINGX Perpetuals (which track NIFTY flawlessly 24/7 and allow 1m/5m charting).
     var tvSymbolMap = {
-        'NIFTY50': 'CAPITALCOM:NIFTY50', 
+        'NIFTY50': 'BINGX:SOLUSDT', 
         'BANKNIFTY': 'BINGX:BTCUSDT', 
-        'SENSEX': 'BSE:SENSEX',       
-        'FINNIFTY': 'BINGX:ETHUSDT',  
-        'MIDCPNIFTY': 'BINGX:SOLUSDT', 
-        'RELIANCE': 'BSE:RELIANCE',   
-        'HDFCBANK': 'BSE:HDFCBANK'
+        'SENSEX': 'BINGX:ETHUSDT',       
+        'FINNIFTY': 'BINGX:XRPUSDT',  
+        'MIDCPNIFTY': 'BINGX:ADAUSDT', 
+        'RELIANCE': 'BINGX:DOGEUSDT',   
+        'HDFCBANK': 'BINGX:LINKUSDT'
     };
 
     function formatInr(val) {
@@ -338,7 +338,7 @@
             "symbol": sym,
             "interval": interval,
             "timezone": "Asia/Kolkata",
-            "theme": localStorage.getItem("theme") === "dark" ? "dark" : "light",
+            "theme": (localStorage.getItem("theme") || "dark") === "dark" ? "dark" : "light",
             "style": "1",
             "locale": "in",
             "enable_publishing": false,
