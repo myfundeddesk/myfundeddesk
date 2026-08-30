@@ -104,7 +104,7 @@ async def admin_dashboard(request: Request, _ = Depends(require_super_admin), db
     
     # Calculate total simulated equity
     all_accs = db.query(TradingAccount).all()
-    total_aum = sum(a.current_balance for a in all_accs if a.status == "ACTIVE")
+    total_aum = sum((a.current_balance or 0.0) for a in all_accs if a.status == "ACTIVE")
     
     users = db.query(User).order_by(User.created_at.desc()).limit(100).all()
     accounts = db.query(TradingAccount).order_by(TradingAccount.created_at.desc()).limit(200).all()
