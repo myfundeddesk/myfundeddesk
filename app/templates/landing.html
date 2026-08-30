@@ -1,684 +1,552 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en" class="dark scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ app_name }} - {{ app_tagline }}</title>
+    <title>{{ app_name | default('MyFundedDesk') }} - {{ app_tagline | default('Trade with our capital') }}</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <!-- Alpine Plugins -->
-    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
-    <!-- Alpine Core -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    
+    <!-- Tailwind config for fonts and colors -->
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
-                    fontFamily: { 
+                    fontFamily: {
                         sans: ['Inter', 'sans-serif'],
-                        display: ['Space Grotesk', 'sans-serif']
+                        display: ['Space Grotesk', 'sans-serif'],
                     },
                     colors: {
-                        primary: '#0ea5e9',
-                        secondary: '#8b5cf6',
-                        dark: '#020617',
-                        darker: '#01030a',
+                        brand: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            200: '#99f6e4',
+                            300: '#5eead4',
+                            400: '#2dd4bf',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                            800: '#115e59',
+                            900: '#134e4a',
+                            950: '#042f2e',
+                        }
                     },
                     animation: {
-                        'blob': 'blob 10s infinite alternate',
-                        'spin-slow': 'spin 15s linear infinite',
-                        'bounce-slow': 'bounce 3s infinite',
+                        'blob': 'blob 7s infinite',
+                        'float': 'float 6s ease-in-out infinite',
                     },
                     keyframes: {
                         blob: {
                             '0%': { transform: 'translate(0px, 0px) scale(1)' },
-                            '50%': { transform: 'translate(40px, -60px) scale(1.2)' },
-                            '100%': { transform: 'translate(-30px, 30px) scale(0.9)' },
+                            '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+                            '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+                            '100%': { transform: 'translate(0px, 0px) scale(1)' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
                         }
                     }
                 }
             }
         }
     </script>
-    
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- AOS Animation -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <style>
         body {
-            background-color: #02040a;
-            background-image: 
-                radial-gradient(circle at 15% 50%, rgba(16, 185, 129, 0.08), transparent 25%),
-                radial-gradient(circle at 85% 30%, rgba(16, 185, 129, 0.12), transparent 25%),
-                url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            background-color: #020617; /* slate-950 */
             color: #f8fafc;
-            font-family: 'Inter', sans-serif;
+        }
+        .glass-nav {
+            background: rgba(2, 6, 23, 0.7);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .glass-card {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
         }
         .text-gradient {
-            background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+            background: linear-gradient(to right, #2dd4bf, #3b82f6);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        .glass-card {
-            background: rgba(13, 16, 23, 0.7);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(30, 35, 48, 0.8);
-        }
+        [x-cloak] { display: none !important; }
     </style>
-
 </head>
-<body class="antialiased selection:bg-emerald-500/30 selection:text-white">
+<body class="antialiased overflow-x-hidden selection:bg-brand-500 selection:text-white">
 
-    <!-- Top Announcement Bar -->
-    <div class="bg-emerald-500 text-black text-center py-2 text-sm font-bold tracking-wide">
+    <!-- Announcement Bar -->
+    {% if landing_data and landing_data.announcement_text %}
+    <div class="bg-gradient-to-r from-brand-600 to-blue-600 text-white text-sm py-2 px-4 text-center font-medium">
         {{ landing_data.announcement_text }}
     </div>
+    {% endif %}
 
     <!-- Navigation -->
-    <nav class="sticky top-0 w-full z-50 transition-all duration-300 bg-[#05070a]/80 backdrop-blur-md border-b border-[#1e2330]">
-        <div class="max-w-7xl mx-auto px-6">
+    <nav class="fixed w-full z-50 glass-nav transition-all duration-300" x-data="{ mobileMenuOpen: false }">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-20">
-                
                 <!-- Logo -->
-                <a href="/" class="flex items-center gap-2 group">
-                    <div class="font-black text-2xl tracking-tighter text-white flex items-center gap-1">
-                        <svg class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M4 4h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4zM4 10h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4zM4 16h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4z" />
-                        </svg>
-                        MYFUNDED <span class="font-medium text-slate-300">DESK</span>
-                    </div>
-                </a>
-
-                <!-- Desktop Menu -->
-                <div class="hidden lg:flex items-center gap-6 bg-[#0d1017] border border-[#1e2330] rounded-full px-6 py-2.5 shadow-lg">
-                    <a href="/" class="text-emerald-500 font-bold text-sm hover:text-emerald-400 transition-colors">
-                        <span class="text-emerald-500/50 mr-1">0.1 /</span> Home
-                    </a>
-                    <a href="/rules" class="text-slate-300 font-bold text-sm hover:text-emerald-500 transition-colors">
-                        <span class="text-emerald-500/50 mr-1">0.2 /</span> Trading Rules
-                    </a>
-                    <a href="#insights" class="text-slate-300 font-bold text-sm hover:text-emerald-500 transition-colors flex items-center gap-1">
-                        <span class="text-emerald-500/50 mr-1">0.3 /</span> Insights <i data-lucide="chevron-down" class="w-3 h-3"></i>
-                    </a>
-                    <a href="#faq" class="text-slate-300 font-bold text-sm hover:text-emerald-500 transition-colors">
-                        <span class="text-emerald-500/50 mr-1">0.4 /</span> FAQ
-                    </a>
-                    <a href="#contact" class="text-slate-300 font-bold text-sm hover:text-emerald-500 transition-colors">
-                        <span class="text-emerald-500/50 mr-1">0.5 /</span> Contact Us
+                <div class="flex-shrink-0 flex items-center cursor-pointer">
+                    <a href="/" class="flex items-center gap-2">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-400 to-blue-600 flex items-center justify-center shadow-lg shadow-brand-500/30">
+                            <i data-lucide="trending-up" class="w-6 h-6 text-white"></i>
+                        </div>
+                        <span class="font-display font-bold text-2xl tracking-tight">{{ app_name | default('FundedDesk') }}</span>
                     </a>
                 </div>
 
-                <div class="flex items-center gap-6">
-                    {% if user %}
-                        <a href="/dashboard" class="text-slate-300 hover:text-white text-sm font-bold transition-colors">Dashboard</a>
-                    {% else %}
-                        <a href="/login" class="text-slate-300 hover:text-white text-sm font-bold hidden md:block transition-colors">Login</a>
-                        <a href="/register" class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 hover:bg-emerald-500 hover:text-black px-6 py-2.5 rounded-full text-sm font-black transition-all flex items-center gap-2">
-                            Get Funded <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                        </a>
-                    {% endif %}
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#how-it-works" class="text-gray-300 hover:text-white font-medium transition-colors text-sm uppercase tracking-wider">How it works</a>
+                    <a href="#features" class="text-gray-300 hover:text-white font-medium transition-colors text-sm uppercase tracking-wider">Features</a>
+                    <a href="#pricing" class="text-gray-300 hover:text-white font-medium transition-colors text-sm uppercase tracking-wider">Pricing</a>
+                    <a href="#faq" class="text-gray-300 hover:text-white font-medium transition-colors text-sm uppercase tracking-wider">FAQ</a>
+                </div>
+
+                <!-- Auth Buttons -->
+                <div class="hidden md:flex items-center space-x-4">
+                    <a href="/login" class="text-gray-300 hover:text-white font-medium transition-colors px-4 py-2">Log In</a>
+                    <a href="/register" class="bg-white text-slate-900 hover:bg-gray-100 font-semibold px-6 py-2.5 rounded-full transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                        Get Funded
+                    </a>
+                </div>
+
+                <!-- Mobile menu button -->
+                <div class="md:hidden flex items-center">
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" class="text-gray-300 hover:text-white p-2">
+                        <i data-lucide="menu" x-show="!mobileMenuOpen" class="w-6 h-6"></i>
+                        <i data-lucide="x" x-show="mobileMenuOpen" class="w-6 h-6" x-cloak></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div x-show="mobileMenuOpen" 
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0 -translate-y-4"
+             x-transition:enter-end="opacity-100 translate-y-0"
+             x-transition:leave="transition ease-in duration-150"
+             x-transition:leave-start="opacity-100 translate-y-0"
+             x-transition:leave-end="opacity-0 -translate-y-4"
+             class="md:hidden glass-card absolute w-full border-t border-white/5" x-cloak>
+            <div class="px-4 pt-2 pb-6 space-y-2">
+                <a href="#how-it-works" class="block px-3 py-3 text-base font-medium text-gray-300 hover:text-white hover:bg-white/5 rounded-lg">How it works</a>
+                <a href="#features" class="block px-3 py-3 text-base font-medium text-gray-300 hover:text-white hover:bg-white/5 rounded-lg">Features</a>
+                <a href="#pricing" class="block px-3 py-3 text-base font-medium text-gray-300 hover:text-white hover:bg-white/5 rounded-lg">Pricing</a>
+                <div class="pt-4 flex flex-col gap-3 px-3">
+                    <a href="/login" class="w-full text-center border border-white/10 text-white font-medium px-4 py-3 rounded-lg hover:bg-white/5">Log In</a>
+                    <a href="/register" class="w-full text-center bg-brand-500 text-white font-semibold px-4 py-3 rounded-lg shadow-lg shadow-brand-500/20">Get Funded</a>
                 </div>
             </div>
         </div>
     </nav>
-<!-- Ticker Tape -->
-    <div class="pt-[88px] relative z-40">
-        <div class="bg-slate-900/80 backdrop-blur-xl border-y border-white/10 h-10 flex items-center overflow-hidden">
-            <!-- TradingView Widget BEGIN -->
-            <div class="tradingview-widget-container" style="width: 100%; height: 100%;">
-                <div class="tradingview-widget-container__widget"></div>
-                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
-                {
-                "symbols": [
-                    { "title": "Bitcoin", "proName": "BINANCE:BTCUSDT" },
-                    { "title": "Ethereum", "proName": "BINANCE:ETHUSDT" },
-                    { "title": "SENSEX", "proName": "BSE:SENSEX" },
-                    { "title": "Reliance", "proName": "BSE:RELIANCE" },
-                    { "proName": "SP:SPX", "title": "S&P 500" },
-                    { "proName": "FX_IDC:EURINR", "title": "EUR/INR" },
-                    { "title": "Gold", "proName": "OANDA:XAUUSD" }
-                ],
-                "showSymbolLogo": true,
-                "isTransparent": true,
-                "displayMode": "adaptive",
-                "colorTheme": "dark",
-                "locale": "en"
-                }
-                </script>
-            </div>
-            <!-- TradingView Widget END -->
-        </div>
-    </div>
 
-    <!-- 1. HERO SECTION -->
-    <section class="relative min-h-[90vh] flex items-center justify-center pt-10 pb-20 z-10">
-        <div class="max-w-7xl mx-auto px-6 relative z-10 flex flex-col items-center text-center">
-            
-            <div data-aos="fade-down" data-aos-duration="1000" class="inline-flex items-center gap-3 px-5 py-2 rounded-full glass-heavy text-xs font-black text-emerald-500 mb-10 border border-emerald-500/40 shadow-[0_0_30px_rgba(14₹65,233,0.3)] backdrop-blur-2xl">
-                <span class="relative flex h-3 w-3">
-                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
-                  <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
-                </span>
-                <span class="uppercase tracking-widest text-[10px]">India's #1 Proprietary Firm</span>
-            </div>
-            
-            <h1 data-aos="zoom-in" data-aos-duration="1200" class="text-6xl md:text-8xl lg:text-[110px] font-display font-black tracking-tighter leading-[1.05] mb-8 drop-shadow-2xl">
-                {{ landing_data.hero_title_1.replace('Traders.', '<span class="text-white">Traders.</span>') | safe }}<br>
-                <span class="text-gradient">{{ landing_data.hero_title_2 }}</span>
-            </h1>
-            
-            <p data-aos="fade-up" data-aos-duration="1200" data-aos-delay="200" class="text-lg md:text-2xl text-slate-300 max-w-3xl mx-auto mb-12 font-medium leading-relaxed">
-                We provide up to <strong class="text-white">₹1,00,00,000</strong> in real capital. You keep <strong class="text-emerald-400">90% of the profits</strong>. No hidden rules. No excuses. Just pure trading.
-            </p>
-            
-            <div data-aos="fade-up" data-aos-duration="1200" data-aos-delay="400" class="flex flex-col sm:flex-row items-center justify-center gap-6 w-full sm:w-auto">
-                <a href="/register" class="w-full sm:w-auto px-12 py-5 bg-white text-slate-900 rounded-full font-black text-lg hover:scale-105 transition-all duration-300 shadow-[0_0_50px_rgba(255,255,255,0.4)] hover:shadow-[0_0_80px_rgba(255,255,255,0.6)]">
-                    Start Your Challenge
-                </a>
-                <a href="#how-it-works" class="w-full sm:w-auto px-12 py-5 glass-heavy rounded-full font-bold text-lg hover:bg-white/10 transition-all duration-300 flex items-center justify-center gap-3 group">
-                    See How It Works <i data-lucide="arrow-down" class="w-5 h-5 group-hover:translate-y-1 transition-transform"></i>
-                </a>
-            </div>
+    <!-- Hero Section -->
+    <section class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden min-h-screen flex items-center">
+        <!-- Background Effects -->
+        <div class="absolute top-0 -left-4 w-72 h-72 bg-brand-500 rounded-full mix-blend-multiply filter blur-[128px] opacity-20 animate-blob"></div>
+        <div class="absolute top-0 -right-4 w-72 h-72 bg-blue-500 rounded-full mix-blend-multiply filter blur-[128px] opacity-20 animate-blob" style="animation-delay: 2s;"></div>
+        <div class="absolute -bottom-8 left-20 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-[128px] opacity-20 animate-blob" style="animation-delay: 4s;"></div>
+        
+        <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNSkiLz48L3N2Zz4=')] opacity-50"></div>
 
-            <!-- Stats Bar -->
-            <div data-aos="fade-up" data-aos-delay="600" class="mt-24 w-full grid grid-cols-2 md:grid-cols-4 gap-4 p-4 glass-heavy rounded-3xl">
-                <div class="text-center p-4 border-r border-white/10 last:border-0">
-                    <div class="text-3xl font-black text-white mb-1">₹50Cr+</div>
-                    <div class="text-xs text-slate-400 font-bold uppercase tracking-wider">Paid Out</div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center max-w-4xl mx-auto">
+                <div data-aos="fade-up" data-aos-duration="1000">
+                    <span class="inline-block py-1 px-3 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-400 text-sm font-semibold mb-6 tracking-wide uppercase">
+                        {{ app_tagline | default('Empowering Traders Worldwide') }}
+                    </span>
                 </div>
-                <div class="text-center p-4 border-r border-white/10 last:border-0">
-                    <div class="text-3xl font-black text-white mb-1">12hrs</div>
-                    <div class="text-xs text-slate-400 font-bold uppercase tracking-wider">Avg. Payout Time</div>
+                
+                <h1 class="text-5xl md:text-7xl font-display font-bold tracking-tight mb-8 leading-tight" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="100">
+                    {% if landing_data and landing_data.hero_title_1 %}
+                        {{ landing_data.hero_title_1 }}
+                    {% else %}
+                        Trade Up To <span class="text-gradient">&#8377;2,00,00,00</span>
+                    {% endif %}
+                    <br />
+                    {% if landing_data and landing_data.hero_title_2 %}
+                        {{ landing_data.hero_title_2 }}
+                    {% else %}
+                        Keep <span class="text-gradient">90%</span> Of Profits.
+                    {% endif %}
+                </h1>
+                
+                <p class="text-lg md:text-xl text-gray-400 mb-10 max-w-2xl mx-auto leading-relaxed" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="200">
+                    {% if landing_data and landing_data.hero_subtitle %}
+                        {{ landing_data.hero_subtitle }}
+                    {% else %}
+                        Pass our evaluation process and get access to our capital. No time limits, raw spreads, and payouts within 24 hours. Prove your edge.
+                    {% endif %}
+                </p>
+                
+                <div class="flex flex-col sm:flex-row gap-4 justify-center items-center" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="300">
+                    <a href="#pricing" class="w-full sm:w-auto px-8 py-4 rounded-full bg-white text-slate-900 font-bold text-lg hover:bg-gray-100 transition-all shadow-[0_0_40px_rgba(255,255,255,0.3)] hover:shadow-[0_0_60px_rgba(255,255,255,0.5)] transform hover:-translate-y-1 flex items-center justify-center gap-2">
+                        Start Evaluation <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                    </a>
+                    <a href="https://discord.gg/yourdiscord" target="_blank" class="w-full sm:w-auto px-8 py-4 rounded-full glass-card text-white font-semibold text-lg hover:bg-white/10 transition-all border border-white/10 flex items-center justify-center gap-2">
+                        <i data-lucide="message-square" class="w-5 h-5"></i> Join Discord
+                    </a>
                 </div>
-                <div class="text-center p-4 border-r border-white/10 last:border-0">
-                    <div class="text-3xl font-black text-white mb-1">10k+</div>
-                    <div class="text-xs text-slate-400 font-bold uppercase tracking-wider">Active Traders</div>
-                </div>
-                <div class="text-center p-4">
-                    <div class="text-3xl font-black text-emerald-400 mb-1">90%</div>
-                    <div class="text-xs text-slate-400 font-bold uppercase tracking-wider">Profit Split</div>
+
+                <!-- Trust Indicators -->
+                <div class="mt-16 pt-8 border-t border-white/5 flex flex-wrap justify-center gap-8 md:gap-16 opacity-70 grayscale hover:grayscale-0 transition-all duration-500" data-aos="fade-in" data-aos-delay="500">
+                    <div class="flex items-center gap-2 font-display font-bold text-xl"><i data-lucide="shield-check" class="text-brand-400"></i> Trustpilot 4.9/5</div>
+                    <div class="flex items-center gap-2 font-display font-bold text-xl"><i data-lucide="zap" class="text-brand-400"></i> Fast Payouts</div>
+                    <div class="flex items-center gap-2 font-display font-bold text-xl"><i data-lucide="bar-chart-2" class="text-brand-400"></i> Raw Spreads</div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- 2. DETAILED STEP-BY-STEP (How it works) -->
-    <section id="how-it-works" class="py-32 relative z-10">
-        <div class="max-w-7xl mx-auto px-6 relative">
-            <div class="text-center mb-24">
-                <h2 data-aos="fade-up" class="text-5xl md:text-7xl font-display font-black mb-6">Your Path to <span class="text-gradient-gold">Funding</span></h2>
-                <p data-aos="fade-up" data-aos-delay="100" class="text-slate-400 text-xl max-w-2xl mx-auto font-medium">A transparent, step-by-step process designed to identify and fund top tier trading talent.</p>
+    <!-- Features Section -->
+    <section id="features" class="py-24 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16" data-aos="fade-up">
+                <h2 class="text-3xl md:text-5xl font-display font-bold mb-4">Why Traders Choose Us</h2>
+                <p class="text-gray-400 max-w-2xl mx-auto text-lg">We provide the best conditions in the industry so you can focus entirely on your trading strategy.</p>
             </div>
 
-            <div class="relative timeline-line space-y-24">
-                
-                <!-- Step 1 -->
-                <div class="relative z-10 flex flex-col md:flex-row items-center gap-12" data-aos="fade-up">
-                    <div class="md:w-1/2 flex justify-end md:pl-0 pl-16">
-                        <div class="glass-card p-10 rounded-[2.5rem] w-full max-w-lg md:text-right relative overflow-hidden group">
-                            <div class="absolute -right-10 -top-10 text-[150px] font-black text-white/5 group-hover:text-emerald-500/10 transition-colors font-display hidden md:block">1</div>
-                            <div class="absolute -left-10 -top-10 text-[150px] font-black text-white/5 group-hover:text-emerald-500/10 transition-colors font-display md:hidden">1</div>
-                            <h3 class="text-3xl font-black text-white mb-4">The Challenge</h3>
-                            <p class="text-slate-400 text-lg leading-relaxed">Prove your trading skills by hitting a realistic profit target (usually 8%) without breaching the drawdown limits. Trade at your own pace—there are absolutely no time limits.</p>
-                            <ul class="mt-6 space-y-3 flex flex-col md:items-end items-start">
-                                <li class="flex items-center gap-3 text-sm font-bold text-slate-300"><i data-lucide="check-circle-2" class="text-emerald-500 w-4 h-4"></i> No Time Limits</li>
-                                <li class="flex items-center gap-3 text-sm font-bold text-slate-300"><i data-lucide="check-circle-2" class="text-emerald-500 w-4 h-4"></i> Expert Advisors (EAs) Allowed</li>
-                                <li class="flex items-center gap-3 text-sm font-bold text-slate-300"><i data-lucide="check-circle-2" class="text-emerald-500 w-4 h-4"></i> Weekend Holding Allowed</li>
-                            </ul>
-                        </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Feature 1 -->
+                <div class="glass-card p-8 rounded-2xl hover:bg-white/[0.02] transition-colors group" data-aos="fade-up" data-aos-delay="100">
+                    <div class="w-14 h-14 rounded-xl bg-brand-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <i data-lucide="clock" class="w-7 h-7 text-brand-400"></i>
                     </div>
-                    <div class="absolute left-[20px] md:left-1/2 -translate-x-1/2 w-16 h-16 rounded-full bg-emerald-500 flex items-center justify-center shadow-[0_0_30px_rgba(14₹65,233,0.5)] border-4 border-[#01030a] z-20">
-                        <i data-lucide="crosshair" class="text-white w-8 h-8"></i>
-                    </div>
-                    <div class="md:w-1/2"></div>
+                    <h3 class="text-xl font-bold font-display mb-3 text-white">No Time Limits</h3>
+                    <p class="text-gray-400 leading-relaxed">Trade at your own pace. We have removed all time restrictions on our evaluation phases so you never feel rushed.</p>
                 </div>
-
-                <!-- Step 2 -->
-                <div class="relative z-10 flex flex-col md:flex-row-reverse items-center gap-12" data-aos="fade-up">
-                    <div class="md:w-1/2 flex justify-start md:pl-0 pl-16">
-                        <div class="glass-card p-10 rounded-[2.5rem] w-full max-w-lg relative overflow-hidden group">
-                            <div class="absolute -left-10 -top-10 text-[150px] font-black text-white/5 group-hover:text-secondary/10 transition-colors font-display">2</div>
-                            <h3 class="text-3xl font-black text-white mb-4">Verification</h3>
-                            <p class="text-slate-400 text-lg leading-relaxed">Once you pass Phase 1, you enter a lighter verification stage. The profit target is slashed in half (usually 4%). This just proves your first pass wasn't a fluke.</p>
-                            <ul class="mt-6 space-y-3">
-                                <li class="flex items-center gap-3 text-sm font-bold text-slate-300"><i data-lucide="check-circle-2" class="text-secondary w-4 h-4"></i> Reduced 4% Profit Target</li>
-                                <li class="flex items-center gap-3 text-sm font-bold text-slate-300"><i data-lucide="check-circle-2" class="text-secondary w-4 h-4"></i> Same Drawdown Limits</li>
-                                <li class="flex items-center gap-3 text-sm font-bold text-slate-300"><i data-lucide="check-circle-2" class="text-secondary w-4 h-4"></i> Consistent Strategy Check</li>
-                            </ul>
-                        </div>
+                <!-- Feature 2 -->
+                <div class="glass-card p-8 rounded-2xl hover:bg-white/[0.02] transition-colors group" data-aos="fade-up" data-aos-delay="200">
+                    <div class="w-14 h-14 rounded-xl bg-blue-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <i data-lucide="percent" class="w-7 h-7 text-blue-400"></i>
                     </div>
-                    <div class="absolute left-[20px] md:left-1/2 -translate-x-1/2 w-16 h-16 rounded-full bg-secondary flex items-center justify-center shadow-[0_0_30px_rgba(139,92,246,0.5)] border-4 border-[#01030a] z-20">
-                        <i data-lucide="shield-check" class="text-white w-8 h-8"></i>
-                    </div>
-                    <div class="md:w-1/2"></div>
+                    <h3 class="text-xl font-bold font-display mb-3 text-white">Up to 90% Profit Split</h3>
+                    <p class="text-gray-400 leading-relaxed">Keep the lion's share of your hard-earned profits. We offer an industry-leading scaling plan that boosts your split.</p>
                 </div>
-
-                <!-- Step 3 -->
-                <div class="relative z-10 flex flex-col md:flex-row items-center gap-12" data-aos="fade-up">
-                    <div class="md:w-1/2 flex justify-end md:pl-0 pl-16">
-                        <div class="glass-card p-10 rounded-[2.5rem] w-full max-w-lg md:text-right relative overflow-hidden group border-emerald-500/30">
-                            <div class="absolute -right-10 -top-10 text-[150px] font-black text-white/5 group-hover:text-emerald-500/10 transition-colors font-display hidden md:block">3</div>
-                            <div class="absolute -left-10 -top-10 text-[150px] font-black text-white/5 group-hover:text-emerald-500/10 transition-colors font-display md:hidden">3</div>
-                            <h3 class="text-3xl font-black text-white mb-4">Funded Trader</h3>
-                            <p class="text-slate-400 text-lg leading-relaxed">You are now trading our live capital. There are no more profit targets. Just trade safely, generate profit, and request payouts directly to your bank account.</p>
-                            <ul class="mt-6 space-y-3 flex flex-col md:items-end items-start">
-                                <li class="flex items-center gap-3 text-sm font-bold text-slate-300"><i data-lucide="check-circle-2" class="text-emerald-400 w-4 h-4"></i> 90% Profit Split</li>
-                                <li class="flex items-center gap-3 text-sm font-bold text-slate-300"><i data-lucide="check-circle-2" class="text-emerald-400 w-4 h-4"></i> Bi-weekly Payouts</li>
-                                <li class="flex items-center gap-3 text-sm font-bold text-slate-300"><i data-lucide="check-circle-2" class="text-emerald-400 w-4 h-4"></i> Capital Scaling Plan</li>
-                            </ul>
-                        </div>
+                <!-- Feature 3 -->
+                <div class="glass-card p-8 rounded-2xl hover:bg-white/[0.02] transition-colors group" data-aos="fade-up" data-aos-delay="300">
+                    <div class="w-14 h-14 rounded-xl bg-purple-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <i data-lucide="credit-card" class="w-7 h-7 text-purple-400"></i>
                     </div>
-                    <div class="absolute left-[20px] md:left-1/2 -translate-x-1/2 w-16 h-16 rounded-full bg-emerald-500 flex items-center justify-center shadow-[0_0_30px_rgba(16₹85₹29,0.5)] border-4 border-[#01030a] z-20">
-                        <i data-lucide="banknote" class="text-white w-8 h-8"></i>
+                    <h3 class="text-xl font-bold font-display mb-3 text-white">Bi-Weekly Payouts</h3>
+                    <p class="text-gray-400 leading-relaxed">Request your payouts easily and receive your funds within 24 hours. We process payments twice a month, reliably.</p>
+                </div>
+                <!-- Feature 4 -->
+                <div class="glass-card p-8 rounded-2xl hover:bg-white/[0.02] transition-colors group" data-aos="fade-up" data-aos-delay="400">
+                    <div class="w-14 h-14 rounded-xl bg-emerald-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <i data-lucide="candlestick-chart" class="w-7 h-7 text-emerald-400"></i>
                     </div>
-                    <div class="md:w-1/2"></div>
+                    <h3 class="text-xl font-bold font-display mb-3 text-white">Raw Spreads & Low Commissions</h3>
+                    <p class="text-gray-400 leading-relaxed">Trade in true institutional conditions. Our deep liquidity pools ensure minimal slippage and ultra-low costs.</p>
+                </div>
+                <!-- Feature 5 -->
+                <div class="glass-card p-8 rounded-2xl hover:bg-white/[0.02] transition-colors group" data-aos="fade-up" data-aos-delay="500">
+                    <div class="w-14 h-14 rounded-xl bg-orange-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <i data-lucide="laptop" class="w-7 h-7 text-orange-400"></i>
+                    </div>
+                    <h3 class="text-xl font-bold font-display mb-3 text-white">Advanced Dashboard</h3>
+                    <p class="text-gray-400 leading-relaxed">Track every metric. Our custom-built proprietary dashboard gives you granular insights into your trading performance.</p>
+                </div>
+                <!-- Feature 6 -->
+                <div class="glass-card p-8 rounded-2xl hover:bg-white/[0.02] transition-colors group" data-aos="fade-up" data-aos-delay="600">
+                    <div class="w-14 h-14 rounded-xl bg-rose-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <i data-lucide="scale" class="w-7 h-7 text-rose-400"></i>
+                    </div>
+                    <h3 class="text-xl font-bold font-display mb-3 text-white">Fair Drawdown Rules</h3>
+                    <p class="text-gray-400 leading-relaxed">Our drawdown is calculated based on balance, not equity, giving you more breathing room to execute your strategy.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- 3. LIVE TRADING TERMINAL PREVIEW (Working Chart) -->
-    <section id="terminal" class="py-32 relative z-20 bg-slate-900/30 border-y border-white/5">
-        <div class="max-w-[90rem] mx-auto px-6">
-            <div class="text-center mb-16">
-                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-rose-500/10 text-rose-400 text-xs font-bold uppercase tracking-widest border border-rose-500/20 mb-6">
-                    <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span> Live Interactive Demo
-                </div>
-                <h2 data-aos="fade-up" class="text-5xl md:text-7xl font-display font-black mb-6">Try The Terminal</h2>
-                <p data-aos="fade-up" data-aos-delay="100" class="text-slate-400 text-xl max-w-3xl mx-auto">Don't just take our word for it. Interact with the actual TradingView Advanced Chart integration that powers our platform right now.</p>
-            </div>
-
-            <div class="glass-heavy rounded-[2.5rem] p-4 md:p-8 shadow-2xl border border-white/10" data-aos="zoom-in" data-aos-duration="1000">
-                <div class="flex items-center justify-between mb-6 px-4">
-                    <div class="flex items-center gap-4">
-                        <div class="flex gap-2">
-                            <div class="w-3 h-3 rounded-full bg-rose-500"></div>
-                            <div class="w-3 h-3 rounded-full bg-amber-500"></div>
-                            <div class="w-3 h-3 rounded-full bg-emerald-500"></div>
-                        </div>
-                        <span class="text-slate-400 font-mono text-sm">terminal.myfundeddesk.com</span>
-                    </div>
-                    <div class="text-slate-500 text-sm font-medium">Fully Responsive Interface</div>
-                </div>
+    <!-- Pricing Section -->
+    <section id="pricing" class="py-24 relative bg-slate-900/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" x-data="{ tab: '2-step' }">
+            <div class="text-center mb-12" data-aos="fade-up">
+                <h2 class="text-3xl md:text-5xl font-display font-bold mb-4">Choose Your Account</h2>
+                <p class="text-gray-400 max-w-2xl mx-auto text-lg mb-8">Select the capital size that fits your strategy. One-time fee, fully refundable upon first payout.</p>
                 
-                <!-- Main Chart Area -->
-                <div class="w-full h-[600px] md:h-[700px] rounded-2xl overflow-hidden border border-white/5 relative bg-[#131722]">
-                    <!-- TradingView Widget BEGIN -->
-                    <div class="tradingview-widget-container" style="height:100%;width:100%">
-                        <div id="tradingview_demo" style="height:calc(100% - 32px);width:100%"></div>
-                        <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-                        <script type="text/javascript">
-                        new TradingView.widget(
-                        {
-                        "autosize": true,
-                        "symbol": "BSE:SENSEX",
-                        "interval": "5",
-                        "timezone": "Asia/Kolkata",
-                        "theme": "dark",
-                        "style": "1",
-                        "locale": "en",
-                        "enable_publishing": false,
-                        "backgroundColor": "#131722",
-                        "gridColor": "rgba(255, 255, 255, 0.04)",
-                        "hide_top_toolbar": false,
-                        "hide_legend": false,
-                        "save_image": false,
-                        "container_id": "tradingview_demo",
-                        "toolbar_bg": "#131722",
-                        "studies": [
-                            "Volume@tv-basicstudies",
-                            "RSI@tv-basicstudies"
-                        ]
-                        }
-                        );
-                        </script>
-                    </div>
-                    <!-- TradingView Widget END -->
-                </div>
-            </div>
-            
-            <div class="grid md:grid-cols-3 gap-8 mt-16">
-                <div class="text-center p-6" data-aos="fade-up" data-aos-delay="100">
-                    <div class="w-12 h-12 mx-auto rounded-full bg-white/5 flex items-center justify-center mb-4 text-white"><i data-lucide="zap"></i></div>
-                    <h4 class="text-xl font-bold mb-2 text-white">Ultra-Low Latency</h4>
-                    <p class="text-slate-400 text-sm">Direct market access simulation ensures your orders are executed in under 20ms with zero slippage.</p>
-                </div>
-                <div class="text-center p-6" data-aos="fade-up" data-aos-delay="200">
-                    <div class="w-12 h-12 mx-auto rounded-full bg-white/5 flex items-center justify-center mb-4 text-white"><i data-lucide="layout"></i></div>
-                    <h4 class="text-xl font-bold mb-2 text-white">Advanced Tools</h4>
-                    <p class="text-slate-400 text-sm">Over 100+ built in indicators, Fibonacci tools, and smart drawing features powered by TradingView.</p>
-                </div>
-                <div class="text-center p-6" data-aos="fade-up" data-aos-delay="300">
-                    <div class="w-12 h-12 mx-auto rounded-full bg-white/5 flex items-center justify-center mb-4 text-white"><i data-lucide="smartphone"></i></div>
-                    <h4 class="text-xl font-bold mb-2 text-white">Mobile Optimized</h4>
-                    <p class="text-slate-400 text-sm">Trade on the go. Our terminal is a highly responsive PWA that feels like a native app on iOS and Android.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 4. TINY DETAILS / DEEP DIVE SECTION -->
-    <section id="details" class="py-32 relative z-10">
-        <div class="max-w-7xl mx-auto px-6">
-            <div class="mb-20">
-                <h2 data-aos="fade-right" class="text-5xl font-display font-black mb-6">The Devil is in the <span class="text-gradient">Details.</span></h2>
-                <p data-aos="fade-right" data-aos-delay="100" class="text-slate-400 text-xl max-w-2xl font-medium">We built this firm because we were tired of hidden rules designed to make traders fail. Here is exactly how we operate.</p>
-            </div>
-
-            <div class="grid lg:grid-cols-2 gap-12">
-                <!-- Detailed Rule 1 -->
-                <div class="glass-card p-10 rounded-3xl" data-aos="fade-up">
-                    <div class="flex items-start gap-6">
-                        <div class="w-16 h-16 rounded-2xl bg-rose-500/10 flex items-center justify-center shrink-0 border border-rose-500/20">
-                            <i data-lucide="alert-octagon" class="w-8 h-8 text-rose-400"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-2xl font-bold text-white mb-3">Drawdown Calculation</h3>
-                            <p class="text-slate-400 mb-4 leading-relaxed">Most firms calculate daily drawdown based on floating equity, stopping you out unfairly. We calculate our 5% Daily Drawdown based on your <strong>Start of Day Balance OR Equity</strong> (whichever is higher). This protects you from intra-day massive swings.</p>
-                            <div class="bg-black/30 p-4 rounded-xl border border-white/5 font-mono text-sm text-slate-300">
-                                <span class="text-emerald-400">Example:</span> Start day with ₹1,00,000. Daily Loss Limit is ₹5,000. Your equity cannot drop below ₹95,000 at any point during that day.
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Detailed Rule 2 -->
-                <div class="glass-card p-10 rounded-3xl" data-aos="fade-up" data-aos-delay="100">
-                    <div class="flex items-start gap-6">
-                        <div class="w-16 h-16 rounded-2xl bg-blue-500/10 flex items-center justify-center shrink-0 border border-blue-500/20">
-                            <i data-lucide="scale" class="w-8 h-8 text-blue-400"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-2xl font-bold text-white mb-3">Capital Scaling</h3>
-                            <p class="text-slate-400 mb-4 leading-relaxed">If you achieve a 10% profit on your funded account over a 4-month period (with at least 2 payouts), we will increase your account size by 30%. This scales infinitely up to ₹1,00,00,000.</p>
-                            <div class="bg-black/30 p-4 rounded-xl border border-white/5 font-mono text-sm text-slate-300">
-                                <span class="text-blue-400">Scale Process:</span> Automatic review every 4 months. No additional fees required to scale up.
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Detailed Rule 3 -->
-                <div class="glass-card p-10 rounded-3xl" data-aos="fade-up">
-                    <div class="flex items-start gap-6">
-                        <div class="w-16 h-16 rounded-2xl bg-amber-500/10 flex items-center justify-center shrink-0 border border-amber-500/20">
-                            <i data-lucide="gavel" class="w-8 h-8 text-amber-400"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-2xl font-bold text-white mb-3">Trading Styles Allowed</h3>
-                            <p class="text-slate-400 leading-relaxed">We welcome ALL trading styles. Scalping? Yes. Day Trading? Yes. Swing Trading? Yes. Holding positions over the weekend is fully permitted. Trading during high-impact news releases is fully permitted. We do not restrict your edge.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Detailed Rule 4 -->
-                <div class="glass-card p-10 rounded-3xl" data-aos="fade-up" data-aos-delay="100">
-                    <div class="flex items-start gap-6">
-                        <div class="w-16 h-16 rounded-2xl bg-purple-500/10 flex items-center justify-center shrink-0 border border-purple-500/20">
-                            <i data-lucide="bot" class="w-8 h-8 text-purple-400"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-2xl font-bold text-white mb-3">Expert Advisors & Algos</h3>
-                            <p class="text-slate-400 leading-relaxed">Automated trading is the future. EAs and custom algorithms are 100% allowed as long as they are your own strategy. High-Frequency Trading (HFT) and latency arbitrage are the only restrictions.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    
-    <!-- 5. PRICING -->
-    <section id="pricing" class="py-32 relative z-20" x-data="pricingData()">
-        <div class="max-w-3xl mx-auto px-6">
-            <div class="text-center mb-16">
-                <h2 data-aos="fade-up" class="text-4xl md:text-6xl font-black mb-8 text-white">Funded Account <span class="text-emerald-500">Challenges</span></h2>
-                
-                <!-- Model Toggle -->
-                <div class="inline-flex p-1 bg-[#0d1017] border border-[#1e2330] rounded-full mb-6" data-aos="fade-up" data-aos-delay="100">
-                    <template x-for="model in models" :key="model">
-                        <button @click="activeModel = model" 
-                                :class="activeModel === model ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20' : 'text-slate-400 hover:text-white'"
-                                class="px-6 py-2.5 rounded-full text-sm font-bold tracking-wide transition-all uppercase" x-text="model">
-                        </button>
-                    </template>
-                </div>
-
-                <!-- Size Toggle -->
-                <div class="flex flex-wrap justify-center gap-2" data-aos="fade-up" data-aos-delay="200">
-                    <template x-for="size in uniqueSizes" :key="size">
-                        <div class="relative">
-                            <template x-if="size === 100000">
-                                <div class="absolute -top-3 -right-2 bg-emerald-100 text-emerald-800 text-[9px] font-black px-2 py-0.5 rounded-full whitespace-nowrap z-10">Most Popular</div>
-                            </template>
-                            <button @click="activeSize = size" 
-                                    :class="activeSize === size ? 'bg-emerald-500 text-black border-emerald-500' : 'bg-[#0d1017] text-slate-300 border-[#1e2330] hover:border-emerald-500/50'"
-                                    class="px-6 py-2 rounded-full text-sm font-bold border transition-all" x-text="formatK(size)">
-                            </button>
-                        </div>
-                    </template>
+                <!-- Toggle -->
+                <div class="inline-flex bg-slate-800/80 p-1 rounded-xl border border-white/5 backdrop-blur-md">
+                    <button @click="tab = '1-step'" :class="tab === '1-step' ? 'bg-brand-500 text-white shadow-lg' : 'text-gray-400 hover:text-white'" class="px-6 py-2.5 rounded-lg font-semibold text-sm transition-all duration-200">1-Step Evaluation</button>
+                    <button @click="tab = '2-step'" :class="tab === '2-step' ? 'bg-brand-500 text-white shadow-lg' : 'text-gray-400 hover:text-white'" class="px-6 py-2.5 rounded-lg font-semibold text-sm transition-all duration-200">2-Step Evaluation</button>
                 </div>
             </div>
 
-            <!-- Price Card -->
-            <div class="bg-[#05070a] border border-[#1e2330] rounded-3xl p-8 md:p-12 shadow-2xl relative overflow-hidden" data-aos="fade-up" data-aos-delay="300">
-                <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl"></div>
-                
-                <template x-if="currentPkg">
-                    <div>
-                        <div class="text-emerald-500 font-bold mb-6" x-text="currentPkg.model_type"></div>
-                        
-                        <div class="flex items-end gap-4 mb-4">
-                            <div class="text-2xl text-amber-500 font-bold line-through" x-text="'?' + Math.floor(currentPkg.price * 1.2).toLocaleString('en-IN')"></div>
-                            <div class="text-5xl font-black text-white" x-text="'?' + Math.floor(currentPkg.price).toLocaleString('en-IN')"></div>
-                            <div class="bg-amber-900/40 border border-amber-500/30 text-amber-500 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider mb-2">Limited Time Offer</div>
-                        </div>
-
-                        <div class="flex gap-3 mb-8">
-                            <div class="flex items-center gap-1 text-xs font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full">
-                                <i data-lucide="refresh-ccw" class="w-3 h-3"></i> Swap Free
-                            </div>
-                            <div class="flex items-center gap-1 text-xs font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full">
-                                <i data-lucide="dollar-sign" class="w-3 h-3"></i> Commission Free
-                            </div>
-                        </div>
-
-                        <div class="text-slate-400 font-medium mb-8">Risk Reward Matters</div>
-
-                        <a href="/buy-challenge" class="block w-full text-center bg-transparent border border-emerald-500 text-emerald-500 hover:bg-emerald-500 hover:text-black font-bold py-4 rounded-xl transition-all mb-8 uppercase tracking-widest text-sm">
-                            Buy Plan
-                        </a>
-
-                        <div class="space-y-4 text-sm">
-                            <div class="flex justify-between items-center py-3 border-b border-[#1e2330]">
-                                <span class="text-slate-400 font-medium">Profit Target:</span>
-                                <span class="text-white font-bold" x-text="currentPkg.profit_target_p1 + '%'"></span>
-                            </div>
-                            <div class="flex justify-between items-center py-3 border-b border-[#1e2330]">
-                                <span class="text-slate-400 font-medium">Maximum Daily Loss:</span>
-                                <span class="text-white font-bold" x-text="currentPkg.max_daily_loss + '%'"></span>
-                            </div>
-                            <div class="flex justify-between items-center py-3 border-b border-[#1e2330]">
-                                <span class="text-slate-400 font-medium">Maximum Overall Loss:</span>
-                                <span class="text-white font-bold" x-text="currentPkg.max_total_loss + '%'"></span>
-                            </div>
-                            <div class="flex justify-between items-center py-3 border-b border-[#1e2330]">
-                                <span class="text-slate-400 font-medium">Minimum Trading Days:</span>
-                                <span class="text-white font-bold" x-text="currentPkg.min_trading_days + ' Days'"></span>
-                            </div>
-                            <div class="flex justify-between items-center py-3 border-b border-[#1e2330]">
-                                <span class="text-slate-400 font-medium">Profit Split Upto:</span>
-                                <span class="text-white font-bold">100%</span>
-                            </div>
-                            <div class="flex justify-between items-center py-3 border-b border-[#1e2330]">
-                                <span class="text-slate-400 font-medium">News Trading:</span>
-                                <span class="text-emerald-500 font-bold">?</span>
-                            </div>
-                            <div class="flex justify-between items-center py-3 border-b border-[#1e2330]">
-                                <span class="text-slate-400 font-medium">Reward Cycle:</span>
-                                <span class="text-white font-bold">Monthly/Biweekly/Weekly</span>
-                            </div>
-                        </div>
+            <!-- 2-Step Pricing Cards -->
+            <div x-show="tab === '2-step'" x-transition.opacity.duration.300ms class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Card 1 -->
+                <div class="glass-card rounded-2xl p-6 relative overflow-hidden flex flex-col h-full border-white/5 hover:border-brand-500/30 transition-colors" data-aos="fade-up" data-aos-delay="100">
+                    <div class="mb-4">
+                        <h4 class="text-gray-400 font-medium uppercase tracking-wider text-sm mb-2">Account Size</h4>
+                        <div class="text-3xl font-display font-bold text-white">&#8377;5,00,000</div>
                     </div>
-                </template>
-                <template x-if="!currentPkg">
-                    <div class="text-center py-12 text-slate-500">
-                        No package matches the selected configuration.
+                    <div class="flex-grow space-y-4 text-sm text-gray-300 mb-8 mt-4">
+                        <div class="flex justify-between border-b border-white/5 pb-2"><span>Phase 1 Target (8%)</span><span class="text-white font-medium">&#8377;40,000</span></div>
+                        <div class="flex justify-between border-b border-white/5 pb-2"><span>Phase 2 Target (5%)</span><span class="text-white font-medium">&#8377;25,000</span></div>
+                        <div class="flex justify-between border-b border-white/5 pb-2"><span>Max Daily Loss (5%)</span><span class="text-white font-medium">&#8377;25,000</span></div>
+                        <div class="flex justify-between border-b border-white/5 pb-2"><span>Max Total Loss (10%)</span><span class="text-white font-medium">&#8377;50,000</span></div>
+                        <div class="flex justify-between pb-2"><span>Trading Period</span><span class="text-white font-medium">Unlimited</span></div>
                     </div>
-                </template>
+                    <div class="mt-auto pt-6 border-t border-white/10">
+                        <div class="flex items-end justify-between mb-4">
+                            <span class="text-gray-400 text-sm">Refundable Fee</span>
+                            <span class="text-2xl font-bold text-white">&#8377;4,999</span>
+                        </div>
+                        <a href="/register?plan=5l" class="w-full block text-center py-3 rounded-lg bg-white text-slate-900 font-bold hover:bg-gray-100 transition-colors">Select Plan</a>
+                    </div>
+                </div>
+
+                <!-- Card 2 (Popular) -->
+                <div class="glass-card rounded-2xl p-6 relative overflow-hidden flex flex-col h-full border-brand-500/50 shadow-[0_0_30px_rgba(20,184,166,0.15)] transform md:-translate-y-2 z-10" data-aos="fade-up" data-aos-delay="200">
+                    <div class="absolute top-0 right-0 bg-brand-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg uppercase tracking-wider">Most Popular</div>
+                    <div class="mb-4">
+                        <h4 class="text-gray-400 font-medium uppercase tracking-wider text-sm mb-2">Account Size</h4>
+                        <div class="text-3xl font-display font-bold text-white">&#8377;10,00,000</div>
+                    </div>
+                    <div class="flex-grow space-y-4 text-sm text-gray-300 mb-8 mt-4">
+                        <div class="flex justify-between border-b border-white/5 pb-2"><span>Phase 1 Target (8%)</span><span class="text-white font-medium">&#8377;80,000</span></div>
+                        <div class="flex justify-between border-b border-white/5 pb-2"><span>Phase 2 Target (5%)</span><span class="text-white font-medium">&#8377;50,000</span></div>
+                        <div class="flex justify-between border-b border-white/5 pb-2"><span>Max Daily Loss (5%)</span><span class="text-white font-medium">&#8377;50,000</span></div>
+                        <div class="flex justify-between border-b border-white/5 pb-2"><span>Max Total Loss (10%)</span><span class="text-white font-medium">&#8377;1,00,000</span></div>
+                        <div class="flex justify-between pb-2"><span>Trading Period</span><span class="text-white font-medium">Unlimited</span></div>
+                    </div>
+                    <div class="mt-auto pt-6 border-t border-white/10">
+                        <div class="flex items-end justify-between mb-4">
+                            <span class="text-gray-400 text-sm">Refundable Fee</span>
+                            <span class="text-2xl font-bold text-white">&#8377;8,999</span>
+                        </div>
+                        <a href="/register?plan=10l" class="w-full block text-center py-3 rounded-lg bg-gradient-to-r from-brand-500 to-blue-500 text-white font-bold hover:opacity-90 transition-opacity shadow-lg shadow-brand-500/25">Select Plan</a>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="glass-card rounded-2xl p-6 relative overflow-hidden flex flex-col h-full border-white/5 hover:border-brand-500/30 transition-colors" data-aos="fade-up" data-aos-delay="300">
+                    <div class="mb-4">
+                        <h4 class="text-gray-400 font-medium uppercase tracking-wider text-sm mb-2">Account Size</h4>
+                        <div class="text-3xl font-display font-bold text-white">&#8377;25,00,000</div>
+                    </div>
+                    <div class="flex-grow space-y-4 text-sm text-gray-300 mb-8 mt-4">
+                        <div class="flex justify-between border-b border-white/5 pb-2"><span>Phase 1 Target (8%)</span><span class="text-white font-medium">&#8377;2,00,000</span></div>
+                        <div class="flex justify-between border-b border-white/5 pb-2"><span>Phase 2 Target (5%)</span><span class="text-white font-medium">&#8377;1,25,000</span></div>
+                        <div class="flex justify-between border-b border-white/5 pb-2"><span>Max Daily Loss (5%)</span><span class="text-white font-medium">&#8377;1,25,000</span></div>
+                        <div class="flex justify-between border-b border-white/5 pb-2"><span>Max Total Loss (10%)</span><span class="text-white font-medium">&#8377;2,50,000</span></div>
+                        <div class="flex justify-between pb-2"><span>Trading Period</span><span class="text-white font-medium">Unlimited</span></div>
+                    </div>
+                    <div class="mt-auto pt-6 border-t border-white/10">
+                        <div class="flex items-end justify-between mb-4">
+                            <span class="text-gray-400 text-sm">Refundable Fee</span>
+                            <span class="text-2xl font-bold text-white">&#8377;19,999</span>
+                        </div>
+                        <a href="/register?plan=25l" class="w-full block text-center py-3 rounded-lg bg-white/10 text-white font-bold hover:bg-white/20 transition-colors border border-white/10">Select Plan</a>
+                    </div>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="glass-card rounded-2xl p-6 relative overflow-hidden flex flex-col h-full border-white/5 hover:border-brand-500/30 transition-colors" data-aos="fade-up" data-aos-delay="400">
+                    <div class="mb-4">
+                        <h4 class="text-gray-400 font-medium uppercase tracking-wider text-sm mb-2">Account Size</h4>
+                        <div class="text-3xl font-display font-bold text-white">&#8377;50,00,000</div>
+                    </div>
+                    <div class="flex-grow space-y-4 text-sm text-gray-300 mb-8 mt-4">
+                        <div class="flex justify-between border-b border-white/5 pb-2"><span>Phase 1 Target (8%)</span><span class="text-white font-medium">&#8377;4,00,000</span></div>
+                        <div class="flex justify-between border-b border-white/5 pb-2"><span>Phase 2 Target (5%)</span><span class="text-white font-medium">&#8377;2,50,000</span></div>
+                        <div class="flex justify-between border-b border-white/5 pb-2"><span>Max Daily Loss (5%)</span><span class="text-white font-medium">&#8377;2,50,000</span></div>
+                        <div class="flex justify-between border-b border-white/5 pb-2"><span>Max Total Loss (10%)</span><span class="text-white font-medium">&#8377;5,00,000</span></div>
+                        <div class="flex justify-between pb-2"><span>Trading Period</span><span class="text-white font-medium">Unlimited</span></div>
+                    </div>
+                    <div class="mt-auto pt-6 border-t border-white/10">
+                        <div class="flex items-end justify-between mb-4">
+                            <span class="text-gray-400 text-sm">Refundable Fee</span>
+                            <span class="text-2xl font-bold text-white">&#8377;34,999</span>
+                        </div>
+                        <a href="/register?plan=50l" class="w-full block text-center py-3 rounded-lg bg-white/10 text-white font-bold hover:bg-white/20 transition-colors border border-white/10">Select Plan</a>
+                    </div>
+                </div>
             </div>
-        </div>
-    </section>
 
+            <!-- 1-Step Pricing Cards -->
+            <div x-show="tab === '1-step'" x-transition.opacity.duration.300ms class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" style="display: none;">
+                <!-- Card 1 -->
+                <div class="glass-card rounded-2xl p-6 relative overflow-hidden flex flex-col h-full border-white/5 hover:border-brand-500/30 transition-colors">
+                    <div class="mb-4">
+                        <h4 class="text-gray-400 font-medium uppercase tracking-wider text-sm mb-2">Account Size</h4>
+                        <div class="text-3xl font-display font-bold text-white">&#8377;5,00,000</div>
+                    </div>
+                    <div class="flex-grow space-y-4 text-sm text-gray-300 mb-8 mt-4">
+                        <div class="flex justify-between border-b border-white/5 pb-2"><span>Profit Target (10%)</span><span class="text-white font-medium">&#8377;50,000</span></div>
+                        <div class="flex justify-between border-b border-white/5 pb-2"><span>Max Daily Loss (4%)</span><span class="text-white font-medium">&#8377;20,000</span></div>
+                        <div class="flex justify-between border-b border-white/5 pb-2"><span>Max Total Loss (6%)</span><span class="text-white font-medium">&#8377;30,000</span></div>
+                        <div class="flex justify-between pb-2"><span>Trading Period</span><span class="text-white font-medium">Unlimited</span></div>
+                    </div>
+                    <div class="mt-auto pt-6 border-t border-white/10">
+                        <div class="flex items-end justify-between mb-4">
+                            <span class="text-gray-400 text-sm">Refundable Fee</span>
+                            <span class="text-2xl font-bold text-white">&#8377;5,499</span>
+                        </div>
+                        <a href="/register?plan=5l_1s" class="w-full block text-center py-3 rounded-lg bg-white/10 text-white font-bold hover:bg-white/20 transition-colors border border-white/10">Select Plan</a>
+                    </div>
+                </div>
 
-    <!-- 6. FAQ Section -->
-    <section class="py-32 relative z-10" x-data="{ active: null }">
-        <div class="max-w-4xl mx-auto px-6">
-            <div class="text-center mb-16">
-                <h2 data-aos="fade-up" class="text-4xl font-display font-black mb-4">Frequently Asked Questions</h2>
+                <!-- Card 2 -->
+                <div class="glass-card rounded-2xl p-6 relative overflow-hidden flex flex-col h-full border-brand-500/50 shadow-[0_0_30px_rgba(20,184,166,0.15)] transform md:-translate-y-2 z-10">
+                    <div class="absolute top-0 right-0 bg-brand-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg uppercase tracking-wider">Most Popular</div>
+                    <div class="mb-4">
+                        <h4 class="text-gray-400 font-medium uppercase tracking-wider text-sm mb-2">Account Size</h4>
+                        <div class="text-3xl font-display font-bold text-white">&#8377;10,00,000</div>
+                    </div>
+                    <div class="flex-grow space-y-4 text-sm text-gray-300 mb-8 mt-4">
+                        <div class="flex justify-between border-b border-white/5 pb-2"><span>Profit Target (10%)</span><span class="text-white font-medium">&#8377;1,00,000</span></div>
+                        <div class="flex justify-between border-b border-white/5 pb-2"><span>Max Daily Loss (4%)</span><span class="text-white font-medium">&#8377;40,000</span></div>
+                        <div class="flex justify-between border-b border-white/5 pb-2"><span>Max Total Loss (6%)</span><span class="text-white font-medium">&#8377;60,000</span></div>
+                        <div class="flex justify-between pb-2"><span>Trading Period</span><span class="text-white font-medium">Unlimited</span></div>
+                    </div>
+                    <div class="mt-auto pt-6 border-t border-white/10">
+                        <div class="flex items-end justify-between mb-4">
+                            <span class="text-gray-400 text-sm">Refundable Fee</span>
+                            <span class="text-2xl font-bold text-white">&#8377;9,999</span>
+                        </div>
+                        <a href="/register?plan=10l_1s" class="w-full block text-center py-3 rounded-lg bg-gradient-to-r from-brand-500 to-blue-500 text-white font-bold hover:opacity-90 transition-opacity shadow-lg shadow-brand-500/25">Select Plan</a>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="glass-card rounded-2xl p-6 relative overflow-hidden flex flex-col h-full border-white/5 hover:border-brand-500/30 transition-colors">
+                    <div class="mb-4">
+                        <h4 class="text-gray-400 font-medium uppercase tracking-wider text-sm mb-2">Account Size</h4>
+                        <div class="text-3xl font-display font-bold text-white">&#8377;25,00,000</div>
+                    </div>
+                    <div class="flex-grow space-y-4 text-sm text-gray-300 mb-8 mt-4">
+                        <div class="flex justify-between border-b border-white/5 pb-2"><span>Profit Target (10%)</span><span class="text-white font-medium">&#8377;2,50,000</span></div>
+                        <div class="flex justify-between border-b border-white/5 pb-2"><span>Max Daily Loss (4%)</span><span class="text-white font-medium">&#8377;1,00,000</span></div>
+                        <div class="flex justify-between border-b border-white/5 pb-2"><span>Max Total Loss (6%)</span><span class="text-white font-medium">&#8377;1,50,000</span></div>
+                        <div class="flex justify-between pb-2"><span>Trading Period</span><span class="text-white font-medium">Unlimited</span></div>
+                    </div>
+                    <div class="mt-auto pt-6 border-t border-white/10">
+                        <div class="flex items-end justify-between mb-4">
+                            <span class="text-gray-400 text-sm">Refundable Fee</span>
+                            <span class="text-2xl font-bold text-white">&#8377;21,999</span>
+                        </div>
+                        <a href="/register?plan=25l_1s" class="w-full block text-center py-3 rounded-lg bg-white/10 text-white font-bold hover:bg-white/20 transition-colors border border-white/10">Select Plan</a>
+                    </div>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="glass-card rounded-2xl p-6 relative overflow-hidden flex flex-col h-full border-white/5 hover:border-brand-500/30 transition-colors">
+                    <div class="mb-4">
+                        <h4 class="text-gray-400 font-medium uppercase tracking-wider text-sm mb-2">Account Size</h4>
+                        <div class="text-3xl font-display font-bold text-white">&#8377;50,00,000</div>
+                    </div>
+                    <div class="flex-grow space-y-4 text-sm text-gray-300 mb-8 mt-4">
+                        <div class="flex justify-between border-b border-white/5 pb-2"><span>Profit Target (10%)</span><span class="text-white font-medium">&#8377;5,00,000</span></div>
+                        <div class="flex justify-between border-b border-white/5 pb-2"><span>Max Daily Loss (4%)</span><span class="text-white font-medium">&#8377;2,00,000</span></div>
+                        <div class="flex justify-between border-b border-white/5 pb-2"><span>Max Total Loss (6%)</span><span class="text-white font-medium">&#8377;3,00,000</span></div>
+                        <div class="flex justify-between pb-2"><span>Trading Period</span><span class="text-white font-medium">Unlimited</span></div>
+                    </div>
+                    <div class="mt-auto pt-6 border-t border-white/10">
+                        <div class="flex items-end justify-between mb-4">
+                            <span class="text-gray-400 text-sm">Refundable Fee</span>
+                            <span class="text-2xl font-bold text-white">&#8377;38,999</span>
+                        </div>
+                        <a href="/register?plan=50l_1s" class="w-full block text-center py-3 rounded-lg bg-white/10 text-white font-bold hover:bg-white/20 transition-colors border border-white/10">Select Plan</a>
+                    </div>
+                </div>
             </div>
-            
-            <div class="space-y-4" data-aos="fade-up" data-aos-delay="100">
-                <!-- FAQ Item 1 -->
-                <div class="glass-card rounded-2xl overflow-hidden">
-                    <button @click="active = (active === 1 ? null : 1)" class="w-full px-6 py-5 text-left flex justify-between items-center focus:outline-none">
-                        <span class="font-bold text-white text-lg">How does the evaluation work?</span>
-                        <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 transition-transform duration-300" :class="{'rotate-180': active === 1}"></i>
-                    </button>
-                    <div x-show="active === 1" x-collapse class="px-6 pb-6 text-slate-400 leading-relaxed">
-                        It's a simple 2-step process. In Phase 1, you must reach an 8% profit target without violating the 5% daily or 10% total loss limits. In Phase 2, the profit target is reduced to 4%. Once passed, you are funded!
-                    </div>
-                </div>
-                
-                <!-- FAQ Item 2 -->
-                <div class="glass-card rounded-2xl overflow-hidden">
-                    <button @click="active = (active === 2 ? null : 2)" class="w-full px-6 py-5 text-left flex justify-between items-center focus:outline-none">
-                        <span class="font-bold text-white text-lg">When can I withdraw my profits?</span>
-                        <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 transition-transform duration-300" :class="{'rotate-180': active === 2}"></i>
-                    </button>
-                    <div x-show="active === 2" x-collapse class="px-6 pb-6 text-slate-400 leading-relaxed">
-                        Your first payout can be requested just 14 days after placing your first trade on the Funded account. Subsequent payouts can be requested bi-weekly. We process all payouts within 12-24 hours via Bank Transfer or Crypto.
-                    </div>
-                </div>
 
-                <!-- FAQ Item 3 -->
-                <div class="glass-card rounded-2xl overflow-hidden">
-                    <button @click="active = (active === 3 ? null : 3)" class="w-full px-6 py-5 text-left flex justify-between items-center focus:outline-none">
-                        <span class="font-bold text-white text-lg">Are there any hidden rules or consistency rules?</span>
-                        <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 transition-transform duration-300" :class="{'rotate-180': active === 3}"></i>
-                    </button>
-                    <div x-show="active === 3" x-collapse class="px-6 pb-6 text-slate-400 leading-relaxed">
-                        No! We absolutely despise hidden consistency rules. As long as you respect the Daily and Total Drawdown limits, you are fine. You can trade any lot size, hold over weekends, and trade news.
-                    </div>
-                </div>
+            <div class="text-center mt-12">
+                <p class="text-gray-400 text-sm">All fees are fully refunded with your first profit split payout. Terms & Conditions apply.</p>
             </div>
         </div>
     </section>
 
     <!-- Footer -->
-    <footer class="glass-heavy border-t border-white/10 pt-24 pb-12 mt-20 relative z-20">
-        <div class="max-w-7xl mx-auto px-6">
-            <div class="grid lg:grid-cols-4 gap-16 mb-16">
-                <div class="lg:col-span-2">
-                    <div class="flex items-center gap-3 mb-6">
-                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-black text-2xl shadow-[0_0_20px_rgba(14₹65,233,0.3)]">F</div>
-                        <span class="font-display font-black text-3xl tracking-tight text-white">{{ app_name }}</span>
-                    </div>
-                    <p class="text-slate-400 max-w-md leading-relaxed text-lg">
-                        India's premier proprietary trading firm. Empowering skilled traders with institutional capital, superior technology, and absolute transparency.
+    <footer class="border-t border-white/5 bg-slate-950 pt-20 pb-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+                <div class="col-span-1 md:col-span-1">
+                    <a href="/" class="flex items-center gap-2 mb-6">
+                        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-400 to-blue-600 flex items-center justify-center">
+                            <i data-lucide="trending-up" class="w-5 h-5 text-white"></i>
+                        </div>
+                        <span class="font-display font-bold text-xl tracking-tight">{{ app_name | default('FundedDesk') }}</span>
+                    </a>
+                    <p class="text-gray-400 text-sm leading-relaxed mb-6">
+                        Empowering disciplined traders with the capital they need to succeed in the financial markets.
                     </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors"><i data-lucide="twitter" class="w-5 h-5"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors"><i data-lucide="instagram" class="w-5 h-5"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors"><i data-lucide="message-square" class="w-5 h-5"></i></a>
+                    </div>
                 </div>
+                
                 <div>
-                    <h4 class="font-black text-white mb-6 uppercase tracking-widest text-sm">Explore</h4>
-                    <ul class="space-y-4 text-slate-400 font-medium">
-                        <li><a href="#how-it-works" class="hover:text-emerald-500 transition-colors">How it Works</a></li>
-                        <li><a href="#pricing" class="hover:text-emerald-500 transition-colors">Pricing & Plans</a></li>
-                        <li><a href="#terminal" class="hover:text-emerald-500 transition-colors">Trading Platform</a></li>
-                        <li><a href="#details" class="hover:text-emerald-500 transition-colors">Trading Rules</a></li>
+                    <h4 class="text-white font-bold mb-6 uppercase text-sm tracking-wider">Company</h4>
+                    <ul class="space-y-4">
+                        <li><a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">About Us</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">Contact</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">Careers</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">Affiliate Program</a></li>
                     </ul>
                 </div>
+                
                 <div>
-                    <h4 class="font-black text-white mb-6 uppercase tracking-widest text-sm">Legal & Support</h4>
-                    <ul class="space-y-4 text-slate-400 font-medium">
-                        <li><a href="#" class="hover:text-emerald-500 transition-colors">Help Center / Support</a></li>
-                        <li><a href="#" class="hover:text-emerald-500 transition-colors">Terms of Service</a></li>
-                        <li><a href="#" class="hover:text-emerald-500 transition-colors">Privacy Policy</a></li>
-                        <li><a href="#" class="hover:text-emerald-500 transition-colors">Risk Disclosure</a></li>
+                    <h4 class="text-white font-bold mb-6 uppercase text-sm tracking-wider">Resources</h4>
+                    <ul class="space-y-4">
+                        <li><a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">Help Center</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">Trading Rules</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">Blog</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">Economic Calendar</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-white font-bold mb-6 uppercase text-sm tracking-wider">Legal</h4>
+                    <ul class="space-y-4">
+                        <li><a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">Terms of Service</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">Privacy Policy</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">Risk Disclosure</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">Cookie Policy</a></li>
                     </ul>
                 </div>
             </div>
-            <div class="flex flex-col md:flex-row justify-between items-center gap-6 pt-10 border-t border-white/10 text-slate-500 text-sm font-medium">
-                <div>&copy; 2026 {{ app_name }}. All rights reserved.</div>
-                <div class="flex gap-6">
-                    <a href="#" class="hover:text-white transition-transform hover:scale-110"><i data-lucide="twitter" class="w-6 h-6"></i></a>
-                    <a href="#" class="hover:text-white transition-transform hover:scale-110"><i data-lucide="instagram" class="w-6 h-6"></i></a>
-                    <a href="#" class="hover:text-white transition-transform hover:scale-110"><i data-lucide="youtube" class="w-6 h-6"></i></a>
-                </div>
+            
+            <div class="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-gray-500 text-sm text-center md:text-left">
+                    &copy; 2024 {{ app_name | default('FundedDesk') }}. All rights reserved.
+                </p>
+                <p class="text-gray-600 text-xs text-center md:text-right max-w-xl">
+                    Disclaimer: {{ app_name | default('FundedDesk') }} provides simulated trading environments. We do not provide financial advice, broker services, or hold client funds. All trading activities carry risk.
+                </p>
             </div>
         </div>
     </footer>
 
+    <!-- Initialize Scripts -->
     <script>
-        // Initialize AOS animations
+        lucide.createIcons();
         AOS.init({
             once: true,
-            offset: 100,
-            duration: 1000,
+            offset: 50,
+            duration: 800,
             easing: 'ease-out-cubic',
         });
-        
-        // Initialize Lucide icons
-        lucide.createIcons();
     </script>
-
-<script>
-    function pricingData() {
-        return {
-            get models() {
-            const m = this.packages.map(p => p.model_type);
-            return [...new Set(m)];
-        },
-            activeModel: '{% if packages %}{{ packages[0].model_type }}{% else %}2-Step{% endif %}',
-            activeSize: {% if packages %}{{ (packages|last).account_size }}{% else %}100000{% endif %},
-            packages: [
-                {% for pkg in packages %}
-                {
-                    id: {{ pkg.id }},
-                    name: "{{ pkg.name }}",
-                    model_type: "{{ pkg.model_type }}",
-                    account_size: {{ pkg.account_size }},
-                    price: {{ pkg.price }},
-                    profit_target_p1: {{ pkg.profit_target_p1 }},
-                    profit_target_p2: {{ pkg.profit_target_p2 }},
-                    max_daily_loss: {{ pkg.max_daily_loss }},
-                    max_total_loss: {{ pkg.max_total_loss }},
-                    min_trading_days: {{ pkg.min_trading_days }}
-                },
-                {% endfor %}
-            ],
-            get uniqueSizes() {
-                const sizes = this.packages.map(p => p.account_size);
-                return [...new Set(sizes)].sort((a, b) => a - b);
-            },
-            get currentPkg() {
-                let pkg = this.packages.find(p => p.model_type === this.activeModel && p.account_size === this.activeSize);
-                if (!pkg) {
-                    pkg = this.packages.find(p => p.model_type === this.activeModel);
-                    if (pkg) this.activeSize = pkg.account_size;
-                }
-                return pkg || null;
-            },
-            formatK(val) {
-                if (val >= 1000) {
-                    return '?' + (val / 1000) + 'K';
-                }
-                return '?' + val;
-            }
-        }
-    }
-</script>
 </body>
-
 </html>
