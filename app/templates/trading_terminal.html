@@ -412,6 +412,16 @@
 
 
 
+    function isIndianMarketOpen() {
+        var now = new Date();
+        var utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+        var ist = new Date(utc + (330 * 60000)); 
+        var day = ist.getDay(); 
+        if (day === 0 || day === 6) return false; 
+        var timeInMinutes = ist.getHours() * 60 + ist.getMinutes();
+        return timeInMinutes >= (9 * 60 + 15) && timeInMinutes < (15 * 60 + 30);
+    }
+
     async function pollPrices() {
         try {
             var res = await fetch('/api/market/prices?active_symbol=' + activeSymbol);
@@ -432,7 +442,7 @@
                     if(qtBid) qtBid.innerText = p.bid.toFixed(2);
                     if(qtAsk) qtAsk.innerText = p.ask.toFixed(2);
                     
-                    if (typeof lwSeries !== 'undefined' && lwSeries && lastLwCandle) {
+                    if (isIndianMarketOpen() && typeof lwSeries !== 'undefined' && lwSeries && lastLwCandle) {
                         var now = Math.floor(Date.now() / 1000);
                         if (now - lastLwCandle.time > 300) {
                             lastLwCandle = {time: now, open: p.mid, high: p.mid, low: p.mid, close: p.mid};
@@ -450,7 +460,7 @@
                 }
                 
                 // Update Dual Chart if open and symbol matches BankNifty
-                if (isDualChart && p.symbol === 'BANKNIFTY') {
+                if (isIndianMarketOpen() && isDualChart && p.symbol === 'BANKNIFTY') {
                     if (typeof lwSeries2 !== 'undefined' && lwSeries2 && lastLwCandle2) {
                         var now2 = Math.floor(Date.now() / 1000);
                         if (now2 - lastLwCandle2.time > 300) {
