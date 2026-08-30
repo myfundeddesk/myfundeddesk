@@ -21,7 +21,7 @@ async def landing_page(request: Request, user = Depends(get_optional_user), db: 
     settings = {s.key: s.value for s in settings_db}
     
     # Defaults
-        landing_data = {
+    landing_data = {
         'hero_title_1': settings.get('landing_hero_title_1', 'Built for Traders.'),
         'hero_title_2': settings.get('landing_hero_title_2', 'Funded by Us.'),
         'hero_subtitle': settings.get('landing_hero_subtitle', 'We provide up to ₹1,00,00,000 in real capital. You keep 90% of the profits. No hidden rules. No excuses. Just pure trading.'),
