@@ -131,16 +131,22 @@ class MarketDataEngine:
                                         continue
                                     try:
                                         cfg = INSTRUMENTS[sym]
-                                        # Get the latest close price for this ticker
-                                        if yticker in close_data.columns:
-                                            series = close_data[yticker].dropna()
-                                        else:
-                                            series = close_data.dropna()
                                         
-                                        if len(series) == 0:
+                                        if yticker in data["Close"].columns:
+                                            series_close = data["Close"][yticker].dropna()
+                                            series_open = data["Open"][yticker].dropna()
+                                            series_high = data["High"][yticker].dropna()
+                                            series_low = data["Low"][yticker].dropna()
+                                        else:
+                                            series_close = data["Close"].dropna()
+                                            series_open = data["Open"].dropna()
+                                            series_high = data["High"].dropna()
+                                            series_low = data["Low"].dropna()
+                                        
+                                        if len(series_close) == 0:
                                             continue
                                         
-                                        last_p = float(series.iloc[-1])
+                                        last_p = float(series_close.iloc[-1])
                                         if last_p <= 0:
                                             continue
                                         
@@ -149,23 +155,21 @@ class MarketDataEngine:
                                         self.prices[sym]["bid"] = round(last_p - spread / 2, cfg["digits"])
                                         self.prices[sym]["ask"] = round(last_p + spread / 2, cfg["digits"])
                                         
-                                        # Update candle cache with live price
-                                        if sym in self.candle_cache and self.candle_cache[sym]:
-                                            now_ts = int(time.time())
-                                            last_c = self.candle_cache[sym][-1]
-                                            if now_ts - last_c["time"] < 60:
-                                                last_c["close"] = round(last_p, cfg["digits"])
-                                                last_c["high"] = max(last_c["high"], round(last_p, cfg["digits"]))
-                                                last_c["low"] = min(last_c["low"], round(last_p, cfg["digits"]))
-                                            else:
-                                                self.candle_cache[sym].append({
-                                                    "time": now_ts,
-                                                    "open": round(last_p, cfg["digits"]),
-                                                    "high": round(last_p, cfg["digits"]),
-                                                    "low":  round(last_p, cfg["digits"]),
-                                                    "close": round(last_p, cfg["digits"]),
+                                        # Overwrite candle cache with REAL historical data
+                                        real_candles = []
+                                        for ts, close_val in series_close.items():
+                                            if ts in series_open and ts in series_high and ts in series_low:
+                                                real_candles.append({
+                                                    "time": int(ts.timestamp()),
+                                                    "open": round(float(series_open[ts]), cfg["digits"]),
+                                                    "high": round(float(series_high[ts]), cfg["digits"]),
+                                                    "low": round(float(series_low[ts]), cfg["digits"]),
+                                                    "close": round(float(close_val), cfg["digits"]),
                                                     "volume": 100
                                                 })
+                                        
+                                        if real_candles:
+                                            self.candle_cache[sym] = real_candles
                                                 if len(self.candle_cache[sym]) > 500:
                                                     self.candle_cache[sym].pop(0)
                                     except Exception:

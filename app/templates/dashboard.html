@@ -243,5 +243,23 @@
     if (typeof lucide !== 'undefined') {
         lucide.createIcons();
     }
+
+    // Auto-sync dashboard every 15 seconds to keep equity synced with terminal
+    setInterval(() => {
+        fetch(window.location.href)
+            .then(response => response.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const newMain = doc.querySelector('main');
+                if (newMain) {
+                    document.querySelector('main').innerHTML = newMain.innerHTML;
+                    if (typeof lucide !== 'undefined') {
+                        lucide.createIcons();
+                    }
+                }
+            })
+            .catch(err => console.error("Auto-sync failed", err));
+    }, 15000);
 </script>
 {% endblock %}

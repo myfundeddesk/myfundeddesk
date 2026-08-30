@@ -769,6 +769,12 @@
                 localLastCandle = {time: hcData[hcData.length - 1][0]/1000, open: hcData[hcData.length - 1][1]}; 
             }
 
+            Highcharts.setOptions({
+                time: {
+                    useUTC: false
+                }
+            });
+
             // Create the chart
             var chart = Highcharts.stockChart('lw_chart_container_' + containerIndex, {
                 chart: { backgroundColor: '#0f172a' },
