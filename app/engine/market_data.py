@@ -170,8 +170,8 @@ class MarketDataEngine:
                                         
                                         if real_candles:
                                             self.candle_cache[sym] = real_candles
-                                                if len(self.candle_cache[sym]) > 500:
-                                                    self.candle_cache[sym].pop(0)
+                                        if len(self.candle_cache[sym]) > 500:
+                                            self.candle_cache[sym].pop(0)
                                     except Exception:
                                         pass
                 except Exception:
