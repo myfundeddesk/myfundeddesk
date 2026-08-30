@@ -476,7 +476,7 @@
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Evaluation Model</label>
-                        <select name="model_type" class="w-full bg-slate-900/50 border border-slate-700/50 rounded-xl p-3 text-white focus:border-indigo-500 outline-none appearance-none cursor-pointer">
+                        <select name="model_type" class="w-full bg-slate-900/50 border border-slate-700/50 rounded-xl p-3 text-white focus:border-indigo-500 outline-none cursor-pointer">
                             <option value="1-Step">1-Step Evaluation</option>
                             <option value="2-Step">2-Step Evaluation</option>
                             <option value="Instant">Instant Funding</option>
@@ -831,11 +831,26 @@
     </div>
 
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var hash = window.location.hash;
+            if(hash && hash.startsWith('#tab-')) {
+                var tabId = hash.replace('#tab-', '');
+                var link = document.querySelector('[data-tab="' + tabId + '"]');
+                if(link) {
+                    switchTab(tabId, link);
+                } else {
+                    switchTab(tabId, document.querySelector('[data-tab="dashboard"]'));
+                }
+            }
+        });
         // Initialize Lucide icons
         lucide.createIcons();
 
         // Tab Switching Logic
-        function switchTab(tabId, elem) {
+        function switchTab(tabId, elem = null) {
+            // Update URL Hash without scrolling
+            history.replaceState(null, null, '#tab-' + tabId);
+            
             // Hide all tabs
             document.querySelectorAll('.admin-tab').forEach(tab => {
                 tab.style.display = 'none';

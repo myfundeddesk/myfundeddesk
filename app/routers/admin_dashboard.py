@@ -375,7 +375,7 @@ async def admin_create_package(
     )
     db.add(pkg)
     db.commit()
-    return RedirectResponse(url="/admin", status_code=302)
+    return RedirectResponse(url="/admin#tab-packages", status_code=303)
 
 @router.post("/admin/api/package/{pkg_id}/delete")
 async def admin_delete_package(
@@ -472,13 +472,13 @@ async def admin_pages_create(slug: str = Form(...), title: str = Form(...), cont
     page = DynamicPage(slug=slug, title=title, content=content)
     db.add(page)
     db.commit()
-    return RedirectResponse(url='/admin/pages', status_code=303)
+    return RedirectResponse(url="/admin#tab-pages", status_code=303)
 
 @router.post('/admin/pages/delete/{page_id}')
 async def admin_pages_delete(page_id: int, db: Session = Depends(get_db)):
     db.query(DynamicPage).filter(DynamicPage.id == page_id).delete()
     db.commit()
-    return RedirectResponse(url='/admin/pages', status_code=303)
+    return RedirectResponse(url="/admin#tab-pages", status_code=303)
 
 
 
@@ -492,7 +492,7 @@ async def edit_capital(account_id: int, request: Request, balance: float = Form(
         acc.current_equity = equity
         db.commit()
     
-    return RedirectResponse('/admin', status_code=302)
+    return RedirectResponse(url="/admin#tab-settings", status_code=303)
 
 
 @router.post('/admin/api/customize')
@@ -524,7 +524,7 @@ async def save_customizer(
             db.add(db_setting)
             
     db.commit()
-    return RedirectResponse(url='/admin?updated=true', status_code=303)
+    return RedirectResponse(url="/admin?updated=true#tab-customizer", status_code=303)
 
 
 @router.post("/admin/forgot-password")

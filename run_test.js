@@ -1,12 +1,20 @@
-<!DOCTYPE html>
-<html lang="en" x-data="{ darkMode: localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches) }" :class="{ 'dark': darkMode }">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Terminal - Dual Chart</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <script>
+var tailwind = { config: {} };
+var document = { 
+    documentElement: { classList: { add: function(){} } },
+    body: { getAttribute: function(){ return null; } },
+    getElementById: function(){ return { classList: { add: function(){}, remove: function(){} }, innerText: '', style: {} }; },
+    addEventListener: function(event, cb) { if(event === 'DOMContentLoaded') cb(); },
+    querySelectorAll: function() { return []; }
+};
+var localStorage = { getItem: function(){ return null; } };
+var window = {};
+var lucide = { createIcons: function(){} };
+var fetch = async function() { return { json: async function() { return []; } }; };
+var setInterval = function(){};
+var LightweightCharts = { createChart: function(){ return { addCandlestickSeries: function(){ return { setData: function(){} }; } }; } };
+var TradingView = { widget: function(config){ console.log("TV Widget created:", config); return {}; } };
+
+
         tailwind.config = {
             darkMode: 'class',
             theme: {
@@ -20,279 +28,8 @@
                 }
             }
         }
-    </script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-    <script src="/static/js/lightweight-charts.js"></script>
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        
-        /* Floating Trade Panel (Perfectly positioned to avoid overlap) */
-        .tv-floating-trade {
-            position: absolute;
-            top: 50px;
-            left: 70px;
-            z-index: 50;
-            display: flex;
-            align-items: center;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            border: 1px solid #e2e8f0;
-            overflow: hidden;
-            transition: all 0.2s;
-        }
-        .tv-floating-trade:hover { box-shadow: 0 6px 16px rgba(0,0,0,0.15); }
-        .btn-trade-sell { background: #ef5350; color: white; padding: 6px 12px; cursor: pointer; text-align: center; min-width: 80px; transition: background 0.2s; }
-        .btn-trade-sell:hover { background: #d32f2f; }
-        .btn-trade-buy { background: #2962ff; color: white; padding: 6px 12px; cursor: pointer; text-align: center; min-width: 80px; transition: background 0.2s; }
-        .btn-trade-buy:hover { background: #1565c0; }
-        .trade-qty-input { width: 60px; text-align: center; font-weight: 600; color: #1e293b; outline: none; border-left: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; padding: 6px 0; font-size: 13px; }
-        
-        /* Bottom Panel Resizer */
-        .bottom-panel { transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .bottom-panel.collapsed { height: 40px !important; }
-        
-        /* Toast */
-        #toast-container { position: fixed; top: 60px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
-        .toast { padding: 12px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; color: white; box-shadow: 0 8px 30px rgba(0,0,0,0.12); transform: translateX(120%); animation: slideIn 0.3s ease forwards; }
-        .toast.success { background: #10b981; }
-        .toast.error { background: #ef4444; }
-        @keyframes slideIn { to { transform: translateX(0); } }
-        @keyframes slideOut { to { transform: translateX(120%); opacity: 0; } }
+    
 
-        .wl-item.active { background: #f8fafc; border-left: 3px solid #2962ff; }
-    </style>
-</head>
-<body class="h-screen w-screen overflow-y-auto md:overflow-hidden flex flex-col bg-white dark:bg-darkpanel text-slate-800 dark:text-slate-200"
-      data-active-symbol="{{ current_symbol | default('NIFTY50') }}" 
-      data-account-id="{{ current_account.id if current_account else 'null' }}">
-
-    <div id="toast-container"></div>
-
-    <!-- Top Navbar -->
-    <div class="h-14 bg-[#131722] border-b border-[#2a2e39] flex items-center justify-between px-4 shrink-0 z-50 text-slate-300">
-        <div class="flex items-center gap-6">
-            <a href="/dashboard" class="flex items-center gap-2 text-white hover:text-blue-400 transition-colors">
-                <div class="w-8 h-8 bg-blue-600 rounded flex items-center justify-center font-bold text-sm shadow-lg shadow-blue-500/20">FD</div>
-                <span class="font-bold hidden sm:block tracking-wide">Terminal</span>
-            </a>
-            
-            <div class="h-6 w-px bg-[#2a2e39]"></div>
-            
-            <div class="flex items-center gap-4 text-xs font-medium">
-                <div class="flex items-center gap-2">
-                    <span class="text-slate-500">Account</span>
-                    <select id="account-selector" onchange="switchAccount(this.value)" class="bg-[#1c212d] border border-[#2a2e39] rounded px-2 py-1 text-white outline-none cursor-pointer">
-                        {% for acc in accounts %}
-                            <option value="{{ acc.id }}" {% if current_account and current_account.id == acc.id %}selected{% endif %}>
-                                {{ acc.account_number }} ({{ acc.model_type }}) - {{ acc.phase }}
-                            </option>
-                        {% endfor %}
-                    </select>
-                </div>
-            </div>
-            
-            <div class="h-6 w-px bg-[#2a2e39]"></div>
-            
-            <button onclick="toggleDualChart()" class="flex items-center gap-2 bg-[#2a2e39] hover:bg-[#363a45] px-3 py-1.5 rounded text-white text-xs font-bold transition-colors">
-                <i data-lucide="layout-template" class="w-4 h-4"></i> Split Screen
-            </button>
-            <button onclick="toggleFullscreen()" class="flex items-center gap-2 bg-[#2a2e39] hover:bg-[#363a45] px-3 py-1.5 rounded text-white text-xs font-bold transition-colors">
-                <i data-lucide="maximize" class="w-4 h-4"></i> Full Screen
-            </button>
-        </div>
-
-        <div class="flex items-center gap-6 text-xs font-mono">
-            <div class="h-6 w-px bg-[#2a2e39]"></div>
-            <button onclick="requestBrowserPermission()" class="relative text-slate-400 hover:text-white transition-colors" title="Enable Desktop Notifications">
-                <i data-lucide="bell" class="w-5 h-5"></i>
-            </button>
-            <div class="flex flex-col items-end">
-                <span class="text-[10px] text-slate-500 font-sans uppercase tracking-wider">Balance</span>
-                <span class="font-bold text-white" id="top-balance">...</span>
-            </div>
-            <div class="flex flex-col items-end">
-                <span class="text-[10px] text-slate-500 font-sans uppercase tracking-wider">Equity</span>
-                <span class="font-bold text-white" id="top-equity">...</span>
-            </div>
-            <div class="flex flex-col items-end">
-                <span class="text-[10px] text-slate-500 font-sans uppercase tracking-wider">Open PnL</span>
-                <span class="font-bold" id="top-pnl">...</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Main Workspace -->
-    <div class="flex-1 flex flex-col md:flex-row overflow-y-auto md:overflow-hidden bg-white dark:bg-darkpanel">
-        
-        <!-- App Sidebar -->
-        <div class="hidden md:flex w-14 border-r border-slate-200 dark:border-darkborder bg-slate-50 dark:bg-darkbg flex flex-col items-center py-4 gap-6 shrink-0 z-40">
-            <a href="/trading" class="text-blue-600 bg-blue-50 p-2.5 rounded-xl cursor-pointer"><i data-lucide="line-chart" class="w-5 h-5"></i></a>
-            <a href="/dashboard" class="text-slate-400 hover:text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:bg-slate-800/50 p-2.5 rounded-xl cursor-pointer"><i data-lucide="layout-dashboard" class="w-5 h-5"></i></a>
-            <div onclick="document.getElementById('bottom-panel').classList.toggle('collapsed')" class="text-slate-400 hover:text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:bg-slate-800/50 p-2.5 rounded-xl cursor-pointer mt-auto"><i data-lucide="list" class="w-5 h-5"></i></div>
-        </div>
-
-        <!-- Center Chart Area -->
-        <div class="flex-1 flex flex-col relative min-w-0">
-            
-            <!-- DUAL CHART CONTAINER -->
-            <div id="dual-chart-container" class="flex-1 flex w-full h-full relative z-0 bg-slate-200 gap-[1px]">
-                
-                <!-- Chart 1 (Left) -->
-                <div class="flex-1 h-full relative bg-white dark:bg-darkpanel">
-                    <div id="tv_chart_container_1" class="w-full h-full relative"></div>
-                      <div id="lw_chart_container_1" class="w-full h-full relative hidden" style="position: absolute; top: 0; left: 0; z-index: 10; background: white;"></div>
-                    
-                    
-                    <!-- Quick Trade Overlay for Chart 1 -->
-                    <div class="tv-floating-trade font-mono" id="quick-trade-panel">
-                        <div class="btn-trade-sell" onclick="placeTrade('SELL')">
-                            <div class="text-[10px] font-sans font-bold uppercase tracking-wider mb-0.5">Sell</div>
-                            <div class="text-sm font-black" id="qt-bid">...</div>
-                        </div>
-                        <input type="number" id="qt-qty" value="1.0" step="0.1" min="0.1" class="trade-qty-input">
-                        <div class="btn-trade-buy" onclick="placeTrade('BUY')">
-                            <div class="text-[10px] font-sans font-bold uppercase tracking-wider mb-0.5">Buy</div>
-                            <div class="text-sm font-black" id="qt-ask">...</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Chart 2 (Right) - Hidden by default -->
-                <div id="right-chart-wrapper" class="flex-1 h-full relative bg-white dark:bg-darkpanel hidden">
-                    <div id="tv_chart_container_2" class="w-full h-full relative"></div>
-                    <!-- Warning overlay explaining TV restrictions to user -->
-                    
-                </div>
-
-            </div>
-
-            <!-- Bottom Positions Panel -->
-            <div id="bottom-panel" class="bottom-panel h-[280px] border-t border-slate-200 dark:border-darkborder bg-white dark:bg-darkpanel flex flex-col shrink-0 z-20 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
-                <!-- Header -->
-                <div class="h-10 border-b border-slate-200 dark:border-darkborder flex items-center justify-between px-2 bg-slate-50 dark:bg-darkbg shrink-0">
-                    <div class="flex h-full">
-                        <button onclick="switchTab('positions')" id="tab-pos" class="h-full px-4 text-xs font-bold text-blue-600 border-b-2 border-blue-600 uppercase tracking-wider flex items-center gap-2">
-                            Positions <span class="bg-blue-100 text-blue-700 py-0.5 px-2 rounded-full text-[10px]" id="pos-count">0</span>
-                        </button>
-                        <button onclick="switchTab('history')" id="tab-hist" class="h-full px-4 text-xs font-bold text-slate-500 hover:text-slate-800 dark:text-slate-200 border-b-2 border-transparent uppercase tracking-wider transition-colors">
-                            History
-                        </button>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <button onclick="closeAllTrades()" id="btn-close-all" class="hidden text-[10px] font-bold uppercase tracking-wider bg-rose-50 text-rose-600 border border-rose-200 px-3 py-1.5 rounded-md hover:bg-rose-500 hover:text-white transition-colors">Close All</button>
-                        <button onclick="document.getElementById('bottom-panel').classList.toggle('collapsed')" class="p-1.5 text-slate-400 hover:text-slate-800 dark:text-slate-200 rounded"><i data-lucide="chevron-down" class="w-4 h-4"></i></button>
-                    </div>
-                </div>
-                
-                <!-- Positions -->
-                <div id="view-pos" class="flex-1 overflow-y-auto custom-scrollbar">
-                    <table class="w-full text-left text-[11px] font-medium whitespace-nowrap">
-                        <thead class="bg-white dark:bg-darkpanel text-slate-400 font-bold uppercase tracking-wider sticky top-0 border-b border-slate-100 dark:border-slate-800/50 z-10">
-                            <tr>
-                                <th class="py-2.5 px-4">Ticket</th>
-                                <th class="py-2.5 px-4">Symbol</th>
-                                <th class="py-2.5 px-4">Type</th>
-                                <th class="py-2.5 px-4">Vol</th>
-                                <th class="py-2.5 px-4">Open</th>
-                                <th class="py-2.5 px-4">Current</th>
-                                <th class="py-2.5 px-4">SL / TP</th>
-                                <th class="py-2.5 px-4 text-right">PnL</th>
-                                <th class="py-2.5 px-4 text-center">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="pos-tbody" class="divide-y divide-slate-50 font-mono text-slate-700 dark:text-slate-300">
-                            <tr><td colspan="9" class="text-center py-8 text-slate-400 font-sans text-xs">No open positions</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- History -->
-                <div id="view-hist" class="flex-1 overflow-y-auto custom-scrollbar hidden">
-                    <table class="w-full text-left text-[11px] font-medium whitespace-nowrap">
-                        <thead class="bg-white dark:bg-darkpanel text-slate-400 font-bold uppercase tracking-wider sticky top-0 border-b border-slate-100 dark:border-slate-800/50 z-10">
-                            <tr>
-                                <th class="py-2.5 px-4">Ticket</th>
-                                <th class="py-2.5 px-4">Symbol</th>
-                                <th class="py-2.5 px-4">Type</th>
-                                <th class="py-2.5 px-4">Vol</th>
-                                <th class="py-2.5 px-4">Open / Close</th>
-                                <th class="py-2.5 px-4 text-right">PnL</th>
-                                <th class="py-2.5 px-4 text-right">Time</th>
-                            </tr>
-                        </thead>
-                        <tbody id="hist-tbody" class="divide-y divide-slate-50 font-mono text-slate-700 dark:text-slate-300">
-                            <tr><td colspan="7" class="text-center py-8 text-slate-400 font-sans text-xs">No history</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- Right Watchlist Panel -->
-        <div class="w-72 lg:w-80 border-l border-slate-200 dark:border-darkborder bg-white dark:bg-darkpanel flex flex-col shrink-0 z-30 shadow-[-4px_0_15px_-3px_rgba(0,0,0,0.02)]">
-            
-            <div class="p-4 border-b border-slate-200 dark:border-darkborder bg-slate-50 dark:bg-darkbg/50">
-                <div class="text-xs font-bold text-slate-800 dark:text-slate-200 mb-3 flex items-center justify-between">
-                    <span id="order-symbol-title">{{ current_symbol | default('NIFTY50') }}</span>
-                    <span class="text-[10px] text-slate-400 uppercase tracking-wider font-medium">Order Entry</span>
-                </div>
-                
-                <div class="grid grid-cols-2 gap-2 mb-3">
-                    <div>
-                        <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">Stop Loss</label>
-                        <input type="number" id="adv-sl" placeholder="0.00" class="w-full bg-white dark:bg-darkpanel border border-slate-200 dark:border-darkborder rounded px-2 py-1.5 text-xs font-mono focus:border-blue-500 outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">Take Profit</label>
-                        <input type="number" id="adv-tp" placeholder="0.00" class="w-full bg-white dark:bg-darkpanel border border-slate-200 dark:border-darkborder rounded px-2 py-1.5 text-xs font-mono focus:border-blue-500 outline-none">
-                    </div>
-                </div>
-            </div>
-
-            <div class="px-4 py-2 bg-slate-50 dark:bg-darkbg border-b border-slate-200 dark:border-darkborder flex justify-between items-center">
-                <span class="text-xs font-bold text-slate-500 uppercase">Instruments</span>
-                <button onclick="openOptionChain()" class="text-[10px] bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-2 py-1 rounded font-bold transition-colors border border-indigo-200 flex items-center gap-1">
-                    <i data-lucide="layers" class="w-3 h-3"></i> Option Chain
-                </button>
-            </div>
-            
-            <div class="flex text-[10px] font-bold text-slate-400 uppercase tracking-wider px-4 py-2 border-b border-slate-100 dark:border-slate-800/50 bg-slate-50 dark:bg-darkbg/50">
-                <div class="flex-1">Symbol</div>
-                <div class="w-16 text-right">Bid</div>
-                <div class="w-16 text-right">Ask</div>
-            </div>
-
-            
-              <div class="px-4 py-2 bg-slate-50 dark:bg-darkbg border-b border-slate-200 dark:border-darkborder relative">
-                  <div class="relative">
-                      <i data-lucide="search" class="w-4 h-4 absolute left-3 top-2.5 text-slate-400"></i>
-                      <input type="text" id="symbol-search" placeholder="Search strikes (e.g. NIFTY24000CE)..." autocomplete="off" class="w-full bg-white dark:bg-darkpanel border border-slate-300 rounded pl-9 pr-3 py-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 outline-none focus:border-indigo-500 uppercase">
-                  </div>
-                  <div id="search-results" class="absolute left-4 right-4 top-10 bg-white dark:bg-darkpanel border border-slate-200 dark:border-darkborder rounded-b shadow-lg z-50 hidden max-h-60 overflow-y-auto"></div>
-              </div>
-
-              <div class="flex-1 overflow-y-auto custom-scrollbar" id="watchlist-container">
-                {% for sym, cfg in instruments.items() %}
-                <div onclick="selectSymbol('{{ sym }}')" id="wl-{{ sym }}" class="wl-item flex items-center px-4 py-2.5 border-b border-slate-50 cursor-pointer transition-colors border-l-2 border-l-transparent hover:bg-slate-50 dark:bg-darkbg group">
-                    <div class="flex-1">
-                        <div class="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-blue-600 transition-colors">{{ sym }}</div>
-                    </div>
-                    <div class="w-16 text-right text-xs font-mono font-bold text-slate-700 dark:text-slate-300" id="wl-bid-{{ sym }}">...</div>
-                    <div class="w-16 text-right text-xs font-mono font-bold text-slate-700 dark:text-slate-300" id="wl-ask-{{ sym }}">...</div>
-                </div>
-                {% endfor %}
-            </div>
-            
-        </div>
-    </div>
-
-<script>
     // STATE
     var activeSymbol = document.body.getAttribute('data-active-symbol') || 'NIFTY50';
     var accAttr = document.body.getAttribute('data-account-id');
@@ -309,11 +46,11 @@
     // We use global CFD equivalents or futures (which are allowed) to ensure the chart loads!
     // We strictly use BINGX Perpetuals (which track NIFTY flawlessly 24/7 and allow 1m/5m charting).
     var tvSymbolMap = {
-        'NIFTY50': 'NSE:NIFTY1!', 
-        'BANKNIFTY': 'NSE:BANKNIFTY1!', 
+        'NIFTY50': 'CAPITALCOM:NIFTY50', 
+        'BANKNIFTY': 'BINGX:BTCUSDT', 
         'SENSEX': 'BSE:SENSEX',       
-        'FINNIFTY': 'NSE:FINNIFTY1!',  
-        'MIDCPNIFTY': 'NSE:MIDCPNIFTY1!', 
+        'FINNIFTY': 'BINGX:ETHUSDT',  
+        'MIDCPNIFTY': 'BINGX:SOLUSDT', 
         'RELIANCE': 'BSE:RELIANCE',   
         'HDFCBANK': 'BSE:HDFCBANK'
     };
@@ -338,7 +75,7 @@
             "symbol": sym,
             "interval": interval,
             "timezone": "Asia/Kolkata",
-            "theme": (localStorage.getItem("theme") || "dark") === "dark" ? "dark" : "light",
+            "theme": localStorage.getItem("theme") === "dark" ? "dark" : "light",
             "style": "1",
             "locale": "in",
             "enable_publishing": false,
@@ -354,9 +91,13 @@
     }
 
     function initCharts() {
-        var tvSym = tvSymbolMap[activeSymbol] || ('NSE:' + activeSymbol);
-        var interval = ( (tvSym.startsWith('NSE:') && !tvSym.includes('!')) || tvSym.startsWith('BSE:') ) ? "D" : "5";
-        tvWidget1 = initTVWidget("tv_chart_container_1", tvSym, interval);
+        if (activeSymbol.endsWith("CE") || activeSymbol.endsWith("PE") || activeSymbol.includes("24") || activeSymbol.includes("25") || activeSymbol.includes("26")) {
+            renderOptionChart(activeSymbol);
+        } else {
+            var tvSym = tvSymbolMap[activeSymbol] || ('NSE:' + activeSymbol);
+            var interval = tvSym.startsWith('NSE:') ? "D" : "5";
+            tvWidget1 = initTVWidget("tv_chart_container_1", tvSym, interval);
+        }
         
         var wl = document.getElementById('wl-' + activeSymbol);
         if(wl) wl.classList.add('active');
@@ -371,7 +112,7 @@
             if (!tvWidget2) {
                 // Initialize second chart to BankNifty equivalent
                 var tvSym2 = tvSymbolMap['BANKNIFTY'] || 'NSE:BANKNIFTY';
-                var interval = ( (tvSym2.startsWith('NSE:') && !tvSym2.startsWith('NSEIX:')) || tvSym2.startsWith('BSE:') ) ? "D" : "5";
+                var interval = tvSym2.startsWith('NSE:') ? "D" : "5";
                 tvWidget2 = initTVWidget("tv_chart_container_2", tvSym2, interval);
             }
         } else {
@@ -423,7 +164,7 @@
                     if(qtBid) qtBid.innerText = p.bid.toFixed(2);
                     if(qtAsk) qtAsk.innerText = p.ask.toFixed(2);
                     
-                    if (typeof lwSeries !== 'undefined' && lwSeries && lastLwCandle) {
+                    if (typeof lwSeries !== 'undefined' && lwSeries && lastLwCandle && (activeSymbol.endsWith("CE") || activeSymbol.endsWith("PE"))) {
                         var now = Math.floor(Date.now() / 1000) + 19800; // IST rough
                         if (now - lastLwCandle.time > 300) {
                             lastLwCandle = {time: now, open: p.mid, high: p.mid, low: p.mid, close: p.mid};
@@ -555,74 +296,8 @@
         setInterval(pollPrices, 1000);
         setInterval(pollAccountState, 1000);
     });
-</script>
-    <!-- Option Chain Modal -->
-    <div id="option-chain-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-darkpanel w-full max-w-6xl h-[85vh] rounded-xl shadow-2xl flex flex-col overflow-hidden border border-slate-200 dark:border-darkborder">
-            <!-- Header -->
-            <div class="h-14 bg-slate-900 flex items-center justify-between px-6 shrink-0">
-                <div class="flex items-center gap-4">
-                    <h2 class="text-white font-bold text-lg flex items-center gap-2"><i data-lucide="layers" class="w-5 h-5 text-indigo-400"></i> Advanced Option Chain</h2>
-                    <div class="bg-slate-800 rounded px-3 py-1 flex items-center gap-2">
-                        <span class="text-slate-400 text-xs font-bold">UNDERLYING:</span>
-                        <span class="text-emerald-400 font-mono font-bold" id="oc-spot-price">---</span>
-                    </div>
-                </div>
-                <button onclick="closeOptionChain()" class="bg-rose-500 hover:bg-rose-600 text-white px-4 py-2 rounded font-bold text-xs uppercase tracking-wider transition-colors shadow-lg">Close</button>
-            </div>
-            
-            <!-- Tools -->
-            <div class="bg-slate-50 dark:bg-darkbg border-b border-slate-200 dark:border-darkborder p-3 flex items-center justify-between shrink-0">
-                <div class="flex gap-2">
-                    <select id="oc-symbol-select" onchange="loadOptionChain()" class="bg-white dark:bg-darkpanel border border-slate-300 text-sm rounded px-3 py-1.5 font-bold outline-none focus:border-indigo-500 text-slate-700 dark:text-slate-300">
-                        <option value="NIFTY50">NIFTY 50</option>
-                        <option value="BANKNIFTY">BANK NIFTY</option>
-                    </select>
-                    <select class="bg-white dark:bg-darkpanel border border-slate-300 text-sm rounded px-3 py-1.5 font-bold outline-none focus:border-indigo-500 text-slate-700 dark:text-slate-300">
-                        <option>Current Expiry (Weekly)</option>
-                    </select>
-                </div>
-                <div class="flex items-center gap-4 text-xs font-bold">
-                    <span class="flex items-center gap-1 text-emerald-600"><div class="w-2 h-2 rounded-full bg-emerald-500"></div> ITM Calls</span>
-                    <span class="flex items-center gap-1 text-rose-600"><div class="w-2 h-2 rounded-full bg-rose-500"></div> ITM Puts</span>
-                </div>
-            </div>
-            
-            <!-- Table Container -->
-            <div class="flex-1 overflow-auto bg-slate-100 dark:bg-slate-800/50 relative custom-scrollbar">
-                <table class="w-full text-center text-xs whitespace-nowrap border-collapse">
-                    <thead class="sticky top-0 z-10 bg-slate-800 text-slate-300 text-[10px] uppercase tracking-wider font-bold">
-                        <tr>
-                            <th colspan="4" class="py-2 border-b border-r border-slate-700">CALLS (CE)</th>
-                            <th class="py-2 border-b border-slate-700 bg-slate-900 w-24">STRIKE</th>
-                            <th colspan="4" class="py-2 border-b border-l border-slate-700">PUTS (PE)</th>
-                        </tr>
-                        <tr class="bg-slate-700 text-slate-200">
-                            <th class="py-2 px-2 border-r border-slate-600">Action</th>
-                            <th class="py-2 px-2 border-r border-slate-600">IV</th>
-                            <th class="py-2 px-2 border-r border-slate-600">OI</th>
-                            <th class="py-2 px-4 border-r border-slate-600 text-right text-emerald-400">LTP</th>
-                            
-                            <th class="py-2 px-4 bg-slate-900 text-white border-r border-l border-slate-800">PRICE</th>
-                            
-                            <th class="py-2 px-4 border-l border-slate-600 text-left text-rose-400">LTP</th>
-                            <th class="py-2 px-2 border-l border-slate-600">OI</th>
-                            <th class="py-2 px-2 border-l border-slate-600">IV</th>
-                            <th class="py-2 px-2 border-l border-slate-600">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="oc-tbody" class="divide-y divide-slate-200 font-mono">
-                        <!-- Filled by JS -->
-                    </tbody>
-                </table>
-                <div id="oc-loader" class="absolute inset-0 bg-white dark:bg-darkpanel/50 backdrop-blur-sm flex items-center justify-center hidden">
-                    <div class="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-                </div>
-            </div>
-        </div>
-    </div>
 
-<script>
+
     /* --- OPTION CHAIN LOGIC --- */
     
     function directOpenChart(sym) {
@@ -729,7 +404,7 @@
                 width: w,
                 height: h,
                 layout: { background: { type: 'solid', color: '#0f172a' }, textColor: '#94a3b8' },
-                grid: { vertLines: { color: '#1e293b' }, horzLines: { color: '#1e293b' } },
+                grid: { vertLines: { color: '#f0f0f0' }, horzLines: { color: '#f0f0f0' } },
                 timeScale: { timeVisible: true, secondsVisible: false },
             });
             
@@ -875,7 +550,7 @@
             document.getElementById("tv_chart_container_1").style.display = "block";
             
             var tvSym = tvSymbolMap[sym] || ('NSE:' + sym);
-            var interval = ( (tvSym.startsWith('NSE:') && !tvSym.includes('!')) || tvSym.startsWith('BSE:') ) ? "D" : "5"; 
+            var interval = tvSym.startsWith('NSE:') ? "D" : "5"; 
             
             document.getElementById("tv_chart_container_1").innerHTML = "";
             tvWidget1 = initTVWidget("tv_chart_container_1", tvSym, interval);
@@ -897,10 +572,8 @@
         showToast(`Placing ${action} order for ${symbol}...`, 'success');
     }
 
-</script>
-</body>
-</html>
-<script>
+
+
     function requestBrowserPermission() {
         if (!("Notification" in window)) {
             alert("This browser does not support desktop notification");
@@ -925,4 +598,3 @@
             new Notification(title, { body: body });
         }
     }
-</script>
