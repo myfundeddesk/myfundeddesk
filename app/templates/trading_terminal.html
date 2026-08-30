@@ -510,7 +510,7 @@
         document.querySelectorAll('.btn-close-trade').forEach(btn => btn.click());
     }
 
-    function placeTrade(orderType) {
+    async function placeTrade(orderType) {
         if(isTrading) return;
         var qtyInput = document.getElementById('qt-qty');
         var lots = parseFloat(qtyInput.value);

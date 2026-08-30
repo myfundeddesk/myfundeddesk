@@ -146,7 +146,12 @@
                                     <span class="text-emerald-400 font-medium">&#8377;{{ "{:,.2f}".format(account.current_equity - account.initial_balance) }} / &#8377;{{ "{:,.2f}".format(account.initial_balance * account.profit_target_pct / 100) }}</span>
                                 </div>
                                 <div class="w-full bg-gray-800 rounded-full h-1.5 overflow-hidden">
-                                    {% set profit_progress = [100, ( ((account.current_equity - account.initial_balance) / (account.initial_balance * account.profit_target_pct / 100)) * 100 )]|min %}
+                                    {% set target_amount = (account.initial_balance * account.profit_target_pct / 100) %}
+                                    {% if target_amount > 0 %}
+                                        {% set profit_progress = [100, ( ((account.current_equity - account.initial_balance) / target_amount) * 100 )]|min %}
+                                    {% else %}
+                                        {% set profit_progress = 100 %}
+                                    {% endif %}
                                     {% set profit_progress = [0, profit_progress]|max %}
                                     <div class="bg-gradient-to-r from-emerald-500 to-emerald-400 h-1.5 rounded-full" style="width: {{ profit_progress }}%"></div>
                                 </div>
@@ -165,7 +170,7 @@
                                 <div class="w-full bg-gray-800 rounded-full h-1.5 overflow-hidden flex flex-row-reverse">
                                     {% set daily_loss_progress = 0 %}
                                     {% if daily_loss > 0 %}
-                                        {% set daily_loss_progress = [100, (daily_loss / max_daily_loss) * 100]|min %}
+                                        {% set daily_loss_progress = [100, (daily_loss / max_daily_loss) * 100]|min if max_daily_loss > 0 else 0 %}
                                     {% endif %}
                                     <div class="bg-gradient-to-l from-red-500 to-red-400 h-1.5 rounded-full" style="width: {{ daily_loss_progress }}%"></div>
                                 </div>
@@ -184,7 +189,7 @@
                                 <div class="w-full bg-gray-800 rounded-full h-1.5 overflow-hidden flex flex-row-reverse">
                                     {% set total_loss_progress = 0 %}
                                     {% if total_loss > 0 %}
-                                        {% set total_loss_progress = [100, (total_loss / max_total_loss) * 100]|min %}
+                                        {% set total_loss_progress = [100, (total_loss / max_total_loss) * 100]|min if max_total_loss > 0 else 0 %}
                                     {% endif %}
                                     <div class="bg-gradient-to-l from-red-600 to-red-500 h-1.5 rounded-full" style="width: {{ total_loss_progress }}%"></div>
                                 </div>
