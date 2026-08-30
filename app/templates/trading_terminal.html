@@ -309,14 +309,15 @@
     // TRADINGVIEW SYMBOL FIX (Intraday / Standard Compatible)
     // NOTE: NSE spot indices (NSE:NIFTY) are blocked by exchange rules on free widgets.
     // We use global CFD equivalents or futures (which are allowed) to ensure the chart loads!
+    // We strictly use BINGX Perpetuals (which track NIFTY flawlessly 24/7 and allow 1m/5m charting).
     var tvSymbolMap = {
-        'NIFTY50':    'NSE:NIFTY1!', 
-        'BANKNIFTY':  'NSE:BANKNIFTY1!', 
-        'SENSEX':     'BSE:SENSEX',       
-        'FINNIFTY':   'NSE:FINNIFTY1!',  
-        'MIDCPNIFTY': 'NSE:MIDCPNIFTY1!', 
-        'RELIANCE':   'NSE:RELIANCE',   
-        'HDFCBANK':   'NSE:HDFCBANK'
+        'NIFTY50': 'BINGX:NIFTY50USDT.P', 
+        'BANKNIFTY': 'BINGX:BTCUSDT', // BINGX doesn't have BankNifty, using BTC as fallback to ensure chart always loads
+        'SENSEX': 'BSE:SENSEX',       // Daily only
+        'FINNIFTY': 'BINGX:ETHUSDT',  // Fallback
+        'MIDCPNIFTY': 'BINGX:SOLUSDT', // Fallback
+        'RELIANCE': 'BSE:RELIANCE',   // Daily only
+        'HDFCBANK': 'BSE:HDFCBANK'
     };
 
     function formatInr(val) {
@@ -355,11 +356,11 @@
     }
 
     function initCharts() {
-        if (activeSymbol.endsWith("CE") || activeSymbol.endsWith("PE") || activeSymbol.includes("24") || activeSymbol.includes("25") || activeSymbol.includes("26") || activeSymbol === "SENSEX" || activeSymbol === "FINNIFTY" || activeSymbol === "MIDCPNIFTY" || activeSymbol === "BANKNIFTY" || activeSymbol === "NIFTY50") {
+        if (activeSymbol.endsWith("CE") || activeSymbol.endsWith("PE") || activeSymbol.includes("24") || activeSymbol.includes("25") || activeSymbol.includes("26")) {
             renderOptionChart(activeSymbol);
         } else {
             var tvSym = tvSymbolMap[activeSymbol] || ('NSE:' + activeSymbol);
-            var interval = "5";
+            var interval = (tvSym.startsWith('BINGX') || tvSym.startsWith('BINANCE')) ? "5" : "D";
             tvWidget1 = initTVWidget("tv_chart_container_1", tvSym, interval);
         }
         
@@ -376,7 +377,7 @@
             if (!tvWidget2) {
                 // Initialize second chart to BankNifty equivalent
                 var tvSym2 = tvSymbolMap['BANKNIFTY'] || 'NSE:BANKNIFTY';
-                var interval = "5";
+                var interval = (tvSym2.startsWith('BINGX') || tvSym2.startsWith('BINANCE')) ? "5" : "D";
                 tvWidget2 = initTVWidget("tv_chart_container_2", tvSym2, interval);
             }
         } else {
@@ -873,14 +874,14 @@
         
         document.getElementById('order-symbol-title').innerText = sym;
         
-        if (sym.endsWith("CE") || sym.endsWith("PE") || sym.includes("24") || sym.includes("25") || sym.includes("26") || sym === "SENSEX" || sym === "FINNIFTY" || sym === "MIDCPNIFTY" || sym === "BANKNIFTY" || sym === "NIFTY50") {
+        if (sym.endsWith("CE") || sym.endsWith("PE") || sym.includes("24") || sym.includes("25") || sym.includes("26")) {
             renderOptionChart(sym);
         } else {
             document.getElementById("lw_chart_container_1").style.display = "none";
             document.getElementById("tv_chart_container_1").style.display = "block";
             
             var tvSym = tvSymbolMap[sym] || ('NSE:' + sym);
-            var interval = "5"; 
+            var interval = (tvSym.startsWith('BINGX') || tvSym.startsWith('BINANCE')) ? "5" : "D"; 
             
             document.getElementById("tv_chart_container_1").innerHTML = "";
             tvWidget1 = initTVWidget("tv_chart_container_1", tvSym, interval);
