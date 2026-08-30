@@ -309,13 +309,13 @@
     // We use global CFD equivalents or futures (which are allowed) to ensure the chart loads!
     // We strictly use BINGX Perpetuals (which track NIFTY flawlessly 24/7 and allow 1m/5m charting).
     var tvSymbolMap = {
-        'NIFTY50': 'BINGX:SOLUSDT', 
-        'BANKNIFTY': 'BINGX:BTCUSDT', 
-        'SENSEX': 'BINGX:ETHUSDT',       
-        'FINNIFTY': 'BINGX:XRPUSDT',  
-        'MIDCPNIFTY': 'BINGX:ADAUSDT', 
-        'RELIANCE': 'BINGX:DOGEUSDT',   
-        'HDFCBANK': 'BINGX:LINKUSDT'
+        'NIFTY50': 'TVC:IN50', 
+        'BANKNIFTY': 'NSEIX:BANKNIFTY', 
+        'SENSEX': 'BSE:SENSEX',       
+        'FINNIFTY': 'NSEIX:FINNIFTY',  
+        'MIDCPNIFTY': 'BSE:MIDCAP', 
+        'RELIANCE': 'BSE:RELIANCE',   
+        'HDFCBANK': 'BSE:HDFCBANK'
     };
 
     function formatInr(val) {
@@ -358,7 +358,7 @@
             renderOptionChart(activeSymbol);
         } else {
             var tvSym = tvSymbolMap[activeSymbol] || ('NSE:' + activeSymbol);
-            var interval = tvSym.startsWith('NSE:') ? "D" : "5";
+            var interval = ( (tvSym.startsWith('NSE:') && !tvSym.startsWith('NSEIX:')) || tvSym.startsWith('BSE:') ) ? "D" : "5";
             tvWidget1 = initTVWidget("tv_chart_container_1", tvSym, interval);
         }
         
@@ -375,7 +375,7 @@
             if (!tvWidget2) {
                 // Initialize second chart to BankNifty equivalent
                 var tvSym2 = tvSymbolMap['BANKNIFTY'] || 'NSE:BANKNIFTY';
-                var interval = tvSym2.startsWith('NSE:') ? "D" : "5";
+                var interval = ( (tvSym2.startsWith('NSE:') && !tvSym2.startsWith('NSEIX:')) || tvSym2.startsWith('BSE:') ) ? "D" : "5";
                 tvWidget2 = initTVWidget("tv_chart_container_2", tvSym2, interval);
             }
         } else {
@@ -879,7 +879,7 @@
             document.getElementById("tv_chart_container_1").style.display = "block";
             
             var tvSym = tvSymbolMap[sym] || ('NSE:' + sym);
-            var interval = tvSym.startsWith('NSE:') ? "D" : "5"; 
+            var interval = ( (tvSym.startsWith('NSE:') && !tvSym.startsWith('NSEIX:')) || tvSym.startsWith('BSE:') ) ? "D" : "5"; 
             
             document.getElementById("tv_chart_container_1").innerHTML = "";
             tvWidget1 = initTVWidget("tv_chart_container_1", tvSym, interval);
