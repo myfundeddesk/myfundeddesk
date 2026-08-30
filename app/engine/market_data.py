@@ -103,8 +103,7 @@ class MarketDataEngine:
             self.candle_cache[symbol] = self._generate_initial_candles(symbol, count=120)
 
     def _sync_live_prices(self):
-        """Fetch REAL live Indian market prices from Yahoo Finance every 5 seconds."""
-        # Yahoo Finance symbol mapping for NSE indices & stocks
+        """Fetch REAL live Indian market prices from Angel One (1s ticks) and Yahoo Finance (history)."""
         YAHOO_MAP = {
             "NIFTY50":    "^NSEI",
             "BANKNIFTY":  "^NSEBANK",
@@ -114,6 +113,85 @@ class MarketDataEngine:
             "RELIANCE":   "RELIANCE.NS",
             "HDFCBANK":   "HDFCBANK.NS",
         }
+
+        def angel_one_worker():
+            import pyotp
+            import os
+            from SmartApi import SmartConnect
+            
+            ANGEL_MAP = {
+                "NIFTY50":    ("NSE", "26000"),
+                "BANKNIFTY":  ("NSE", "26009"),
+                "FINNIFTY":   ("NSE", "26037"),
+                "MIDCPNIFTY": ("NSE", "26074"),
+                "RELIANCE":   ("NSE", "2885"),
+                "HDFCBANK":   ("NSE", "1333"),
+                "SENSEX":     ("BSE", "99919000"),
+            }
+            
+            api_key = os.getenv("ANGEL_API_KEY", "3EWlZO4e")
+            client_code = os.getenv("ANGEL_CLIENT_CODE", "G140240")
+            pin = os.getenv("ANGEL_PIN", "5012")
+            totp_key = os.getenv("ANGEL_TOTP_KEY", "FMKOE2BD2DHDRUPAI4AV3BWNKU")
+            
+            obj = SmartConnect(api_key=api_key)
+            try:
+                totp = pyotp.TOTP(totp_key).now()
+                obj.generateSession(client_code, pin, totp)
+                print("Angel One Live Data Stream Connected Successfully!")
+            except Exception as e:
+                print("Failed to authenticate Angel One:", e)
+                
+            exchangeTokens = {"NSE": [], "BSE": []}
+            token_to_sym = {}
+            for sym, (exch, token) in ANGEL_MAP.items():
+                exchangeTokens[exch].append(token)
+                token_to_sym[token] = sym
+                
+            while True:
+                try:
+                    res = obj.getMarketData("FULL", exchangeTokens)
+                    if res and res.get("status") and res.get("data"):
+                        fetched = res["data"].get("fetched", [])
+                        with self.lock:
+                            for item in fetched:
+                                token = item.get("symbolToken")
+                                if token in token_to_sym:
+                                    sym = token_to_sym[token]
+                                    if sym not in INSTRUMENTS:
+                                        continue
+                                    cfg = INSTRUMENTS[sym]
+                                    
+                                    last_p = item.get("ltp")
+                                    if not last_p or last_p <= 0:
+                                        continue
+                                        
+                                    spread = cfg["spread"]
+                                    self.prices[sym]["mid"] = round(last_p, cfg["digits"])
+                                    self.prices[sym]["bid"] = round(last_p - spread / 2, cfg["digits"])
+                                    self.prices[sym]["ask"] = round(last_p + spread / 2, cfg["digits"])
+                                    
+                                    now_ts = int(time.time())
+                                    if sym in self.candle_cache and self.candle_cache[sym]:
+                                        last_c = self.candle_cache[sym][-1]
+                                        if now_ts - last_c["time"] < 60: 
+                                            last_c["close"] = last_p
+                                            last_c["high"] = max(last_c["high"], last_p)
+                                            last_c["low"] = min(last_c["low"], last_p)
+                                        else:
+                                            self.candle_cache[sym].append({
+                                                "time": now_ts,
+                                                "open": last_p,
+                                                "high": last_p,
+                                                "low": last_p,
+                                                "close": last_p,
+                                                "volume": item.get("tradeVolume", 100)
+                                            })
+                                            if len(self.candle_cache[sym]) > 500:
+                                                self.candle_cache[sym].pop(0)
+                except Exception as e:
+                    pass
+                time.sleep(1)
 
         def fetch_worker():
             while True:
@@ -145,17 +223,8 @@ class MarketDataEngine:
                                         
                                         if len(series_close) == 0:
                                             continue
-                                        
-                                        last_p = float(series_close.iloc[-1])
-                                        if last_p <= 0:
-                                            continue
-                                        
-                                        spread = cfg["spread"]
-                                        self.prices[sym]["mid"] = round(last_p, cfg["digits"])
-                                        self.prices[sym]["bid"] = round(last_p - spread / 2, cfg["digits"])
-                                        self.prices[sym]["ask"] = round(last_p + spread / 2, cfg["digits"])
-                                        
-                                        # Overwrite candle cache with REAL historical data
+                                            
+                                        # Only override cache history to not lose tick precision
                                         real_candles = []
                                         for ts, close_val in series_close.items():
                                             if ts in series_open and ts in series_high and ts in series_low:
@@ -170,17 +239,15 @@ class MarketDataEngine:
                                         
                                         if real_candles:
                                             self.candle_cache[sym] = real_candles
-                                        if len(self.candle_cache[sym]) > 500:
-                                            self.candle_cache[sym].pop(0)
                                     except Exception:
                                         pass
-                except Exception:
-                    pass  # Silently fall back to stochastic generation if offline
+                except Exception as e:
+                    pass
                 
-                time.sleep(5)  # Refresh every 5 seconds
+                time.sleep(120)  # Refresh history every 2 mins
 
-        t = threading.Thread(target=fetch_worker, daemon=True)
-        t.start()
+        threading.Thread(target=fetch_worker, daemon=True).start()
+        threading.Thread(target=angel_one_worker, daemon=True).start()
 
 
     def _generate_initial_candles(self, symbol: str, count: int = 120) -> List[Dict[str, Any]]:
