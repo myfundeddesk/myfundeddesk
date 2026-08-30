@@ -72,9 +72,10 @@ with engine.connect() as conn:
         existing_cols = [c['name'] for c in inspector.get_columns('trade_positions')]
         if 'sl_penalized' not in existing_cols:
             try:
-                conn.execute(text("ALTER TABLE trade_positions ADD COLUMN sl_penalized BOOLEAN DEFAULT 0"))
+                conn.execute(text("ALTER TABLE trade_positions ADD COLUMN sl_penalized BOOLEAN DEFAULT FALSE"))
                 conn.commit()
-            except Exception:
+            except Exception as e:
+                print(f"Failed to migrate sl_penalized: {e}")
                 pass
 
 
