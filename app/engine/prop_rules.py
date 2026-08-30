@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from app.models import TradingAccount, TradePosition, User, Certificate
-from app.notifications import send_activity_email
+from app.email_service import send_activity_email
 from app.models import utc_now
 from app.engine.market_data import market_engine
 import uuid
