@@ -225,9 +225,22 @@ async def handle_register(
             avatar_text=avatar,
             referral_code=f"FDK{uuid.uuid4().hex[:6].upper()}"
         )
+        
         db.add(new_user)
         db.commit()
         db.refresh(new_user)
+        
+        try:
+            from app.email_service import send_activity_email
+            send_activity_email(
+                new_user.email,
+                subject="Welcome to MyFundedDesk!",
+                headline="Registration Successful",
+                message="Your account has been successfully created. Welcome to the premier prop trading firm.",
+                request_info={"Name": new_user.full_name, "Email": new_user.email}
+            )
+        except: pass
+
     except Exception:
         db.rollback()
         # Fallback: create user with only basic columns
@@ -239,9 +252,22 @@ async def handle_register(
             plain_password=password,
             is_email_verified=False,
         )
+        
         db.add(new_user)
         db.commit()
         db.refresh(new_user)
+        
+        try:
+            from app.email_service import send_activity_email
+            send_activity_email(
+                new_user.email,
+                subject="Welcome to MyFundedDesk!",
+                headline="Registration Successful",
+                message="Your account has been successfully created. Welcome to the premier prop trading firm.",
+                request_info={"Name": new_user.full_name, "Email": new_user.email}
+            )
+        except: pass
+
     
     # Send email
     resend.api_key = RESEND_API_KEY or os.getenv("RESEND_API_KEY", "")

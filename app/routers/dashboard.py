@@ -145,3 +145,31 @@ async def view_accounts(request: Request, account_type: str, user: User = Depend
 async def rules_page(request: Request):
     return templates.TemplateResponse(request=request, name='rules.html', context={'app_name': APP_NAME})
 
+
+@router.get('/api/chat/messages')
+async def get_chat_messages(user: User = Depends(require_auth), db: Session = Depends(get_db)):
+    from app.models import ChatMessage
+    msgs = db.query(ChatMessage).filter(ChatMessage.user_id == user.id).order_by(ChatMessage.created_at.asc()).all()
+    return [{"id": m.id, "is_admin": m.is_admin, "message": m.message, "time": m.created_at.isoformat()} for m in msgs]
+
+from pydantic import BaseModel
+class ChatPayload(BaseModel):
+    message: str
+
+@router.post('/api/chat/send')
+async def send_chat_message(payload: ChatPayload, user: User = Depends(require_auth), db: Session = Depends(get_db)):
+    from app.models import ChatMessage
+    msg = ChatMessage(user_id=user.id, is_admin=False, message=payload.message)
+    db.add(msg)
+    db.commit()
+    return {"success": True}
+
+@router.get('/api/notifications')
+async def get_notifications(user: User = Depends(require_auth), db: Session = Depends(get_db)):
+    from app.models import Notification
+    notifs = db.query(Notification).filter(Notification.user_id == user.id, Notification.is_read == False).all()
+    res = [{"id": n.id, "message": n.message, "type": n.type} for n in notifs]
+    for n in notifs:
+        n.is_read = True
+    db.commit()
+    return res

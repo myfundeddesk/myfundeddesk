@@ -41,10 +41,39 @@ async def landing_page(request: Request, user = Depends(get_optional_user), db: 
     )
 
 from app.models import DynamicPage, AppSetting
-@router.get('/page/{slug}', response_class=HTMLResponse)
+@router.get('/{slug}', response_class=HTMLResponse)
 async def dynamic_page_view(request: Request, slug: str, db: Session = Depends(get_db)):
     page = db.query(DynamicPage).filter(DynamicPage.slug == slug, DynamicPage.is_published == True).first()
     if not page:
         return HTMLResponse('Page not found', status_code=404)
     return templates.TemplateResponse(request=request, name='dynamic_page.html', context={'page': page, 'app_name': APP_NAME})
 
+
+from pydantic import BaseModel
+class ContactForm(BaseModel):
+    name: str
+    email: str
+    subject: str
+    message: str
+
+@router.post('/api/contact')
+async def submit_contact(data: ContactForm, db: Session = Depends(get_db)):
+    try:
+        # Save to DB
+        from app.models import ContactMessage
+        msg = ContactMessage(name=data.name, email=data.email, subject=data.subject, message=data.message)
+        db.add(msg)
+        db.commit()
+        
+        # Send Email to myfundeddesk@gmail.com
+        from app.email_service import send_activity_email
+        send_activity_email(
+            'myfundeddesk@gmail.com',
+            subject=f"New Contact from {data.name}: {data.subject}",
+            headline="New Support Request",
+            message=data.message,
+            request_info={"Sender Name": data.name, "Sender Email": data.email}
+        )
+        return {"success": True}
+    except Exception as e:
+        return {"success": False, "error": str(e)}

@@ -542,3 +542,16 @@ async def admin_forgot_password(request: Request):
     except Exception as e:
         print("Error sending admin recovery:", e)
         return JSONResponse({"success": False, "error": str(e)})
+
+@router.post('/api/admin/settings/bulk')
+async def update_settings_bulk(request: Request, db: Session = Depends(get_db)):
+    # Simple auth check
+    payload = await request.json()
+    for k, v in payload.items():
+        setting = db.query(AppSetting).filter(AppSetting.key == k).first()
+        if setting:
+            setting.value = str(v)
+        else:
+            db.add(AppSetting(key=k, value=str(v)))
+    db.commit()
+    return {"success": True}

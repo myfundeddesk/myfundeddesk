@@ -649,6 +649,58 @@
             </div>
         </div>
 
+        
+        <!-- Tab: Landing -->
+        <div id="tab-landing" class="admin-tab max-w-7xl mx-auto" style="display: none;">
+            <div class="flex items-center justify-between mb-8">
+                <h2 class="text-3xl font-bold text-white tracking-tight">Landing Page Builder</h2>
+                <button onclick="saveLandingSettings()" class="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-2.5 rounded-lg font-bold shadow-lg shadow-emerald-500/20 transition-all active:scale-95 flex items-center gap-2">
+                    <i data-lucide="save" class="w-4 h-4"></i> Save Content
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Hero Section -->
+                <div class="glass-panel rounded-2xl border border-slate-800 p-6 relative">
+                    <h3 class="text-lg font-bold text-white mb-6 flex items-center gap-2"><i data-lucide="monitor" class="w-5 h-5 text-indigo-400"></i> Hero Section</h3>
+                    <div class="space-y-4">
+                        <div><label class="block text-xs font-bold text-slate-400 mb-2">Announcement Bar</label><input type="text" id="l_announcement" value="{{ settings.get('landing_announcement', '🚀 Update 2.0: 100k Instant account') }}" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white"></div>
+                        <div><label class="block text-xs font-bold text-slate-400 mb-2">Hero Title Part 1</label><input type="text" id="l_title_1" value="{{ settings.get('landing_hero_title_1', 'Built for Traders.') }}" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white"></div>
+                        <div><label class="block text-xs font-bold text-slate-400 mb-2">Hero Title Part 2</label><input type="text" id="l_title_2" value="{{ settings.get('landing_hero_title_2', 'Funded by Us.') }}" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white"></div>
+                        <div><label class="block text-xs font-bold text-slate-400 mb-2">Hero Subtitle</label><textarea id="l_subtitle" rows="3" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white">{{ settings.get('landing_hero_subtitle', 'We provide up to ₹1,00,00,000 in real capital. You keep 90% of the profits.') }}</textarea></div>
+                    </div>
+                </div>
+
+                <!-- Steps Section -->
+                <div class="glass-panel rounded-2xl border border-slate-800 p-6 relative">
+                    <h3 class="text-lg font-bold text-white mb-6 flex items-center gap-2"><i data-lucide="list-ordered" class="w-5 h-5 text-emerald-400"></i> Step-by-Step Guide</h3>
+                    <div class="space-y-6">
+                        <div class="p-4 bg-slate-800/50 rounded-xl border border-slate-700">
+                            <h4 class="text-sm font-bold text-slate-300 mb-3">Step 1</h4>
+                            <div class="space-y-3">
+                                <input type="text" id="l_step1_title" value="{{ settings.get('landing_step1_title', '1. Choose Your Challenge') }}" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white text-sm" placeholder="Title">
+                                <textarea id="l_step1_desc" rows="2" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-400 text-sm" placeholder="Description">{{ settings.get('landing_step1_desc', 'Select a funding package that suits your trading style and risk appetite.') }}</textarea>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-slate-800/50 rounded-xl border border-slate-700">
+                            <h4 class="text-sm font-bold text-slate-300 mb-3">Step 2</h4>
+                            <div class="space-y-3">
+                                <input type="text" id="l_step2_title" value="{{ settings.get('landing_step2_title', '2. Prove Your Skills') }}" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white text-sm" placeholder="Title">
+                                <textarea id="l_step2_desc" rows="2" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-400 text-sm" placeholder="Description">{{ settings.get('landing_step2_desc', 'Trade securely on our proprietary terminal and meet the profit targets.') }}</textarea>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-slate-800/50 rounded-xl border border-slate-700">
+                            <h4 class="text-sm font-bold text-slate-300 mb-3">Step 3</h4>
+                            <div class="space-y-3">
+                                <input type="text" id="l_step3_title" value="{{ settings.get('landing_step3_title', '3. Get Funded & Payouts') }}" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white text-sm" placeholder="Title">
+                                <textarea id="l_step3_desc" rows="2" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-400 text-sm" placeholder="Description">{{ settings.get('landing_step3_desc', 'Once you pass, trade our capital and request payouts up to 90% profit split.') }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Tab: Settings -->
         <div id="tab-settings" class="admin-tab max-w-7xl mx-auto">
             <div class="flex items-center justify-between mb-8">

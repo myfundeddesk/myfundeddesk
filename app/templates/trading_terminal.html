@@ -423,8 +423,13 @@
     }
 
     async function pollPrices() {
+        let startTime = performance.now();
         try {
             var res = await fetch('/api/market/prices?active_symbol=' + activeSymbol);
+            var ping = Math.round(performance.now() - startTime);
+            var pingEl = document.getElementById('status-ping');
+            if(pingEl) pingEl.innerText = ping + ' ms';
+            
             var prices = await res.json();
             
             for(var i = 0; i < prices.length; i++) {
@@ -441,6 +446,9 @@
                     var qtAsk = document.getElementById('qt-ask');
                     if(qtBid) qtBid.innerText = p.bid.toFixed(2);
                     if(qtAsk) qtAsk.innerText = p.ask.toFixed(2);
+                    
+                    var statPrice = document.getElementById('status-price');
+                    if(statPrice) statPrice.innerText = p.mid.toFixed(2);
                     
                     if (isIndianMarketOpen() && typeof lwSeries !== 'undefined' && lwSeries && lastLwCandle) {
                         var now = Math.floor(Date.now() / 1000);
@@ -1011,6 +1019,231 @@
     }
 
 </script>
+
+    <!-- Bottom Status Bar -->
+    <div class="h-6 bg-[#f8fafc] dark:bg-[#131722] border-t border-slate-200 dark:border-[#2a2e39] text-[10px] font-mono text-slate-500 dark:text-slate-400 flex items-center px-4 gap-4 shrink-0 shadow-inner z-50">
+        <div class="flex items-center gap-1.5 font-sans font-medium">
+            <div id="status-market-dot" class="w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.6)]"></div>
+            <span id="status-market-text">Market Closed</span>
+        </div>
+        <div class="w-px h-3 bg-slate-300 dark:bg-[#2a2e39]"></div>
+        
+        <div class="flex items-center gap-1">
+            <span class="text-slate-400 dark:text-slate-500">TZ</span>
+            <span class="text-slate-700 dark:text-slate-300 font-medium">Asia/Calcutta</span>
+        </div>
+        <div class="w-px h-3 bg-slate-300 dark:bg-[#2a2e39]"></div>
+
+        <div class="flex items-center gap-1">
+            <span class="text-slate-400 dark:text-slate-500">Conn</span>
+            <span class="text-emerald-500 font-medium">LIVE</span>
+        </div>
+        <div class="w-px h-3 bg-slate-300 dark:bg-[#2a2e39]"></div>
+
+        <div class="flex items-center gap-1">
+            <span class="text-slate-400 dark:text-slate-500">Ping</span>
+            <span id="status-ping" class="text-slate-700 dark:text-slate-300 font-medium">-- ms</span>
+        </div>
+        <div class="w-px h-3 bg-slate-300 dark:bg-[#2a2e39]"></div>
+
+        <div class="flex items-center gap-1">
+            <span class="text-slate-400 dark:text-slate-500">FPS</span>
+            <span id="status-fps" class="text-slate-700 dark:text-slate-300 font-medium">60</span>
+        </div>
+        <div class="w-px h-3 bg-slate-300 dark:bg-[#2a2e39]"></div>
+
+        <div class="flex items-center gap-1">
+            <span class="text-slate-400 dark:text-slate-500">Price</span>
+            <span id="status-price" class="text-slate-700 dark:text-slate-300 font-medium font-mono">--</span>
+        </div>
+
+        <div class="flex items-center gap-1 ml-auto">
+            <span class="text-slate-400 dark:text-slate-500">Time</span>
+            <span id="status-time" class="text-slate-700 dark:text-slate-300 font-medium tracking-wider">--:--:--</span>
+        </div>
+    </div>
+    
+    <script>
+        // Status Bar Logic
+        let frameCount = 0;
+        let lastFpsTime = performance.now();
+        
+        function updateFPS() {
+            frameCount++;
+            let now = performance.now();
+            if (now - lastFpsTime >= 1000) {
+                document.getElementById('status-fps').innerText = frameCount;
+                frameCount = 0;
+                lastFpsTime = now;
+            }
+            requestAnimationFrame(updateFPS);
+        }
+        requestAnimationFrame(updateFPS);
+
+        setInterval(() => {
+            let now = new Date();
+            let options = { timeZone: 'Asia/Kolkata', hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' };
+            document.getElementById('status-time').innerText = now.toLocaleTimeString('en-US', options);
+            
+            // Indian Market Hours: 9:15 AM to 3:30 PM IST (Mon-Fri)
+            let kolkataTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+            let day = kolkataTime.getDay();
+            let hours = kolkataTime.getHours();
+            let minutes = kolkataTime.getMinutes();
+            let totalMins = hours * 60 + minutes;
+            
+            let isOpen = (day >= 1 && day <= 5) && (totalMins >= (9*60+15)) && (totalMins < (15*60+30));
+            if (isOpen) {
+                document.getElementById('status-market-dot').className = 'w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]';
+                document.getElementById('status-market-text').innerText = 'Market Open';
+            } else {
+                document.getElementById('status-market-dot').className = 'w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.6)]';
+                document.getElementById('status-market-text').innerText = 'Market Closed';
+            }
+        }, 1000);
+    </script>
+
+    <!-- Floating Support Chat -->
+    <div x-data="chatWidget()" x-init="init()" class="fixed bottom-6 right-6 z-[9999] font-sans">
+        <!-- Chat Button -->
+        <button @click="toggle()" class="w-14 h-14 bg-indigo-600 hover:bg-indigo-700 rounded-full flex items-center justify-center shadow-2xl transition-transform hover:scale-105 relative">
+            <i data-lucide="message-circle" class="w-7 h-7 text-white"></i>
+            <span x-show="unread > 0" x-text="unread" class="absolute -top-1 -right-1 w-5 h-5 bg-rose-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-slate-900"></span>
+        </button>
+        
+        <!-- Chat Window -->
+        <div x-show="open" x-transition.opacity.scale.origin.bottom.right class="absolute bottom-20 right-0 w-80 sm:w-96 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xl flex flex-col overflow-hidden" style="height: 500px; display: none;">
+            <!-- Header -->
+            <div class="bg-indigo-600 p-4 flex items-center justify-between shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center"><i data-lucide="headphones" class="w-4 h-4 text-white"></i></div>
+                    <div>
+                        <h4 class="text-white font-bold text-sm">Live Support</h4>
+                        <p class="text-indigo-200 text-xs">We typically reply in minutes</p>
+                    </div>
+                </div>
+                <button @click="open = false" class="text-white hover:text-indigo-200"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            
+            <!-- Messages Area -->
+            <div id="chat-messages-container" class="flex-1 p-4 overflow-y-auto bg-slate-50 dark:bg-slate-900/50 space-y-4 flex flex-col">
+                <template x-for="msg in messages" :key="msg.id">
+                    <div :class="msg.is_admin ? 'self-start' : 'self-end'" class="max-w-[80%]">
+                        <div :class="msg.is_admin ? 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-br-2xl rounded-tr-2xl rounded-tl-2xl' : 'bg-indigo-600 text-white rounded-bl-2xl rounded-tr-2xl rounded-tl-2xl'" class="p-3 text-sm shadow-sm">
+                            <span x-text="msg.message"></span>
+                        </div>
+                        <div :class="msg.is_admin ? 'text-left' : 'text-right'" class="text-[10px] text-slate-400 mt-1" x-text="formatTime(msg.time)"></div>
+                    </div>
+                </template>
+            </div>
+            
+            <!-- Input Area -->
+            <div class="p-3 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 shrink-0">
+                <form @submit.prevent="sendMessage" class="flex items-center gap-2">
+                    <input x-model="newMessage" type="text" placeholder="Type a message..." class="flex-1 bg-slate-100 dark:bg-slate-800 border-transparent focus:bg-white dark:focus:bg-slate-900 focus:border-indigo-500 rounded-xl px-4 py-2 text-sm outline-none transition-colors dark:text-white">
+                    <button type="submit" :disabled="!newMessage.trim()" class="w-10 h-10 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-xl flex items-center justify-center transition-colors">
+                        <i data-lucide="send" class="w-4 h-4"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('chatWidget', () => ({
+                open: false,
+                unread: 0,
+                messages: [],
+                newMessage: '',
+                pollInterval: null,
+                
+                init() {
+                    this.fetchMessages();
+                    this.pollInterval = setInterval(() => {
+                        this.fetchMessages();
+                        this.fetchNotifications();
+                    }, 3000);
+                },
+                
+                toggle() {
+                    this.open = !this.open;
+                    if(this.open) {
+                        this.unread = 0;
+                        setTimeout(() => this.scrollToBottom(), 100);
+                    }
+                },
+                
+                async fetchMessages() {
+                    try {
+                        const res = await fetch('/api/chat/messages');
+                        if (res.status !== 200) return;
+                        const data = await res.json();
+                        if (data.length > this.messages.length) {
+                            if (!this.open && this.messages.length > 0) {
+                                this.unread += (data.length - this.messages.length);
+                                // Play sound
+                                let audio = new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3");
+                                audio.play().catch(e=>{});
+                            }
+                            this.messages = data;
+                            if(this.open) setTimeout(() => this.scrollToBottom(), 100);
+                        }
+                    } catch(e) {}
+                },
+                
+                async fetchNotifications() {
+                    try {
+                        const res = await fetch('/api/notifications');
+                        if (res.status !== 200) return;
+                        const data = await res.json();
+                        data.forEach(n => {
+                            if(window.showToast) {
+                                showToast(n.message, 'success');
+                            }
+                            let audio = new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3");
+                            audio.play().catch(e=>{});
+                        });
+                    } catch(e) {}
+                },
+                
+                async sendMessage() {
+                    if(!this.newMessage.trim()) return;
+                    const msg = this.newMessage;
+                    this.newMessage = '';
+                    
+                    // Optimistic UI
+                    this.messages.push({
+                        id: Date.now(),
+                        is_admin: false,
+                        message: msg,
+                        time: new Date().toISOString()
+                    });
+                    setTimeout(() => this.scrollToBottom(), 100);
+                    
+                    try {
+                        await fetch('/api/chat/send', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({message: msg})
+                        });
+                        this.fetchMessages();
+                    } catch(e) {}
+                },
+                
+                scrollToBottom() {
+                    const container = document.getElementById('chat-messages-container');
+                    if(container) container.scrollTop = container.scrollHeight;
+                },
+                
+                formatTime(isoStr) {
+                    const d = new Date(isoStr);
+                    return d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                }
+            }));
+        });
+    </script>
+
 </body>
 </html>
 <script>

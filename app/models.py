@@ -254,3 +254,12 @@ class DynamicPage(Base):
     content = Column(Text)
     is_published = Column(Boolean, default=True)
 
+
+class ContactMessage(Base):
+    __tablename__ = 'contact_messages'
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(100))
+    email = Column(String(100))
+    subject = Column(String(200))
+    message = Column(Text)
+    created_at = Column(DateTime, default=utc_now)

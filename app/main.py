@@ -278,7 +278,6 @@ async def startup_event():
 
 
 # Include Routers
-app.include_router(landing.router)
 app.include_router(auth.router)
 app.include_router(dashboard.router)
 app.include_router(challenges.router)
@@ -291,6 +290,7 @@ app.include_router(billing.router)
 app.include_router(profile.router)
 app.include_router(admin_sim.router)
 app.include_router(admin_dashboard.router)
+app.include_router(landing.router)
 
 if __name__ == "__main__":
     import uvicorn
