@@ -96,6 +96,25 @@ async def open_trade(
     if account.status != "ACTIVE":
         return JSONResponse(status_code=400, content={"error": f"Account is not active ({account.status}). Trading disabled."})
 
+    # --- STACKING LIMIT CHECK ---
+    open_same_dir = db.query(TradePosition).filter(
+        TradePosition.account_id == account.id,
+        TradePosition.symbol == symbol,
+        TradePosition.order_type == order_type,
+        TradePosition.status == "OPEN"
+    ).count()
+
+    if open_same_dir >= 3:
+        account.soft_breaches_stacking += 1
+        if account.soft_breaches_stacking >= 3:
+            account.status = "BREACHED"
+            account.breach_reason = "Position Stacking Limit Exceeded (3 soft breaches)"
+            db.commit()
+            return JSONResponse(status_code=400, content={"error": "Account breached due to position stacking limit."})
+        db.commit()
+        return JSONResponse(status_code=400, content={"error": f"Position stacking limit reached (max 3). Soft breach recorded ({account.soft_breaches_stacking}/3)."})
+
+    account.last_trade_time = utc_now()
 
     open_price = 0.0
     
@@ -225,6 +244,16 @@ async def close_trade(trade_id: int, user: User = Depends(require_auth), db: Ses
     trade.pnl = pnl
     trade.close_time = utc_now()
     
+    # Check Minimum Trade Duration (60s)
+    duration = (trade.close_time - trade.open_time).total_seconds()
+    if duration < 60:
+        account.soft_breaches_duration += 1
+        is_instant = account.model_type == "Instant"
+        max_duration_breaches = 7 if is_instant else 10
+        if account.soft_breaches_duration > max_duration_breaches:
+            account.status = "BREACHED"
+            account.breach_reason = f"Minimum Trade Duration (Exceeded {max_duration_breaches} soft breaches)"
+
     account.current_balance += pnl
     db.commit()
 

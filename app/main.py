@@ -42,9 +42,39 @@ with engine.connect() as conn:
                 try:
                     conn.execute(text(sql))
                     conn.commit()
-                    print(f"[Migration] Added missing column: {col_name}")
                 except Exception as e:
-                    print(f"[Migration] Column {col_name} skipped: {e}")
+                    pass
+
+    if 'trading_accounts' in inspector.get_table_names():
+        existing_cols = [c['name'] for c in inspector.get_columns('trading_accounts')]
+        migrations = {
+            'highest_daily_equity': "ALTER TABLE trading_accounts ADD COLUMN highest_daily_equity FLOAT DEFAULT 100000.0",
+            'highest_account_equity': "ALTER TABLE trading_accounts ADD COLUMN highest_account_equity FLOAT DEFAULT 100000.0",
+            'soft_breaches_stacking': "ALTER TABLE trading_accounts ADD COLUMN soft_breaches_stacking INTEGER DEFAULT 0",
+            'soft_breaches_duration': "ALTER TABLE trading_accounts ADD COLUMN soft_breaches_duration INTEGER DEFAULT 0",
+            'soft_breaches_sl': "ALTER TABLE trading_accounts ADD COLUMN soft_breaches_sl INTEGER DEFAULT 0",
+            'last_trade_time': "ALTER TABLE trading_accounts ADD COLUMN last_trade_time DATETIME",
+            'payout_cycle_start': "ALTER TABLE trading_accounts ADD COLUMN payout_cycle_start DATETIME",
+            'profit_days_count': "ALTER TABLE trading_accounts ADD COLUMN profit_days_count INTEGER DEFAULT 0",
+            'total_payout_profit': "ALTER TABLE trading_accounts ADD COLUMN total_payout_profit FLOAT DEFAULT 0.0",
+            'best_day_profit': "ALTER TABLE trading_accounts ADD COLUMN best_day_profit FLOAT DEFAULT 0.0"
+        }
+        for col_name, sql in migrations.items():
+            if col_name not in existing_cols:
+                try:
+                    conn.execute(text(sql))
+                    conn.commit()
+                except Exception as e:
+                    pass
+
+    if 'trade_positions' in inspector.get_table_names():
+        existing_cols = [c['name'] for c in inspector.get_columns('trade_positions')]
+        if 'sl_penalized' not in existing_cols:
+            try:
+                conn.execute(text("ALTER TABLE trade_positions ADD COLUMN sl_penalized BOOLEAN DEFAULT 0"))
+                conn.commit()
+            except Exception:
+                pass
 
 
 

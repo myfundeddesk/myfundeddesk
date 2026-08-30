@@ -68,6 +68,16 @@ class TradingAccount(Base):
     current_equity = Column(Float, default=100000.0)
     daily_starting_equity = Column(Float, default=100000.0)
     highest_recorded_equity = Column(Float, default=100000.0)
+    highest_daily_equity = Column(Float, default=100000.0)
+    highest_account_equity = Column(Float, default=100000.0)
+    soft_breaches_stacking = Column(Integer, default=0)
+    soft_breaches_duration = Column(Integer, default=0)
+    soft_breaches_sl = Column(Integer, default=0)
+    last_trade_time = Column(DateTime, default=utc_now)
+    payout_cycle_start = Column(DateTime, nullable=True)
+    profit_days_count = Column(Integer, default=0)
+    total_payout_profit = Column(Float, default=0.0)
+    best_day_profit = Column(Float, default=0.0)
 
     phase = Column(String(50), default="Phase 1") # "Phase 1", "Phase 2", "Funded"
     status = Column(String(50), default="ACTIVE") # "ACTIVE", "PASSED", "BREACHED"
@@ -146,6 +156,7 @@ class TradePosition(Base):
     
     stop_loss = Column(Float, nullable=True)
     take_profit = Column(Float, nullable=True)
+    sl_penalized = Column(Boolean, default=False)
     
     pnl = Column(Float, default=0.0)
     status = Column(String(20), default="OPEN") # "OPEN", "CLOSED"
