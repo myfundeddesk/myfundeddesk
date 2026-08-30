@@ -1,242 +1,242 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard - MyFundedDesk{% endblock %}
-{% block breadcrumb %}Dashboard{% endblock %}
-
 {% block content %}
-<div class="max-w-6xl mx-auto space-y-6">
-
-    <!-- Header Section -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-            <h1 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Institutional Dashboard</h1>
-            <p class="text-slate-500 text-sm mt-0.5">Manage your active evaluations, funded accounts, and trading performance.</p>
-        </div>
-        <div>
-            <a href="/buy-challenge" class="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-extrabold py-2.5 px-5 rounded-xl shadow-md shadow-emerald-500/20 transition-all text-sm">
-                <i data-lucide="plus" class="w-4 h-4"></i>
-                <span>+ Acquire New Capital</span>
-            </a>
-        </div>
-    </div>
-
-
-    {% if accounts %}
-
-    <!-- Trading Statistics Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div class="bg-white dark:bg-darkpanel rounded-2xl border border-slate-200 dark:border-darkborder p-5 shadow-sm hover:scale-105 transition-transform hover:shadow-xl duration-300">
-            <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Total Allocated Capital</div>
-            <div class="text-2xl font-black text-slate-900 dark:text-white font-mono">₹{{ total_balance|inr }}</div>
-            <div class="text-xs text-slate-500 font-medium mt-1">Across {{ accounts|length }} accounts</div>
-        </div>
-        <div class="bg-white dark:bg-darkpanel rounded-2xl border border-slate-200 dark:border-darkborder p-5 shadow-sm hover:scale-105 transition-transform hover:shadow-xl duration-300">
-            <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Total Equity</div>
-            <div class="text-2xl font-black text-blue-600 font-mono">₹{{ total_equity|inr }}</div>
-            <div class="text-xs text-slate-500 font-medium mt-1">Live market value</div>
-        </div>
-        <div class="bg-white dark:bg-darkpanel rounded-2xl border border-slate-200 dark:border-darkborder p-5 shadow-sm">
-            <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Total Profit</div>
-            <div class="text-2xl font-black {% if total_profit >= 0 %}text-emerald-500{% else %}text-rose-500{% endif %} font-mono">
-                {{ "+₹" if total_profit >= 0 else "-₹" }}{{ total_profit|abs|inr }}
-            </div>
-            <div class="text-xs text-slate-500 font-medium mt-1">Combined PnL</div>
-        </div>
-        <div class="bg-white dark:bg-darkpanel rounded-2xl border border-slate-200 dark:border-darkborder p-5 shadow-sm">
-            <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Active Evaluations</div>
-            <div class="text-2xl font-black text-slate-900 dark:text-white font-mono">{{ active_accounts|length }}</div>
-            <div class="text-xs text-emerald-600 font-bold mt-1">{{ passed_accounts|length }} Funded / Passed</div>
-        </div>
-    </div>
-    {% else %}
-    <!-- Onboarding Progress Card (Matching Institutional Stepper) -->
-
-    <div class="bg-white dark:bg-darkpanel rounded-2xl border border-slate-200 dark:border-darkborder p-8 shadow-sm text-center relative overflow-hidden">
-        <div class="max-w-xl mx-auto">
-            <h2 class="text-2xl font-black text-slate-900 dark:text-white">Start your evaluation</h2>
-            <p class="text-sm text-emerald-600 font-bold mt-1">Click the flag to begin trading evaluation.</p>
-
-            <!-- Stepper Container -->
-            <div class="flex items-center justify-center mt-8 mb-6 px-4">
-                <!-- Step 1: Registered -->
-                <div class="flex flex-col items-center">
-                    <div class="w-10 h-10 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-md shadow-emerald-500/20">
-                        <i data-lucide="check" class="w-5 h-5 stroke-[3]"></i>
-                    </div>
-                    <span class="text-xs font-bold text-slate-700 dark:text-slate-300 mt-2">Registered</span>
-                </div>
-
-                <!-- Connector Line 1 -->
-                <div class="h-0.5 w-20 md:w-28 bg-emerald-500 mx-2 -mt-6"></div>
-
-                <!-- Step 2: Email Verified -->
-                <div class="flex flex-col items-center">
-                    <div class="w-10 h-10 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-md shadow-emerald-500/20">
-                        <i data-lucide="check" class="w-5 h-5 stroke-[3]"></i>
-                    </div>
-                    <span class="text-xs font-bold text-slate-700 dark:text-slate-300 mt-2">Verified</span>
-                </div>
-
-                <!-- Connector Line 2 -->
-                <div class="h-0.5 w-20 md:w-28 bg-emerald-500 mx-2 -mt-6"></div>
-
-                <!-- Step 3: Start Evaluation -->
-                <a href="/buy-challenge" class="flex flex-col items-center group cursor-pointer">
-                    <div class="w-10 h-10 rounded-full bg-slate-200 group-hover:bg-blue-600 group-hover:text-white text-slate-600 dark:text-slate-400 flex items-center justify-center transition-all shadow-sm">
-                        <i data-lucide="flag" class="w-5 h-5"></i>
-                    </div>
-                    <span class="text-xs font-bold text-slate-700 dark:text-slate-300 group-hover:text-blue-600 mt-2 transition-colors">Start Evaluation</span>
-                </a>
-            </div>
-
-            <!-- Card Subtext -->
-            <div class="text-xs text-slate-400 font-medium tracking-wide">
-                Institutional Simulated Execution &middot; Automated Rule Enforcement &middot; Official Verifiable Certificates
-            </div>
-        </div>
-    </div>
-    {% endif %}
-
-    <!-- Explore Programs Card -->
-    <div class="bg-white dark:bg-darkpanel rounded-2xl border border-slate-200 dark:border-darkborder p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div class="flex items-start gap-4">
-            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-400 to-orange-500 text-white flex items-center justify-center text-xl shrink-0 shadow-md shadow-amber-500/20 font-black">
-                ⭐
-            </div>
+<div class="min-h-screen bg-gray-950 text-gray-100 font-sans selection:bg-emerald-500/30">
+    <!-- Main Container -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-gray-800 pb-6">
             <div>
-                <div class="flex items-center gap-2">
-                    <h3 class="text-lg font-black text-slate-900 dark:text-white">Explore Evaluation Tracks</h3>
-                    <span class="bg-blue-100 text-blue-700 text-[11px] font-extrabold px-2.5 py-0.5 rounded-full">Razorpay Live</span>
-                </div>
-                <p class="text-sm text-slate-500 mt-1 max-w-2xl">
-                    Choose either a 1-Step Fast Track or 2-Step Evaluation, or get started instantly with direct capital allocation.
-                </p>
+                <h1 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-cyan-500">
+                    Welcome back, Trader
+                </h1>
+                <p class="text-gray-400 mt-1">Here is the overview of your trading accounts and evaluations.</p>
             </div>
-        </div>
-        <div class="flex items-center gap-2 shrink-0">
-            <a href="/buy-challenge?model=1-Step" class="px-3.5 py-2 text-xs font-bold rounded-xl border border-slate-200 dark:border-darkborder text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:bg-darkbg transition-colors">
-                1-Step Track
-            </a>
-            <a href="/buy-challenge?model=2-Step" class="px-3.5 py-2 text-xs font-extrabold rounded-xl bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition-colors">
-                2-Step Track (Popular)
-            </a>
-            <a href="/buy-challenge?model=Instant" class="px-3.5 py-2 text-xs font-bold rounded-xl border border-slate-200 dark:border-darkborder text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:bg-darkbg transition-colors">
-                Instant Capital
+            <a href="/evaluations/new" class="inline-flex items-center justify-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-xl text-black bg-gradient-to-r from-emerald-400 to-emerald-500 hover:from-emerald-500 hover:to-emerald-600 shadow-[0_0_15px_rgba(16,185,129,0.3)] hover:shadow-[0_0_25px_rgba(16,185,129,0.5)] transition-all duration-300">
+                <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
+                New Evaluation
             </a>
         </div>
-    </div>
 
-    <!-- Active Accounts Section -->
-    <div class="space-y-4">
-        <div class="flex items-center justify-between">
-            <h3 class="text-lg font-black text-slate-900 dark:text-white">Your Trading Accounts</h3>
-            <span class="text-xs font-bold text-slate-500">{{ accounts|length }} Account(s)</span>
-        </div>
-
-        {% if accounts and accounts|length > 0 %}
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {% for acc in accounts %}
-            <div class="bg-white dark:bg-darkpanel rounded-2xl border border-slate-200 dark:border-darkborder p-6 shadow-sm hover:scale-[1.02] hover:shadow-xl transition-all duration-300">
-                <!-- Account Card Header -->
-                <div class="flex items-start justify-between pb-4 border-b border-slate-100 dark:border-slate-800/50">
+        <!-- Metrics Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Total Capital -->
+            <div class="relative group rounded-2xl bg-gray-900/50 backdrop-blur-xl border border-gray-800 p-6 overflow-hidden hover:border-emerald-500/30 transition-all duration-300">
+                <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <div class="relative z-10 flex items-center justify-between">
                     <div>
-                        <div class="flex items-center gap-2">
-                            <span class="font-black text-slate-900 dark:text-white text-base font-mono">{{ acc.account_number }}</span>
-                            <span class="text-xs font-bold px-2.5 py-0.5 rounded-full {% if acc.status == 'ACTIVE' %}bg-blue-100 text-blue-700{% elif acc.status == 'PASSED' %}bg-emerald-100 text-emerald-700{% else %}bg-rose-100 text-rose-700{% endif %}">
-                                {{ acc.status }}
-                            </span>
-                        </div>
-                        <div class="text-xs text-slate-500 mt-0.5">
-                            {{ acc.model_type }} Evaluation &middot; {{ acc.phase }} &middot; Platform: <span class="font-bold text-slate-700 dark:text-slate-300">{{ acc.platform }}</span>
-                        </div>
+                        <p class="text-sm font-medium text-gray-400">Total Capital</p>
+                        <p class="mt-2 text-2xl font-bold text-white">&#8377;{{ "{:,.2f}".format(total_balance|default(0)) }}</p>
                     </div>
-                    <div class="text-right">
-                        <div class="text-[11px] text-slate-400 font-bold uppercase">Capital</div>
-                        <div class="text-base font-black text-slate-900 dark:text-white font-mono">₹{{ acc.initial_balance|inr }}</div>
+                    <div class="p-3 bg-emerald-500/10 rounded-xl text-emerald-400">
+                        <i data-lucide="wallet" class="w-6 h-6"></i>
                     </div>
-                </div>
-
-                <!-- Account Metrics Grid -->
-                <div class="grid grid-cols-3 gap-3 my-4">
-                    <div class="bg-slate-50 dark:bg-darkbg p-3 rounded-xl border border-slate-100 dark:border-slate-800/50">
-                        <div class="text-[10px] font-bold text-slate-400 uppercase">Balance</div>
-                        <div class="text-sm font-extrabold text-slate-800 dark:text-slate-200 font-mono mt-0.5">₹{{ acc.current_balance|inr(2) }}</div>
-                    </div>
-                    <div class="bg-slate-50 dark:bg-darkbg p-3 rounded-xl border border-slate-100 dark:border-slate-800/50">
-                        <div class="text-[10px] font-bold text-slate-400 uppercase">Equity</div>
-                        <div class="text-sm font-extrabold text-slate-800 dark:text-slate-200 font-mono mt-0.5">₹{{ acc.current_equity|inr(2) }}</div>
-                    </div>
-                    <div class="bg-slate-50 dark:bg-darkbg p-3 rounded-xl border border-slate-100 dark:border-slate-800/50">
-                        <div class="text-[10px] font-bold text-slate-400 uppercase">Net P&L</div>
-                        <div class="text-sm font-extrabold font-mono mt-0.5 {% if acc.current_profit >= 0 %}text-emerald-600{% else %}text-rose-600{% endif %}">
-                            {{ "+₹" if acc.current_profit >= 0 else "-₹" }}{{ acc.current_profit|abs|inr(2) }}
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Prop Firm Rules Progress -->
-                <div class="space-y-3 pt-1">
-                    {% if acc.profit_target_pct > 0 and acc.phase != 'Funded' %}
-                    <div>
-                        <div class="flex justify-between text-xs font-semibold mb-1">
-                            <span class="text-slate-600 dark:text-slate-400">Profit Target ({{ acc.profit_target_pct }}%)</span>
-                            <span class="text-slate-800 dark:text-slate-200 font-mono">₹{{ acc.current_profit|inr(2) }} / ₹{{ acc.target_amount|inr(2) }}</span>
-                        </div>
-                        <div class="w-full bg-slate-100 dark:bg-slate-800/50 rounded-full h-2 overflow-hidden">
-                            {% set pct = (acc.current_profit / acc.target_amount * 100) if acc.target_amount > 0 else 0 %}
-                            {% set pct_clamped = [[pct, 0]|max, 100]|min %}
-                            <div class="bg-emerald-500 h-full rounded-full transition-all duration-300" style="width: {{ pct_clamped }}%"></div>
-                        </div>
-                    </div>
-                    {% endif %}
-
-                    <div>
-                        <div class="flex justify-between text-xs font-semibold mb-1">
-                            <span class="text-slate-600 dark:text-slate-400">Max Daily Loss (Limit: {{ acc.max_daily_loss_pct }}%)</span>
-                            <span class="font-mono {% if acc.daily_loss_pct > 4.0 %}text-rose-600 font-bold{% else %}text-slate-700 dark:text-slate-300{% endif %}">
-                                ₹{{ acc.daily_loss_amount|inr(2) }} / ₹{{ acc.max_daily_loss_limit|inr(2) }} ({{ "{:.1f}".format(acc.daily_loss_pct) }}%)
-                            </span>
-                        </div>
-                        <div class="w-full bg-slate-100 dark:bg-slate-800/50 rounded-full h-2 overflow-hidden">
-                            {% set daily_bar = (acc.daily_loss_pct / acc.max_daily_loss_pct * 100) if acc.max_daily_loss_pct > 0 else 0 %}
-                            {% set daily_bar_clamped = [[daily_bar, 0]|max, 100]|min %}
-                            <div class="{% if daily_bar_clamped > 80 %}bg-rose-500{% elif daily_bar_clamped > 50 %}bg-amber-500{% else %}bg-blue-500{% endif %} h-full rounded-full transition-all duration-300" style="width: {{ daily_bar_clamped }}%"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Card Actions -->
-                <div class="flex items-center gap-2 mt-5 pt-4 border-t border-slate-100 dark:border-slate-800/50">
-                    {% if acc.status == 'ACTIVE' %}
-                    <a href="/trading?account_id={{ acc.id }}" class="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:opacity-95 text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all shadow-xs">
-                        <i data-lucide="candlestick-chart" class="w-3.5 h-3.5"></i>
-                        <span>Launch Terminal</span>
-                    </a>
-                    {% endif %}
-                    <a href="/challenges/{{ acc.id }}" class="flex-1 bg-slate-100 dark:bg-slate-800/50 hover:bg-slate-200 text-slate-800 dark:text-slate-200 font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors">
-                        <i data-lucide="bar-chart-2" class="w-3.5 h-3.5"></i>
-                        <span>Metrics</span>
-                    </a>
-                    {% if acc.status == 'PASSED' %}
-                    <a href="/passed-challenges" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-extrabold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors">
-                        <i data-lucide="award" class="w-3.5 h-3.5"></i>
-                        <span>Certificate</span>
-                    </a>
-                    {% endif %}
                 </div>
             </div>
-            {% endfor %}
+
+            <!-- Win Rate -->
+            <div class="relative group rounded-2xl bg-gray-900/50 backdrop-blur-xl border border-gray-800 p-6 overflow-hidden hover:border-cyan-500/30 transition-all duration-300">
+                <div class="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <div class="relative z-10 flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-400">Win Rate</p>
+                        <p class="mt-2 text-2xl font-bold text-white">{{ "%.1f"|format(metrics.win_rate|default(0)) }}%</p>
+                    </div>
+                    <div class="p-3 bg-cyan-500/10 rounded-xl text-cyan-400">
+                        <i data-lucide="target" class="w-6 h-6"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profit Factor -->
+            <div class="relative group rounded-2xl bg-gray-900/50 backdrop-blur-xl border border-gray-800 p-6 overflow-hidden hover:border-blue-500/30 transition-all duration-300">
+                <div class="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <div class="relative z-10 flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-400">Profit Factor</p>
+                        <p class="mt-2 text-2xl font-bold text-white">{{ "%.2f"|format(metrics.profit_factor|default(0)) }}</p>
+                    </div>
+                    <div class="p-3 bg-blue-500/10 rounded-xl text-blue-400">
+                        <i data-lucide="trending-up" class="w-6 h-6"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Accounts -->
+            <div class="relative group rounded-2xl bg-gray-900/50 backdrop-blur-xl border border-gray-800 p-6 overflow-hidden hover:border-purple-500/30 transition-all duration-300">
+                <div class="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <div class="relative z-10 flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-400">Active Accounts</p>
+                        <p class="mt-2 text-2xl font-bold text-white">{{ (active_evaluations|length) + (funded_accounts|length) }}</p>
+                    </div>
+                    <div class="p-3 bg-purple-500/10 rounded-xl text-purple-400">
+                        <i data-lucide="activity" class="w-6 h-6"></i>
+                    </div>
+                </div>
+            </div>
         </div>
-        {% else %}
-        <div class="bg-white dark:bg-darkpanel rounded-2xl border border-slate-200 dark:border-darkborder p-12 shadow-sm text-center">
-            <p class="text-slate-600 dark:text-slate-400 font-bold text-base mb-4">No accounts yet. Start your first institutional evaluation!</p>
-            <a href="/buy-challenge" class="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:opacity-95 text-white font-black py-3 px-6 rounded-xl shadow-lg shadow-blue-500/25 transition-all">
-                <i data-lucide="zap" class="w-4 h-4"></i>
-                <span>Start Evaluation</span>
-            </a>
+
+        <!-- Funded Accounts Section -->
+        {% if funded_accounts %}
+        <div class="space-y-4">
+            <h2 class="text-xl font-semibold flex items-center text-white">
+                <i data-lucide="award" class="w-5 h-5 text-yellow-500 mr-2"></i> Funded Accounts
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for account in funded_accounts %}
+                <div class="rounded-2xl bg-gray-900/40 border border-emerald-500/20 p-6 flex flex-col justify-between shadow-[0_0_20px_rgba(16,185,129,0.05)] hover:shadow-[0_0_30px_rgba(16,185,129,0.1)] transition-shadow">
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="text-lg font-bold text-white">{{ account.name|default('Funded Account') }}</h3>
+                                <p class="text-xs text-gray-400 font-mono mt-1">ID: {{ account.id }}</p>
+                            </div>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                                Funded
+                            </span>
+                        </div>
+                        <div class="space-y-3 mb-6">
+                            <div class="flex justify-between">
+                                <span class="text-gray-400 text-sm">Initial Balance</span>
+                                <span class="text-white font-medium">&#8377;{{ "{:,.2f}".format(account.initial_balance) }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-400 text-sm">Current Equity</span>
+                                <span class="text-emerald-400 font-bold">&#8377;{{ "{:,.2f}".format(account.current_equity) }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="/trading?account_id={{ account.id }}" class="w-full inline-flex items-center justify-center px-4 py-2 border border-emerald-500/30 rounded-xl text-sm font-medium text-emerald-400 hover:bg-emerald-500/10 hover:border-emerald-500/50 transition-colors">
+                        <i data-lucide="terminal" class="w-4 h-4 mr-2"></i> Go to Terminal
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
         </div>
         {% endif %}
-    </div>
 
+        <!-- Active Evaluations Section -->
+        {% if active_evaluations %}
+        <div class="space-y-4">
+            <h2 class="text-xl font-semibold flex items-center text-white">
+                <i data-lucide="clock" class="w-5 h-5 text-blue-400 mr-2"></i> Active Evaluations
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {% for account in active_evaluations %}
+                <div class="rounded-2xl bg-gray-900/60 border border-gray-800 p-6 flex flex-col justify-between hover:border-blue-500/30 transition-colors">
+                    <div>
+                        <div class="flex justify-between items-start mb-6">
+                            <div>
+                                <h3 class="text-lg font-bold text-white">{{ account.name|default('Evaluation Phase') }}</h3>
+                                <p class="text-xs text-gray-400 font-mono mt-1">ID: {{ account.id }}</p>
+                            </div>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                                {{ account.phase|default('Phase 1') }}
+                            </span>
+                        </div>
+                        
+                        <!-- Progress Bars -->
+                        <div class="space-y-5 mb-6">
+                            <!-- Profit Target -->
+                            <div>
+                                <div class="flex justify-between text-xs mb-1.5">
+                                    <span class="text-gray-400">Profit Target ({{ account.profit_target_pct }}%)</span>
+                                    <span class="text-emerald-400 font-medium">&#8377;{{ "{:,.2f}".format(account.current_equity - account.initial_balance) }} / &#8377;{{ "{:,.2f}".format(account.initial_balance * account.profit_target_pct / 100) }}</span>
+                                </div>
+                                <div class="w-full bg-gray-800 rounded-full h-1.5 overflow-hidden">
+                                    {% set profit_progress = [100, ( ((account.current_equity - account.initial_balance) / (account.initial_balance * account.profit_target_pct / 100)) * 100 )]|min %}
+                                    {% set profit_progress = [0, profit_progress]|max %}
+                                    <div class="bg-gradient-to-r from-emerald-500 to-emerald-400 h-1.5 rounded-full" style="width: {{ profit_progress }}%"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Daily Loss Limit -->
+                            <div>
+                                <div class="flex justify-between text-xs mb-1.5">
+                                    <span class="text-gray-400">Daily Loss Limit ({{ account.max_daily_loss_pct }}%)</span>
+                                    <span class="text-red-400 font-medium">
+                                        {% set daily_loss = account.initial_balance - account.current_equity %}
+                                        {% set max_daily_loss = account.initial_balance * account.max_daily_loss_pct / 100 %}
+                                        &#8377;{{ "{:,.2f}".format(daily_loss if daily_loss > 0 else 0) }} / &#8377;{{ "{:,.2f}".format(max_daily_loss) }}
+                                    </span>
+                                </div>
+                                <div class="w-full bg-gray-800 rounded-full h-1.5 overflow-hidden flex flex-row-reverse">
+                                    {% set daily_loss_progress = 0 %}
+                                    {% if daily_loss > 0 %}
+                                        {% set daily_loss_progress = [100, (daily_loss / max_daily_loss) * 100]|min %}
+                                    {% endif %}
+                                    <div class="bg-gradient-to-l from-red-500 to-red-400 h-1.5 rounded-full" style="width: {{ daily_loss_progress }}%"></div>
+                                </div>
+                            </div>
+
+                            <!-- Max Loss Limit -->
+                            <div>
+                                <div class="flex justify-between text-xs mb-1.5">
+                                    <span class="text-gray-400">Max Loss Limit ({{ account.max_total_loss_pct }}%)</span>
+                                    <span class="text-red-400 font-medium">
+                                        {% set total_loss = account.initial_balance - account.current_equity %}
+                                        {% set max_total_loss = account.initial_balance * account.max_total_loss_pct / 100 %}
+                                        &#8377;{{ "{:,.2f}".format(total_loss if total_loss > 0 else 0) }} / &#8377;{{ "{:,.2f}".format(max_total_loss) }}
+                                    </span>
+                                </div>
+                                <div class="w-full bg-gray-800 rounded-full h-1.5 overflow-hidden flex flex-row-reverse">
+                                    {% set total_loss_progress = 0 %}
+                                    {% if total_loss > 0 %}
+                                        {% set total_loss_progress = [100, (total_loss / max_total_loss) * 100]|min %}
+                                    {% endif %}
+                                    <div class="bg-gradient-to-l from-red-600 to-red-500 h-1.5 rounded-full" style="width: {{ total_loss_progress }}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="/trading?account_id={{ account.id }}" class="w-full inline-flex items-center justify-center px-4 py-2 border border-gray-700 rounded-xl text-sm font-medium text-gray-300 hover:bg-gray-800 hover:text-white hover:border-gray-600 transition-colors">
+                        <i data-lucide="bar-chart-2" class="w-4 h-4 mr-2"></i> Go to Terminal
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Breached Accounts Section -->
+        {% if breached_accounts %}
+        <div class="space-y-4">
+            <h2 class="text-xl font-semibold flex items-center text-gray-500">
+                <i data-lucide="alert-triangle" class="w-5 h-5 text-red-500/70 mr-2"></i> Breached Accounts
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for account in breached_accounts %}
+                <div class="rounded-2xl bg-gray-900/30 border border-red-500/10 p-6 opacity-75 hover:opacity-100 transition-opacity">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-400 line-through decoration-red-500/30">{{ account.name|default('Account') }}</h3>
+                            <p class="text-xs text-gray-500 font-mono mt-1">ID: {{ account.id }}</p>
+                        </div>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-500/10 text-red-400 border border-red-500/20">
+                            Breached
+                        </span>
+                    </div>
+                    <div class="bg-red-500/5 border border-red-500/10 rounded-lg p-3">
+                        <p class="text-sm text-red-400/90 flex items-start">
+                            <i data-lucide="x-circle" class="w-4 h-4 mr-2 mt-0.5 flex-shrink-0"></i>
+                            <span>{{ account.breach_reason|default('Account limit violated.') }}</span>
+                        </p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
 </div>
+
+<script>
+    // Initialize Lucide icons if available
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+</script>
 {% endblock %}
