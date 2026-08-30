@@ -84,6 +84,14 @@ app = FastAPI(
     version="2.0.0"
 )
 
+from fastapi.responses import PlainTextResponse
+import traceback
+from fastapi import Request
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    return PlainTextResponse(str(traceback.format_exc()), status_code=500)
+
 # Custom Jinja filter for Indian numbering system
 def inr_format(value, decimal_places=0):
     try:
