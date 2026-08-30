@@ -53,8 +53,8 @@ with engine.connect() as conn:
             'soft_breaches_stacking': "ALTER TABLE trading_accounts ADD COLUMN soft_breaches_stacking INTEGER DEFAULT 0",
             'soft_breaches_duration': "ALTER TABLE trading_accounts ADD COLUMN soft_breaches_duration INTEGER DEFAULT 0",
             'soft_breaches_sl': "ALTER TABLE trading_accounts ADD COLUMN soft_breaches_sl INTEGER DEFAULT 0",
-            'last_trade_time': "ALTER TABLE trading_accounts ADD COLUMN last_trade_time DATETIME",
-            'payout_cycle_start': "ALTER TABLE trading_accounts ADD COLUMN payout_cycle_start DATETIME",
+            'last_trade_time': "ALTER TABLE trading_accounts ADD COLUMN last_trade_time TIMESTAMP",
+            'payout_cycle_start': "ALTER TABLE trading_accounts ADD COLUMN payout_cycle_start TIMESTAMP",
             'profit_days_count': "ALTER TABLE trading_accounts ADD COLUMN profit_days_count INTEGER DEFAULT 0",
             'total_payout_profit': "ALTER TABLE trading_accounts ADD COLUMN total_payout_profit FLOAT DEFAULT 0.0",
             'best_day_profit': "ALTER TABLE trading_accounts ADD COLUMN best_day_profit FLOAT DEFAULT 0.0"
@@ -65,6 +65,7 @@ with engine.connect() as conn:
                     conn.execute(text(sql))
                     conn.commit()
                 except Exception as e:
+                    print(f"Failed to migrate {col_name}: {e}")
                     pass
 
     if 'trade_positions' in inspector.get_table_names():
