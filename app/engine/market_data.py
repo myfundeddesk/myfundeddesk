@@ -327,9 +327,46 @@ class MarketDataEngine:
 
     def get_candles(self, symbol: str) -> List[Dict[str, Any]]:
         with self.lock:
-            if symbol not in self.candle_cache:
-                self.candle_cache[symbol] = self._generate_initial_candles(symbol)
-            return list(self.candle_cache[symbol])
+            is_option = symbol.endswith("CE") or symbol.endswith("PE")
+            if is_option:
+                if "BANKNIFTY" in symbol:
+                    underlying = "BANKNIFTY"
+                elif "FINNIFTY" in symbol:
+                    underlying = "FINNIFTY"
+                elif "MIDCPNIFTY" in symbol:
+                    underlying = "MIDCPNIFTY"
+                elif "SENSEX" in symbol:
+                    underlying = "SENSEX"
+                elif "NIFTY" in symbol:
+                    underlying = "NIFTY50"
+                else:
+                    underlying = "NIFTY50"
+                    
+                if underlying not in self.candle_cache:
+                    self.candle_cache[underlying] = self._generate_initial_candles(underlying)
+                    
+                from .options_engine import calculate_option_price_live
+                import random
+                
+                underlying_candles = self.candle_cache[underlying]
+                option_candles = []
+                for uc in underlying_candles:
+                    base_p = calculate_option_price_live(symbol, uc["close"])
+                    if base_p is None: base_p = 150.0
+                    vol = base_p * 0.05
+                    option_candles.append({
+                        "time": uc["time"],
+                        "open": round(base_p + random.uniform(-vol, vol), 2),
+                        "high": round(base_p + vol + random.uniform(0, vol), 2),
+                        "low": round(max(0.05, base_p - vol - random.uniform(0, vol)), 2),
+                        "close": round(base_p, 2),
+                        "volume": random.randint(100, 1000)
+                    })
+                return option_candles
+            else:
+                if symbol not in self.candle_cache:
+                    self.candle_cache[symbol] = self._generate_initial_candles(symbol)
+                return list(self.candle_cache[symbol])
 
     def calculate_pnl(self, symbol: str, order_type: str, lots: float, open_price: float) -> tuple[float, float, float]:
         
