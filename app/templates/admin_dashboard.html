@@ -3,1335 +3,806 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prop Funding - Admin Dashboard</title>
-    
-    <!-- PropLab WordPress-style Theme Dependencies -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://script.viserlab.com/proplab/assets/global/css/bootstrap.min.css">
+    <title>MyFundedDesk - Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/line-awesome/1.3.0/line-awesome/css/line-awesome.min.css">
-    <link rel="stylesheet" href="https://script.viserlab.com/proplab/assets/admin/css/app.css">
-    
     <style>
-        /* Hide TinyMCE API Key Warning */
-        .tox-notifications-container, .tox-notification, .tox-notification--warning, .tox-statusbar__branding { display: none !important; visibility: hidden !important; opacity: 0 !important; z-index: -9999 !important; height: 0 !important; overflow: hidden !important; }
-
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
-        /* Clean up table look */
-        .table--light thead th { background-color: #f8f9fa; color: #495057; font-weight: 600; border-bottom: 2px solid #dee2e6; }
-        .table--light tbody td { vertical-align: middle; color: #5a6268; }
-        .badge--success { background-color: rgba(40, 199, 111, 0.12); color: #28c76f; padding: 4px 8px; border-radius: 4px; font-weight: 600; }
-        .badge--danger { background-color: rgba(234, 84, 85, 0.12); color: #ea5455; padding: 4px 8px; border-radius: 4px; font-weight: 600; }
+        .admin-tab { display: none; }
+        .admin-tab.active { display: block; }
+        .tox-notifications-container { display: none !important; }
+        /* Custom scrollbar for webkit */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
     </style>
-<style id="tinymce-override">.tox-notifications-container, .tox-notification { display: none !important; }</style>
 </head>
-<body>
-    <div class="page-wrapper default-version">
-        <!-- Sidebar -->
-        <div class="sidebar bg--dark">
-            <button class="res-sidebar-close-btn"><i class="las la-times"></i></button>
-            <div class="sidebar__inner">
-                <div class="sidebar__logo">
-                    <a href="/admin/dashboard" class="sidebar__main-logo" style="text-decoration:none;">
-                        <h4 class="text-white fw-bold mb-0"><i class="las la-chart-bar text--primary"></i> {{ app_name }}</h4>
-                    </a>
-                </div>
-                <div class="sidebar__menu-wrapper">
-                    <ul class="sidebar__menu">
-                        <li class="sidebar-menu-item active">
-                            <a href="#" class="nav-link" onclick="switchTab('dashboard', this)">
-                                <i class="menu-icon las la-home"></i>
-                                <span class="menu-title">Dashboard</span>
-                            </a>
-                        </li>
-                        <li class="sidebar-menu-item">
-                            <a href="#" class="nav-link" onclick="switchTab('users', this)">
-                                <i class="menu-icon las la-users"></i>
-                                <span class="menu-title">Manage Users</span>
-                            </a>
-                        </li>
-                        <li class="sidebar-menu-item">
-                            <a href="#" class="nav-link" onclick="switchTab('accounts', this)">
-                                <i class="menu-icon las la-id-card"></i>
-                                <span class="menu-title">Trade Accounts</span>
-                            </a>
-                        </li>
-                        <li class="sidebar-menu-item">
-                            <a href="#" class="nav-link" onclick="switchTab('trades', this)">
-                                <i class="menu-icon las la-coins"></i>
-                                <span class="menu-title">Manage Orders</span>
-                            </a>
-                        </li>
-                        
-                        <!-- Deposits Dropdown -->
-                        <li class="sidebar-menu-item sidebar-dropdown">
-                            <a href="javascript:void(0)" class="nav-link">
-                                <i class="menu-icon las la-file-invoice-dollar"></i>
-                                <span class="menu-title">Deposits</span>
-                                <span class="menu-badge bg--warning ms-auto"><i class="las la-exclamation"></i></span>
-                            </a>
-                            <div class="sidebar-submenu">
-                                <ul>
-                                    <li class="sidebar-menu-item">
-                                        <a href="#" class="nav-link" onclick="switchTab('deposits', this)">
-                                            <i class="menu-icon las la-dot-circle"></i>
-                                            <span class="menu-title">Pending Deposits</span>
-                                            <span class="menu-badge bg--info ms-auto">149</span>
-                                        </a>
-                                    </li>
-                                    <li class="sidebar-menu-item"><a href="#" class="nav-link" onclick="switchTab('deposits', this)"><i class="menu-icon las la-dot-circle"></i><span class="menu-title">Approved Deposits</span></a></li>
-                                    <li class="sidebar-menu-item"><a href="#" class="nav-link" onclick="switchTab('deposits', this)"><i class="menu-icon las la-dot-circle"></i><span class="menu-title">Successful Deposits</span></a></li>
-                                    <li class="sidebar-menu-item"><a href="#" class="nav-link" onclick="switchTab('deposits', this)"><i class="menu-icon las la-dot-circle"></i><span class="menu-title">Rejected Deposits</span></a></li>
-                                    <li class="sidebar-menu-item"><a href="#" class="nav-link" onclick="switchTab('deposits', this)"><i class="menu-icon las la-dot-circle"></i><span class="menu-title">Initiated Deposits</span></a></li>
-                                    <li class="sidebar-menu-item"><a href="#" class="nav-link" onclick="switchTab('deposits', this)"><i class="menu-icon las la-dot-circle"></i><span class="menu-title">All Deposits</span></a></li>
-                                </ul>
-                            </div>
-                        </li>
+<body class="bg-slate-800 text-slate-200 font-sans h-screen overflow-hidden flex">
 
-                        <!-- Withdrawals Dropdown -->
-                        <li class="sidebar-menu-item sidebar-dropdown">
-                            <a href="javascript:void(0)" class="nav-link">
-                                <i class="menu-icon las la-university"></i>
-                                <span class="menu-title">Withdrawals</span>
-                                <span class="menu-badge bg--warning ms-auto"><i class="las la-exclamation"></i></span>
-                            </a>
-                            <div class="sidebar-submenu">
-                                <ul>
-                                    <li class="sidebar-menu-item">
-                                        <a href="#" class="nav-link" onclick="switchTab('withdrawals', this)">
-                                            <i class="menu-icon las la-dot-circle"></i>
-                                            <span class="menu-title">Pending Withdrawals</span>
-                                            <span class="menu-badge bg--info ms-auto">9</span>
-                                        </a>
-                                    </li>
-                                    <li class="sidebar-menu-item"><a href="#" class="nav-link" onclick="switchTab('withdrawals', this)"><i class="menu-icon las la-dot-circle"></i><span class="menu-title">Approved Withdrawals</span></a></li>
-                                    <li class="sidebar-menu-item"><a href="#" class="nav-link" onclick="switchTab('withdrawals', this)"><i class="menu-icon las la-dot-circle"></i><span class="menu-title">Rejected Withdrawals</span></a></li>
-                                    <li class="sidebar-menu-item"><a href="#" class="nav-link" onclick="switchTab('withdrawals', this)"><i class="menu-icon las la-dot-circle"></i><span class="menu-title">All Withdrawals</span></a></li>
-                                </ul>
-                            </div>
-                        </li>
-
-                        <!-- Support Ticket Dropdown -->
-                        <li class="sidebar-menu-item sidebar-dropdown">
-                            <a href="javascript:void(0)" class="nav-link">
-                                <i class="menu-icon las la-ticket-alt"></i>
-                                <span class="menu-title">Support Ticket</span>
-                                <span class="menu-badge bg--warning ms-auto"><i class="las la-exclamation"></i></span>
-                            </a>
-                            <div class="sidebar-submenu">
-                                <ul>
-                                    <li class="sidebar-menu-item">
-                                        <a href="#" class="nav-link" onclick="switchTab('support', this)">
-                                            <i class="menu-icon las la-dot-circle"></i>
-                                            <span class="menu-title">Pending Ticket</span>
-                                            <span class="menu-badge bg--info ms-auto">57</span>
-                                        </a>
-                                    </li>
-                                    <li class="sidebar-menu-item"><a href="#" class="nav-link" onclick="switchTab('support', this)"><i class="menu-icon las la-dot-circle"></i><span class="menu-title">Closed Ticket</span></a></li>
-                                    <li class="sidebar-menu-item"><a href="#" class="nav-link" onclick="switchTab('support', this)"><i class="menu-icon las la-dot-circle"></i><span class="menu-title">Answered Ticket</span></a></li>
-                                    <li class="sidebar-menu-item"><a href="#" class="nav-link" onclick="switchTab('support', this)"><i class="menu-icon las la-dot-circle"></i><span class="menu-title">All Ticket</span></a></li>
-                                </ul>
-                            </div>
-                        </li>
-
-                        <!-- Report Dropdown -->
-                        <li class="sidebar-menu-item sidebar-dropdown">
-                            <a href="javascript:void(0)" class="nav-link">
-                                <i class="menu-icon las la-list"></i>
-                                <span class="menu-title">Report</span>
-                            </a>
-                            <div class="sidebar-submenu">
-                                <ul>
-                                    <li class="sidebar-menu-item"><a href="#" class="nav-link" onclick="switchTab('reports', this)"><i class="menu-icon las la-dot-circle"></i><span class="menu-title">Transaction History</span></a></li>
-                                    <li class="sidebar-menu-item"><a href="#" class="nav-link" onclick="switchTab('reports', this)"><i class="menu-icon las la-dot-circle"></i><span class="menu-title">Login History</span></a></li>
-                                    <li class="sidebar-menu-item"><a href="#" class="nav-link" onclick="switchTab('reports', this)"><i class="menu-icon las la-dot-circle"></i><span class="menu-title">Notification History</span></a></li>
-                                </ul>
-                            </div>
-                        </li>
-
-                        <li class="sidebar-menu-item">
-                            <a href="#" class="nav-link" onclick="switchTab('subscribers', this)">
-                                <i class="menu-icon las la-thumbs-up"></i>
-                                <span class="menu-title">Subscribers</span>
-                            </a>
-                        </li>
-
-                        <li class="sidebar-menu-item">
-                            <a href="#" class="nav-link" onclick="switchTab('packages', this)">
-                                <i class="menu-icon las la-signal"></i>
-                                <span class="menu-title">Manage Plans</span>
-                            </a>
-                        </li>
-                        <li class="sidebar-menu-item">
-                            <a href="#" class="nav-link" onclick="switchTab('pages', this)">
-                                <i class="menu-icon las la-file-alt"></i>
-                                <span class="menu-title">Manage Pages</span>
-                            </a>
-                        </li>
-                        <li class="sidebar-menu-item">
-                            <a href="#" class="nav-link" onclick="switchTab('settings', this)">
-                                <i class="menu-icon las la-life-ring"></i>
-                                <span class="menu-title">System Setting</span>
-                            </a>
-                        </li>
-
-                        <!-- Extra Dropdown -->
-                        <li class="sidebar-menu-item sidebar-dropdown">
-                            <a href="javascript:void(0)" class="nav-link">
-                                <i class="menu-icon las la-server"></i>
-                                <span class="menu-title">Extra</span>
-                            </a>
-                            <div class="sidebar-submenu">
-                                <ul>
-                                    <li class="sidebar-menu-item"><a href="#" class="nav-link" onclick="switchTab('extra', this)"><i class="menu-icon las la-dot-circle"></i><span class="menu-title">Application</span></a></li>
-                                    <li class="sidebar-menu-item"><a href="#" class="nav-link" onclick="switchTab('extra', this)"><i class="menu-icon las la-dot-circle"></i><span class="menu-title">Server</span></a></li>
-                                    <li class="sidebar-menu-item"><a href="#" class="nav-link" onclick="switchTab('extra', this)"><i class="menu-icon las la-dot-circle"></i><span class="menu-title">Cache</span></a></li>
-                                    <li class="sidebar-menu-item"><a href="#" class="nav-link" onclick="switchTab('extra', this)"><i class="menu-icon las la-dot-circle"></i><span class="menu-title">Update</span></a></li>
-                                </ul>
-                            </div>
-                        </li>
-
-                        
-                        <!-- Appearance (WordPress Style) -->
-                        <li class="sidebar-menu-item sidebar-dropdown">
-                            <a href="javascript:void(0)" class="nav-link">
-                                <i class="menu-icon las la-paint-brush"></i>
-                                <span class="menu-title">Appearance</span>
-                            </a>
-                            <div class="sidebar-submenu">
-                                <ul>
-                                    <li class="sidebar-menu-item"><a href="#" class="nav-link" onclick="switchTab('customizer', this)"><i class="menu-icon las la-magic"></i><span class="menu-title">Landing Customizer</span></a></li>
-                                    <li class="sidebar-menu-item"><a href="#" class="nav-link" onclick="switchTab('customizer', this)"><i class="menu-icon las la-bars"></i><span class="menu-title">Menus</span></a></li>
-                                    <li class="sidebar-menu-item"><a href="#" class="nav-link" onclick="switchTab('customizer', this)"><i class="menu-icon las la-border-all"></i><span class="menu-title">Widgets</span></a></li>
-                                </ul>
-                            </div>
-                        </li>
-
-                        <li class="sidebar-menu-item mt-5">
-                            <a href="/trading" target="_blank" class="nav-link">
-                                <i class="menu-icon las la-globe"></i>
-                                <span class="menu-title">Visit Terminal</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <div class="sidebar-mobile-overlay"></div>
-
-        <!-- Top Navbar -->
-        <nav class="navbar-wrapper bg--dark d-flex flex-wrap">
-            <div class="navbar__left">
-                <button type="button" class="res-sidebar-open-btn me-3"><i class="las la-bars"></i></button>
-                <form class="navbar-search">
-                    <input type="search" class="navbar-search-field" placeholder="Search here...">
-                    <i class="las la-search"></i>
-                </form>
-            </div>
-            <div class="navbar__right">
-                <ul class="navbar__action-list">
-                    <li>
-                        <button type="button" class="primary--layer notification-bell" data-bs-toggle="tooltip" title="Notifications">
-                            <i class="las la-bell"></i>
-                        </button>
-                    </li>
-                    <li class="dropdown d-flex profile-dropdown">
-                        <button type="button" data-bs-toggle="dropdown" data-display="static" aria-expanded="false">
-                            <span class="navbar-user">
-                                <span class="navbar-user__info">
-                                    <span class="navbar-user__name">{{ admin_name }}</span>
-                                </span>
-                                <span class="icon"><i class="las la-chevron-circle-down"></i></span>
-                            </span>
-                        </button>
-                    </li>
-                </ul>
-            </div>
-        </nav>
-
-        <!-- Main Body -->
-        <div class="container-fluid px-3 px-sm-0">
-            <div class="body-wrapper">
-                <div class="bodywrapper__inner">
-
-                    <div class="d-flex mb-30 flex-wrap gap-3 justify-content-between align-items-center">
-                        <h6 class="page-title" id="page-title-text">Dashboard</h6>
-                    </div>
-
-                    <!-- TAB: DASHBOARD -->
-                    <div id="tab-dashboard" class="admin-tab">
-                        <!-- Top Stat Cards (Widget Seven) -->
-                        <div class="row gy-4">
-                            <div class="col-xxl-3 col-sm-6">
-                                <div class="widget-seven bg--primary">
-                                    <div class="widget-seven__content">
-                                        <span class="widget-seven__content-icon"><span class="icon"><i class="las la-users"></i></span></span>
-                                        <div class="widget-seven__description">
-                                            <p class="widget-seven__content-title">Total Users</p>
-                                            <h3 class="widget-seven__content-amount">{{ stats.total_users }}</h3>
-                                        </div>
-                                    </div>
-                                    <span class="widget-seven__arrow"><i class="fas fa-chevron-right"></i></span>
-                                </div>
-                            </div>
-                            <div class="col-xxl-3 col-sm-6">
-                                <div class="widget-seven bg--success">
-                                    <div class="widget-seven__content">
-                                        <span class="widget-seven__content-icon"><span class="icon"><i class="las la-id-card"></i></span></span>
-                                        <div class="widget-seven__description">
-                                            <p class="widget-seven__content-title">Total Accounts</p>
-                                            <h3 class="widget-seven__content-amount">{{ stats.total_accounts }}</h3>
-                                        </div>
-                                    </div>
-                                    <span class="widget-seven__arrow"><i class="fas fa-chevron-right"></i></span>
-                                </div>
-                            </div>
-                            <div class="col-xxl-3 col-sm-6">
-                                <div class="widget-seven bg--warning">
-                                    <div class="widget-seven__content">
-                                        <span class="widget-seven__content-icon"><span class="icon"><i class="las la-check-circle"></i></span></span>
-                                        <div class="widget-seven__description">
-                                            <p class="widget-seven__content-title">Active Accounts</p>
-                                            <h3 class="widget-seven__content-amount">{{ stats.active_accounts }}</h3>
-                                        </div>
-                                    </div>
-                                    <span class="widget-seven__arrow"><i class="fas fa-chevron-right"></i></span>
-                                </div>
-                            </div>
-                            <div class="col-xxl-3 col-sm-6">
-                                <div class="widget-seven bg--danger">
-                                    <div class="widget-seven__content">
-                                        <span class="widget-seven__content-icon"><span class="icon"><i class="las la-times-circle"></i></span></span>
-                                        <div class="widget-seven__description">
-                                            <p class="widget-seven__content-title">Breached Accounts</p>
-                                            <h3 class="widget-seven__content-amount">{{ stats.breached_accounts }}</h3>
-                                        </div>
-                                    </div>
-                                    <span class="widget-seven__arrow"><i class="fas fa-chevron-right"></i></span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row gy-4 mt-2">
-                            <div class="col-xxl-3 col-sm-6">
-                                <div class="widget-seven bg--success outline">
-                                    <div class="widget-seven__content">
-                                        <span class="widget-seven__content-icon"><span class="icon"><i class="las la-chart-area"></i></span></span>
-                                        <div class="widget-seven__description">
-                                            <p class="widget-seven__content-title">Funded Accounts</p>
-                                            <h3 class="widget-seven__content-amount">{{ stats.total_funded }}</h3>
-                                        </div>
-                                    </div>
-                                    <span class="widget-seven__arrow"><i class="fas fa-chevron-right"></i></span>
-                                </div>
-                            </div>
-                            <div class="col-xxl-3 col-sm-6">
-                                <div class="widget-seven bg--warning outline">
-                                    <div class="widget-seven__content">
-                                        <span class="widget-seven__content-icon"><span class="icon"><i class="las la-sync"></i></span></span>
-                                        <div class="widget-seven__description">
-                                            <p class="widget-seven__content-title">Total Trades</p>
-                                            <h3 class="widget-seven__content-amount">{{ stats.total_trades }}</h3>
-                                        </div>
-                                    </div>
-                                    <span class="widget-seven__arrow"><i class="fas fa-chevron-right"></i></span>
-                                </div>
-                            </div>
-                            <div class="col-xxl-3 col-sm-6">
-                                <div class="widget-seven bg--danger outline">
-                                    <div class="widget-seven__content">
-                                        <span class="widget-seven__content-icon"><span class="icon"><i class="las la-wallet"></i></span></span>
-                                        <div class="widget-seven__description">
-                                            <p class="widget-seven__content-title">Total AUM</p>
-                                            <h3 class="widget-seven__content-amount">${{ "%.2f"|format(stats.total_aum) }}</h3>
-                                        </div>
-                                    </div>
-                                    <span class="widget-seven__arrow"><i class="fas fa-chevron-right"></i></span>
-                                </div>
-                            </div>
-                            <div class="col-xxl-3 col-sm-6">
-                                <div class="widget-seven bg--primary outline">
-                                    <div class="widget-seven__content">
-                                        <span class="widget-seven__content-icon"><span class="icon"><i class="las la-box"></i></span></span>
-                                        <div class="widget-seven__description">
-                                            <p class="widget-seven__content-title">Active Plans</p>
-                                            <h3 class="widget-seven__content-amount">{{ packages|length }}</h3>
-                                        </div>
-                                    </div>
-                                    <span class="widget-seven__arrow"><i class="fas fa-chevron-right"></i></span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Main Middle Content -->
-                        <div class="row gy-4 mt-2">
-                            <div class="col-lg-8">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <span>Order Summary</span>
-                                        <br>
-                                        <small class="text-muted text--small">Order summary presenting latest live trades executed on the terminal.</small>
-                                    </div>
-                                    <div class="card-body p-0">
-                                        <div class="table-responsive">
-                                            <table class="table table--light style--two">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Pair / Symbol</th>
-                                                        <th>Type / Amount</th>
-                                                        <th>Open Price</th>
-                                                        <th>Current PnL</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {% for p in positions[:8] %}
-                                                    <tr>
-                                                        <td>
-                                                            <span class="fw-bold">{{ p.symbol }}</span><br>
-                                                            <small class="text-muted">Acc: #{{ p.account_id }}</small>
-                                                        </td>
-                                                        <td>
-                                                            <span class="badge badge--{{ 'success' if p.order_type == 'BUY' else 'danger' }}">{{ p.order_type }}</span><br>
-                                                            <small>{{ p.volume_lots }} lots</small>
-                                                        </td>
-                                                        <td>{{ "%.2f"|format(p.open_price) }}</td>
-                                                        <td>
-                                                            <span class="{{ 'text--success' if p.pnl >= 0 else 'text--danger' }} fw-bold">
-                                                                ${{ "%.2f"|format(p.pnl) }}
-                                                            </span>
-                                                        </td>
-                                                    </tr>
-                                                    {% else %}
-                                                    <tr><td colspan="4" class="text-center text-muted py-4">No open orders found</td></tr>
-                                                    {% endfor %}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-lg-4">
-                                <div class="row gy-4">
-                                    <div class="col-12">
-                                        <div class="widget-eight bg--success style-two">
-                                            <div class="widget-eight__description">
-                                                <p class="widget-eight__content-title">Total Orders</p>
-                                                <h3 class="widget-eight__content-amount">{{ stats.total_trades }}</h3>
-                                            </div>
-                                            <span class="widget-eight__content-icon">
-                                                <span class="icon"><i class="las la-list-alt"></i></span>
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div class="col-12">
-                                        <div class="widget-eight bg--warning style-two">
-                                            <div class="widget-eight__description">
-                                                <p class="widget-eight__content-title">Open Orders</p>
-                                                <h3 class="widget-eight__content-amount">{{ positions|length }}</h3>
-                                            </div>
-                                            <span class="widget-eight__content-icon">
-                                                <span class="icon"><i class="las la-spinner"></i></span>
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div class="col-12">
-                                        <div class="widget-eight bg--danger style-two">
-                                            <div class="widget-eight__description">
-                                                <p class="widget-eight__content-title">Active Users</p>
-                                                <h3 class="widget-eight__content-amount">{{ users|length }}</h3>
-                                            </div>
-                                            <span class="widget-eight__content-icon">
-                                                <span class="icon"><i class="las la-check-circle"></i></span>
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div class="col-12">
-                                        <div class="widget-eight bg--primary style-two">
-                                            <div class="widget-eight__description">
-                                                <p class="widget-eight__content-title">Breached Accounts</p>
-                                                <h3 class="widget-eight__content-amount">{{ stats.breached_accounts }}</h3>
-                                            </div>
-                                            <span class="widget-eight__content-icon">
-                                                <span class="icon"><i class="las la-times-circle"></i></span>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    
-                        
-                            <div class="col-lg-12">
-                                <div class="card b-radius--10 mt-4">
-                                    <div class="card-header">
-                                        <h5 class="card-title mb-0">Push Notification System (Global)</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <form id="broadcastForm">
-                                            <div class="input-group">
-                                                <input type="text" id="broadcastMessage" class="form-control" placeholder="Enter message to broadcast to all users (Triggers Web Push & In-App)..." required>
-                                                <button type="submit" class="btn btn-primary"><i class="las la-paper-plane"></i> Send Broadcast</button>
-                                            </div>
-                                        </form>
-                                        <div id="broadcastStatus" class="mt-2 text-sm text-success" style="display:none;"></div>
-                                    </div>
-                                </div>
-                            </div>
-
-                        <!-- User Analytics & IP Management -->
-                        <div class="row gy-4 mt-4">
-                            <div class="col-lg-6">
-                                <div class="card b-radius--10 h-100">
-                                    <div class="card-header">
-                                        <h5 class="card-title mb-0">Users by Region</h5>
-                                    </div>
-                                    <div class="card-body p-4 d-flex justify-content-center align-items-center">
-                                        <div style="width: 100%; max-width: 300px;">
-                                            <canvas id="userPieChart"></canvas>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-lg-6">
-                                <div class="card b-radius--10 h-100">
-                                    <div class="card-header d-flex justify-content-between align-items-center">
-                                        <h5 class="card-title mb-0">Recent IP Logins & Blocker</h5>
-                                        <button class="btn btn-sm btn-outline--danger"><i class="las la-ban"></i> Block IP</button>
-                                    </div>
-                                    <div class="card-body p-0">
-                                        <div class="table-responsive">
-                                            <table class="table table--light style--two mb-0">
-                                                <thead>
-                                                    <tr>
-                                                        <th>User</th>
-                                                        <th>IP Address</th>
-                                                        <th>Country</th>
-                                                        <th>Action</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <td>admin@myfundeddesk.com</td>
-                                                        <td class="text-info fw-bold">192.168.1.1</td>
-                                                        <td>India</td>
-                                                        <td><button class="btn btn-sm btn-outline--danger px-2 py-1"><i class="las la-ban"></i> Block</button></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>trader1@gmail.com</td>
-                                                        <td class="text-info fw-bold">103.45.22.19</td>
-                                                        <td>UAE</td>
-                                                        <td><button class="btn btn-sm btn-outline--danger px-2 py-1"><i class="las la-ban"></i> Block</button></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>guest@viserlab.com</td>
-                                                        <td class="text-info fw-bold">45.22.10.99</td>
-                                                        <td>UK</td>
-                                                        <td><button class="btn btn-sm btn-outline--danger px-2 py-1"><i class="las la-ban"></i> Block</button></td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-</div>
-
-                    
-                    <!-- TAB: CUSTOMIZER (WordPress Style) -->
-                    <div id="tab-customizer" class="admin-tab" style="display: none;">
-                        <div class="row">
-                            <div class="col-xl-12">
-                                <div class="card b-radius--10 mb-4">
-                                    <div class="card-header d-flex justify-content-between align-items-center">
-                                        <h5><i class="las la-paint-brush"></i> WordPress-Style Landing Page Customizer</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <form action="/admin/api/customize" method="POST">
-                                            <div class="row">
-                                                <div class="col-md-6 mb-4">
-                                                    <div class="form-group">
-                                                        <label class="fw-bold">Hero Title (Line 1)</label>
-                                                        <input type="text" class="form-control" name="hero_title_1" value="Built for Traders." placeholder="e.g. Built for Traders.">
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6 mb-4">
-                                                    <div class="form-group">
-                                                        <label class="fw-bold">Hero Title (Line 2 Highlighted)</label>
-                                                        <input type="text" class="form-control" name="hero_title_2" value="Funded by Us." placeholder="e.g. Funded by Us.">
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-12 mb-4">
-                                                    <div class="form-group">
-                                                        <label class="fw-bold">Hero Subtitle</label>
-                                                        <textarea class="form-control" name="hero_subtitle" rows="3" placeholder="We provide up to ?1,00,00,000 in real capital...">We provide up to ?1,00,00,000 in real capital. You keep 90% of the profits. No hidden rules. No excuses. Just pure trading.</textarea>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6 mb-4">
-                                                    <div class="form-group">
-                                                        <label class="fw-bold">Primary Brand Color (Hex)</label>
-                                                        <div class="input-group">
-                                                            <span class="input-group-text" style="background-color: #10b981; border:none;"></span>
-                                                            <input type="text" class="form-control" name="primary_color" value="#10b981">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6 mb-4">
-                                                    <div class="form-group">
-                                                        <label class="fw-bold">Top Announcement Bar Text</label>
-                                                        <input type="text" class="form-control" name="announcement_text" value="?? Update 2.0: 100k Instant account">
-                                                    </div>
-                                                </div>
-                                                
-                                                <div class="col-md-12 mt-4">
-                                                    <hr class="border-secondary mb-4">
-                                                    <button type="submit" class="btn btn-primary btn-lg w-100"><i class="las la-save"></i> Publish Changes to Live Site</button>
-                                                </div>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    
-
-
-
-
-
-<div id="tab-packages" class="admin-tab" style="display: none;">
-
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h2 class="text-sm font-bold flex items-center gap-2 text-white"><i data-lucide="package" class="w-4 h-4 text-purple-400"></i> Challenge Packages</h2>
-            <div class="flex gap-2">
-                <button onclick="this.closest('.tab-content').classList.remove('window-mode'); document.getElementById('window-overlay').classList.add('hidden')" title="Minimize" class="w-3.5 h-3.5 rounded-full bg-amber-500 hover:bg-amber-400 flex items-center justify-center"></button>
-                <button onclick="this.closest('.tab-content').classList.toggle('window-mode')" title="Maximize" class="w-3.5 h-3.5 rounded-full bg-emerald-500 hover:bg-emerald-400 flex items-center justify-center"></button>
-                <button onclick="this.closest('.tab-content').classList.remove('window-mode'); document.getElementById('window-overlay').classList.add('hidden')" title="Close" class="w-3.5 h-3.5 rounded-full bg-rose-500 hover:bg-rose-400 flex items-center justify-center"></button>
-            </div>
-        </div>
-    
-<!-- Challenge Packages Management -->
-    <div class="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden shadow-2xl mb-8 mt-12 max-w-7xl mx-auto">
-        <div class="p-6 border-b border-slate-800 bg-slate-800/50 flex justify-between items-center">
-            <h3 class="text-xl font-bold text-white flex items-center gap-2">
-                <i data-lucide="package" class="w-6 h-6 text-emerald-500"></i> Capital Prices & Packages Configurator
-            </h3>
-            <button onclick="document.getElementById('addPackageForm').classList.toggle('hidden')" class="bg-emerald-600 text-white px-4 py-2 rounded-xl font-bold text-sm hover:bg-emerald-500 transition-colors">
-                + Add Package
-            </button>
+    <!-- Sidebar -->
+    <aside class="w-64 bg-slate-900 h-full flex flex-col border-r border-slate-700 shrink-0">
+        <div class="p-4 border-b border-slate-700 flex items-center justify-between">
+            <h1 class="text-xl font-bold text-white tracking-wider flex items-center gap-2">
+                <i data-lucide="shield"></i> {{ app_name|default('MyFundedDesk') }}
+            </h1>
         </div>
         
-        <div id="addPackageForm" class="p-6 bg-slate-800/20 border-b border-slate-800 hidden">
-            <form action="/admin/api/package" method="POST" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div><label class="text-xs text-slate-400">Name</label><input type="text" name="name" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" required placeholder="Γé╣50,000 Instant"></div>
-                <div>
-                    <label class="text-xs text-slate-400">Model Type</label>
-                    <select name="model_type" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" required>
-                        <option value="1-Step">1-Step</option>
-                        <option value="2-Step">2-Step</option>
-                        <option value="Instant">Instant</option>
-                    </select>
+        <div class="p-4 flex items-center gap-3 border-b border-slate-700/50">
+            <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold">
+                {{ admin_name[:1]|upper if admin_name else 'A' }}
+            </div>
+            <div>
+                <p class="text-sm font-semibold text-white">Admin</p>
+                <p class="text-xs text-slate-400">{{ admin_name }}</p>
+            </div>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto p-4 space-y-1">
+            <a href="#" onclick="switchTab('dashboard', this)" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white bg-slate-800 text-white transition-colors" data-tab="dashboard">
+                <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Dashboard
+            </a>
+            <a href="#" onclick="switchTab('users', this)" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors" data-tab="users">
+                <i data-lucide="users" class="w-5 h-5"></i> Manage Users
+            </a>
+            <a href="#" onclick="switchTab('accounts', this)" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors" data-tab="accounts">
+                <i data-lucide="briefcase" class="w-5 h-5"></i> Trade Accounts
+            </a>
+            <a href="#" onclick="switchTab('trades', this)" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors" data-tab="trades">
+                <i data-lucide="shopping-cart" class="w-5 h-5"></i> Manage Orders
+            </a>
+            <a href="#" onclick="switchTab('packages', this)" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors" data-tab="packages">
+                <i data-lucide="bar-chart-3" class="w-5 h-5"></i> Manage Plans
+            </a>
+            <a href="#" onclick="switchTab('pages', this)" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors" data-tab="pages">
+                <i data-lucide="file-text" class="w-5 h-5"></i> Manage Pages
+            </a>
+            <a href="#" onclick="switchTab('settings', this)" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors" data-tab="settings">
+                <i data-lucide="settings" class="w-5 h-5"></i> System Setting
+            </a>
+            <a href="#" onclick="switchTab('customizer', this)" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors" data-tab="customizer">
+                <i data-lucide="palette" class="w-5 h-5"></i> Appearance
+            </a>
+            
+            <div class="pt-4 mt-4 border-t border-slate-700">
+                <a href="/trading" target="_blank" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-400 hover:bg-blue-900/30 hover:text-blue-300 transition-colors">
+                    <i data-lucide="globe" class="w-5 h-5"></i> Visit Terminal
+                </a>
+                <a href="/admin/logout" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-red-400 hover:bg-red-900/30 hover:text-red-300 transition-colors mt-1">
+                    <i data-lucide="log-out" class="w-5 h-5"></i> Logout
+                </a>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto h-full p-8 relative" id="main-content">
+        
+        <!-- Tab: Dashboard -->
+        <div id="tab-dashboard" class="admin-tab active">
+            <h2 class="text-2xl font-bold text-white mb-6" id="page-title">Dashboard Overview</h2>
+            
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-slate-900 p-6 rounded-xl border border-slate-700 flex flex-col">
+                    <span class="text-slate-400 text-sm font-medium mb-2">Total Users</span>
+                    <span class="text-3xl font-bold text-white">{{ stats.total_users }}</span>
                 </div>
-                <div><label class="text-xs text-slate-400">Account Size (Γé╣)</label><input type="number" name="account_size" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" required></div>
-                <div><label class="text-xs text-slate-400">Price (Γé╣)</label><input type="number" name="price" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" required></div>
-                
-                <div><label class="text-xs text-slate-400">Profit Target P1 (%)</label><input type="number" step="0.1" name="profit_target_p1" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" value="8.0" required></div>
-                <div><label class="text-xs text-slate-400">Profit Target P2 (%)</label><input type="number" step="0.1" name="profit_target_p2" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" value="5.0" required></div>
-                <div><label class="text-xs text-slate-400">Max Daily Loss (%)</label><input type="number" step="0.1" name="max_daily_loss" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" value="5.0" required></div>
-                <div><label class="text-xs text-slate-400">Max Total Loss (%)</label><input type="number" step="0.1" name="max_total_loss" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" value="10.0" required></div>
-                
-                <div><label class="text-xs text-slate-400">Min Trading Days</label><input type="number" name="min_trading_days" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" value="0" required></div>
-                <div><label class="text-xs text-slate-400">Leverage</label><input type="text" name="leverage" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" value="1:100" required></div>
-                <div><label class="text-xs text-slate-400">Profit Split</label><input type="text" name="profit_split" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" value="80/20" required></div>
-                
-                <div class="flex items-end"><button type="submit" class="w-full bg-emerald-500 text-white rounded-lg p-2 font-bold hover:bg-emerald-600 transition-colors">Save Package</button></div>
-            </form>
-        </div>
+                <div class="bg-slate-900 p-6 rounded-xl border border-slate-700 flex flex-col">
+                    <span class="text-slate-400 text-sm font-medium mb-2">Total Accounts</span>
+                    <span class="text-3xl font-bold text-white">{{ stats.total_accounts }}</span>
+                </div>
+                <div class="bg-slate-900 p-6 rounded-xl border border-slate-700 flex flex-col">
+                    <span class="text-slate-400 text-sm font-medium mb-2">Active Accounts</span>
+                    <span class="text-3xl font-bold text-green-400">{{ stats.active_accounts }}</span>
+                </div>
+                <div class="bg-slate-900 p-6 rounded-xl border border-slate-700 flex flex-col">
+                    <span class="text-slate-400 text-sm font-medium mb-2">Breached Accounts</span>
+                    <span class="text-3xl font-bold text-red-400">{{ stats.breached_accounts }}</span>
+                </div>
+                <div class="bg-slate-900 p-6 rounded-xl border border-slate-700 flex flex-col">
+                    <span class="text-slate-400 text-sm font-medium mb-2">Funded Accounts</span>
+                    <span class="text-3xl font-bold text-blue-400">{{ stats.total_funded|default(0) }}</span>
+                </div>
+                <div class="bg-slate-900 p-6 rounded-xl border border-slate-700 flex flex-col">
+                    <span class="text-slate-400 text-sm font-medium mb-2">Total Trades</span>
+                    <span class="text-3xl font-bold text-white">{{ stats.total_trades }}</span>
+                </div>
+                <div class="bg-slate-900 p-6 rounded-xl border border-slate-700 flex flex-col lg:col-span-2">
+                    <span class="text-slate-400 text-sm font-medium mb-2">Total AUM</span>
+                    <span class="text-3xl font-bold text-yellow-400">₹{{ "{:,.2f}".format(stats.total_aum|default(0)) }}</span>
+                </div>
+            </div>
 
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm whitespace-nowrap">
-                <thead class="bg-slate-800/50 border-b border-slate-700">
-                    <tr>
-                        <th class="px-4 py-3 font-bold text-slate-400">ID</th>
-                        <th class="px-4 py-3 font-bold text-slate-400">Name</th>
-                        <th class="px-4 py-3 font-bold text-slate-400">Type</th>
-                        <th class="px-4 py-3 font-bold text-slate-400">Size</th>
-                        <th class="px-4 py-3 font-bold text-slate-400">Price</th>
-                        <th class="px-4 py-3 font-bold text-slate-400">Targets</th>
-                        <th class="px-4 py-3 font-bold text-slate-400">Loss Limits</th>
-                        <th class="px-4 py-3 font-bold text-slate-400 text-right">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-800 text-slate-300">
-                    {% for pkg in packages %}
-                    <tr class="hover:bg-slate-800/50 transition-colors">
-                        <td class="px-4 py-3 text-slate-400">#{{ pkg.id }}</td>
-                        <td class="px-4 py-3 font-bold text-white">{{ pkg.name }}</td>
-                        <td class="px-4 py-3 text-slate-300">
-                            <span class="bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded text-xs font-bold">{{ pkg.model_type }}</span>
-                        </td>
-                        <td class="px-4 py-3 font-mono text-emerald-400">Γé╣{{ "{:,.0f}".format(pkg.account_size) }}</td>
-                        <td class="px-4 py-3 font-mono text-white">Γé╣{{ "{:,.2f}".format(pkg.price) }}</td>
-                        <td class="px-4 py-3 text-slate-400 text-xs">P1: {{ pkg.profit_target_p1 }}% | P2: {{ pkg.profit_target_p2 }}%</td>
-                        <td class="px-4 py-3 text-rose-400 text-xs">Daily: {{ pkg.max_daily_loss }}% | Max: {{ pkg.max_total_loss }}%</td>
-                        <td class="px-4 py-3 text-right">
-                            <form action="/admin/api/package/{{ pkg.id }}/delete" method="POST" onsubmit="return confirm('Delete this package?');" class="inline">
-                                
-                            <button type="button" onclick="openPackageEditModal({{ pkg.id }}, '{{ pkg.price }}')" class="text-indigo-400 hover:text-indigo-300 mr-2"><i data-lucide="edit" class="w-4 h-4"></i></button>
-<button type="submit" class="text-rose-400 hover:text-rose-300"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                            </form>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-
-    </div>
-
-
-
-<div id="tab-trades" class="admin-tab" style="display: none;">
-                <div class="glass-panel rounded-xl overflow-hidden border border-slate-700">
+            <!-- Dashboard Row 2 -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <!-- Recent Orders -->
+                <div class="lg:col-span-2 bg-slate-900 rounded-xl border border-slate-700 overflow-hidden">
+                    <div class="p-5 border-b border-slate-700">
+                        <h3 class="text-lg font-bold text-white">Recent Trade Positions</h3>
+                    </div>
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left text-sm whitespace-nowrap">
-                            <thead class="bg-slate-900/80 text-slate-400 text-[11px] uppercase tracking-wider font-bold">
+                        <table class="w-full text-left">
+                            <thead class="bg-slate-800 border-b border-slate-700 text-slate-400 text-sm">
                                 <tr>
-                                    <th>Ticket</th>
-                                    <th>Account</th>
-                                    <th>Symbol</th>
-                                    <th>Type</th>
-                                    <th>Lots</th>
-                                    <th>Open Price</th>
-                                    <th>Action</th>
+                                    <th class="p-4">Ticket</th>
+                                    <th class="p-4">Symbol</th>
+                                    <th class="p-4">Type</th>
+                                    <th class="p-4">Lots</th>
+                                    <th class="p-4">PnL</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                {% for pos in positions %}
+                            <tbody class="divide-y divide-slate-700 text-sm">
+                                {% for pos in positions[:5] %}
                                 <tr>
-                                    <td>#{{ pos.ticket }}</td>
-                                    <td>{{ pos.account_id }}</td>
-                                    <td>{{ pos.symbol }}</td>
-                                    <td>{{ pos.order_type }}</td>
-                                    <td>{{ pos.volume_lots }}</td>
-                                    <td>{{ pos.open_price }}</td>
-                                    <td>
-                                        <button onclick="adminAction('position', {{ pos.id }}, 'close')" class="btn btn-sm btn-outline--danger">Force Close</button>
+                                    <td class="p-4">#{{ pos.ticket }}</td>
+                                    <td class="p-4 font-semibold text-white">{{ pos.symbol }}</td>
+                                    <td class="p-4">
+                                        <span class="px-2 py-1 rounded text-xs {{ 'bg-blue-900/50 text-blue-400' if pos.order_type == 'buy' else 'bg-red-900/50 text-red-400' }}">
+                                            {{ pos.order_type|upper }}
+                                        </span>
                                     </td>
+                                    <td class="p-4">{{ pos.volume_lots }}</td>
+                                    <td class="p-4 font-bold {{ 'text-green-400' if pos.pnl > 0 else 'text-red-400' }}">₹{{ "{:,.2f}".format(pos.pnl) }}</td>
                                 </tr>
+                                {% else %}
+                                <tr><td colspan="5" class="p-4 text-center text-slate-500">No recent trades</td></tr>
                                 {% endfor %}
                             </tbody>
                         </table>
                     </div>
                 </div>
-            </div>
 
-            <!-- RULES CONFIGURATION TAB -->
-            
-
-<div id="tab-settings" class="admin-tab" style="display: none;">
-                <div class="card b-radius--10">
-                    <h3 class="card-header"><i data-lucide="settings" class="w-4 h-4 text-indigo-400"></i> Platform Settings</h3>
-                    
-                    <form onsubmit="submitAdminSettings(event)" class="space-y-6">
-                        <div class="card-body">
-                            <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-4 border-b border-slate-700 pb-2">Admin Portal Credentials</h4>
-                            <div class="space-y-4">
-                                <div>
-                                    <label class="fw-bold mb-2">Admin Username</label>
-                                    <input type="text" name="admin_username" id="settings-admin-username" class="form-control" value="Deependra">
-                                </div>
-                                <div>
-                                    <label class="fw-bold mb-2">Admin Password</label>
-                                    <div class="relative">
-                                        <input type="text" name="admin_password" id="settings-admin-password" class="form-control" value="Deependra@081">
-                                    </div>
-                                </div>
-                            </div>
+                <!-- Push Notifications -->
+                <div class="bg-slate-900 rounded-xl border border-slate-700 p-5">
+                    <h3 class="text-lg font-bold text-white mb-4">Broadcast Notification</h3>
+                    <form onsubmit="handleBroadcast(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-400 mb-1">Title</label>
+                            <input type="text" id="broadcast_title" required class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2.5 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none">
                         </div>
-                        
-                        <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-lg text-sm font-bold shadow-lg w-full uppercase tracking-wider">Save Settings & Restart Server</button>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-400 mb-1">Message</label>
+                            <textarea id="broadcast_message" rows="4" required class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2.5 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"></textarea>
+                        </div>
+                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2">
+                            <i data-lucide="send" class="w-4 h-4"></i> Send Broadcast
+                        </button>
                     </form>
                 </div>
             </div>
-
         </div>
-    </div>
 
-
-    <script>
-        function openBroadcastModal() { document.getElementById('broadcastModal').classList.remove('hidden'); }
-        function closeBroadcastModal() { document.getElementById('broadcastModal').classList.add('hidden'); }
-        function sendBroadcast() {
-            const msg = document.getElementById('broadcastMessage').value;
-            if(!msg) return;
-            adminActionWithPayload('system', 'global', 'broadcast', msg);
-            closeBroadcastModal();
-        }
-        
-        
-        function openPromoModal() { document.getElementById('promoModal').classList.remove('hidden'); }
-        function closePromoModal() { document.getElementById('promoModal').classList.add('hidden'); }
-        function generateCustomPromo() {
-            const code = document.getElementById('promoCodeInput').value;
-            const discount = document.getElementById('promoDiscountInput').value;
-            if(!code || !discount) { showToast('Please fill all fields', 'error'); return; }
-            adminActionWithPayload('global', code, 'generate_promo', discount);
-            closePromoModal();
-        }
-
-        
-        function openPackageEditModal(id, price) { 
-            document.getElementById('editPkgId').value = id;
-            document.getElementById('editPkgPrice').value = price;
-            document.getElementById('packageEditModal').classList.remove('hidden'); 
-        }
-        function closePackageEditModal() { document.getElementById('packageEditModal').classList.add('hidden'); }
-        function savePackagePrice() {
-            const id = document.getElementById('editPkgId').value;
-            const price = document.getElementById('editPkgPrice').value;
-            if(!price) return;
-            adminActionWithPayload('package', id, 'update_price', price);
-            closePackageEditModal();
-        }
-
-        function openSettingsModal() { document.getElementById('settingsModal').classList.remove('hidden'); }
-        function closeSettingsModal() { document.getElementById('settingsModal').classList.add('hidden'); }
-        function saveDirectorName() {
-            const name = document.getElementById('directorNameInput').value;
-            if(!name) return;
-            adminActionWithPayload('system', 'director_name', 'update_setting', name);
-            closeSettingsModal();
-        }
-        
-        async function adminActionWithPayload(entity, id, action, payload) {
-            try {
-                const formData = new FormData();
-                formData.append('entity', entity);
-                formData.append('id', id);
-                formData.append('action', action);
-                formData.append('payload', payload);
-                
-                const response = await fetch('/admin/api/action', {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                const data = await response.json();
-                if (data.success) {
-                    showToast(data.message, 'success');
-                    setTimeout(() => window.location.reload(), 1500);
-                } else {
-                    showToast(data.error || 'Action failed', 'error');
-                }
-            } catch (err) {
-                showToast('Server error', 'error');
-            }
-        }
-
-    lucide.createIcons();
-
-    function showToast(msg, type='success') {
-        const container = document.getElementById('toast-container');
-        const t = document.createElement('div');
-        t.className = `px-4 py-3 rounded-lg text-sm font-bold text-white shadow-lg transform transition-all duration-300 translate-x-full ${type==='success' ? 'bg-emerald-600' : 'bg-rose-600'}`;
-        t.innerText = msg;
-        container.appendChild(t);
-        
-        setTimeout(() => { t.style.transform = 'translateX(0)'; }, 10);
-        setTimeout(() => { 
-            t.style.transform = 'translateX(100%)'; 
-            t.style.opacity = '0';
-            setTimeout(() => t.remove(), 300);
-        }, 3000);
-    }
-    
-    function openEditUserModal(id, name, email, password) {
-        document.getElementById('eu-id').value = id;
-        document.getElementById('eu-name').value = name;
-        document.getElementById('eu-email').value = email;
-        document.getElementById('eu-pass').value = password || '';
-        document.getElementById('edit-user-modal').classList.remove('hidden');
-    }
-
-    function openNotifyModal(id, name) {
-        document.getElementById('nu-id').value = id;
-        document.getElementById('nu-name').innerText = name;
-        document.getElementById('nu-msg').value = '';
-        document.getElementById('notify-user-modal').classList.remove('hidden');
-    }
-
-    function closeModal(id) {
-        document.getElementById(id).classList.add('hidden');
-    }
-
-    async function submitEditUser(e) {
-        e.preventDefault();
-        const form = e.target;
-        const data = new FormData(form);
-        try {
-            const res = await fetch('/admin/api/user/update', { method: 'POST', body: data });
-            const json = await res.json();
-            if (json.success) {
-                showToast(json.message, 'success');
-                closeModal('edit-user-modal');
-                setTimeout(() => location.reload(), 1000);
-            } else {
-                showToast(json.error, 'error');
-            }
-        } catch (err) {
-            showToast('Error updating user', 'error');
-        }
-    }
-
-    async function submitNotifyUser(e) {
-        e.preventDefault();
-        const form = e.target;
-        const data = new FormData(form);
-        try {
-            const res = await fetch('/admin/api/user/notify', { method: 'POST', body: data });
-            const json = await res.json();
-            if (json.success) {
-                showToast(json.message, 'success');
-                closeModal('notify-user-modal');
-            } else {
-                showToast(json.error, 'error');
-            }
-        } catch (err) {
-            showToast('Error sending notification', 'error');
-        }
-    }
-
-    async function adminAction(entity, id, action) {
-        if(!confirm(`EXECUTE: 'Γé╣{{action}}' on Γé╣{{entity}} #Γé╣{{id}}?`)) return;
-        
-        const formData = new FormData();
-        formData.append('entity', entity);
-        formData.append('id', id);
-        formData.append('action', action);
-
-        let url = `/admin/api/${entity}/${id}/action`;
-        if (entity === 'system' || entity === 'global') {
-            url = '/admin/api/action';
-        }
-
-        try {
-            const res = await fetch(url, {
-                method: 'POST',
-                body: formData
-            });
-            const json = await res.json();
-            if(json.success) {
-                showToast(json.message, 'success');
-                setTimeout(() => location.reload(), 1500);
-            } else {
-                showToast(json.error, 'error');
-            }
-        } catch(e) {
-            showToast('Execution failed.', 'error');
-        }
-    }
-
-    async function submitAdminSettings(e) {
-        e.preventDefault();
-        const form = e.target;
-        const data = new FormData(form);
-        try {
-            const res = await fetch('/admin/api/settings', { method: 'POST', body: data });
-            const json = await res.json();
-            if (json.success) {
-                showToast(json.message, 'success');
-            } else {
-                showToast(json.error, 'error');
-            }
-        } catch (err) {
-            showToast('Error updating settings', 'error');
-        }
-    }
-</script>
-
-    
-    
-
-<!-- TAB: USERS -->
-                    <div id="tab-users" class="admin-tab" style="display: none;">
-                        <div class="card b-radius--10">
-                            <div class="card-header"><h5>All Registered Users</h5></div>
-                            <div class="card-body p-0">
-                                <div class="table-responsive--md  table-responsive">
-                                    <table class="table table--light style--two">
-                                        <thead>
-                                            <tr>
-                                                <th>User ID</th>
-                                                <th>Email</th>
-                                                <th>Registration Date</th>
-                                                <th>Action</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {% for u in users %}
-                                            <tr>
-                                                <td class="fw-bold">#{{ u.id }}</td>
-                                                <td>{{ u.email }}</td>
-                                                <td>{{ u.created_at }}</td>
-                                                <td><button class="btn btn-sm btn-outline--primary"><i class="las la-desktop"></i> Details</button></td>
-                                            </tr>
-                                            {% else %}
-                                            <tr><td colspan="4" class="text-center">No users found.</td></tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- TAB: ACCOUNTS -->
-                    <div id="tab-accounts" class="admin-tab" style="display: none;">
-                        <div class="card b-radius--10">
-                            <div class="card-header"><h5>Trade Accounts</h5></div>
-                            <div class="card-body p-0">
-                                <div class="table-responsive--md  table-responsive">
-                                    <table class="table table--light style--two">
-                                        <thead>
-                                            <tr>
-                                                <th>Acc ID</th>
-                                                <th>User ID</th>
-                                                <th>Package</th>
-                                                <th>Balance</th>
-                                                <th>Status</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {% for a in accounts %}
-                                            <tr>
-                                                <td class="fw-bold">#{{ a.id }}</td>
-                                                <td>#{{ a.user_id }}</td>
-                                                <td>{{ a.package_id }}</td>
-                                                <td class="fw-bold">${{ "%.2f"|format(a.current_balance) }}</td>
-                                                <td>
-                                                    {% if a.status == 'ACTIVE' %}
-                                                    <span class="badge badge--success">Active</span>
-                                                    {% else %}
-                                                    <span class="badge badge--danger">{{ a.status }}</span>
-                                                    {% endif %}
-                                                </td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-outline--primary" data-bs-toggle="modal" data-bs-target="#editCapitalModal{{ a.id }}">
-                                                        <i class="las la-pen"></i> Edit Capital
-                                                    </button>
-                                                    
-                                                    <!-- Edit Capital Modal -->
-                                                    <div class="modal fade" id="editCapitalModal{{ a.id }}" tabindex="-1">
-                                                        <div class="modal-dialog">
-                                                            <form action="/admin/accounts/{{ a.id }}/edit-capital" method="POST" class="modal-content bg--dark border-0">
-                                                                <div class="modal-header border-0">
-                                                                    <h5 class="modal-title text-white">Edit Capital (Acc #{{ a.account_number }})</h5>
-                                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                                                                </div>
-                                                                <div class="modal-body">
-                                                                    <div class="form-group">
-                                                                        <label class="text-white">Current Balance</label>
-                                                                        <input type="number" step="0.01" name="balance" class="form-control bg-dark text-white" value="{{ a.current_balance }}" required>
-                                                                    </div>
-                                                                    <div class="form-group mt-3">
-                                                                        <label class="text-white">Current Equity</label>
-                                                                        <input type="number" step="0.01" name="equity" class="form-control bg-dark text-white" value="{{ a.current_equity }}" required>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="modal-footer border-0">
-                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                                    <button type="submit" class="btn btn-primary">Save Changes</button>
-                                                                </div>
-                                                            </form>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            {% else %}
-                                            <tr><td colspan="5" class="text-center">No accounts found.</td></tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- TAB: PAGES -->
-                    <div id="tab-pages" class="admin-tab" style="display: none;">
-                        <div class="card b-radius--10 mb-4">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <h5>Manage Pages</h5>
-                                <button type="button" class="btn btn-sm btn-outline--primary" data-bs-toggle="modal" data-bs-target="#createPageModal">
-                                    <i class="las la-plus"></i> Create New Page
-                                </button>
-                            </div>
-                            <div class="card-body p-0">
-                                <div class="table-responsive--md  table-responsive">
-                                    <table class="table table--light style--two">
-                                        <thead>
-                                            <tr>
-                                                <th>Page Title</th>
-                                                <th>Slug (URL)</th>
-                                                <th>Status</th>
-                                                <th>Action</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {% for page in pages %}
-                                            <tr>
-                                                <td class="fw-bold">{{ page.title }}</td>
-                                                <td><a href="/page/{{ page.slug }}" target="_blank" class="text--info">/page/{{ page.slug }}</a></td>
-                                                <td>
-                                                    {% if page.is_published %}
-                                                    <span class="badge badge--success">Published</span>
-                                                    {% else %}
-                                                    <span class="badge badge--danger">Draft</span>
-                                                    {% endif %}
-                                                </td>
-                                                <td>
-                                                    <form action="/admin/pages/delete/{{ page.id }}" method="POST" class="d-inline">
-                                                        <button type="submit" class="btn btn-sm btn-outline--danger"><i class="las la-trash"></i> Delete</button>
-                                                    </form>
-                                                </td>
-                                            </tr>
-                                            {% else %}
-                                            <tr><td colspan="4" class="text-center">No dynamic pages found. Create one like WordPress!</td></tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- CREATE PAGE MODAL -->
-                    <div class="modal fade" id="createPageModal" tabindex="-1" aria-labelledby="createPageModalLabel" aria-hidden="true">
-                      <div class="modal-dialog modal-lg">
-                        <form action="/admin/pages/create" method="POST" class="modal-content bg--dark border-0">
-                          <div class="modal-header border-0">
-                            <h5 class="modal-title text-white" id="createPageModalLabel">Create Dynamic Page</h5>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                          </div>
-                          <div class="modal-body">
-                            <div class="form-group mb-3">
-                                <label class="text-white">Page Title</label>
-                                <input type="text" name="title" class="form-control bg-dark text-white" required placeholder="e.g. Terms of Service">
-                            </div>
-                            <div class="form-group mb-3">
-                                <label class="text-white">URL Slug</label>
-                                <input type="text" name="slug" class="form-control bg-dark text-white" required placeholder="e.g. terms-of-service">
-                            </div>
-                            <div class="form-group mb-3">
-                                <label class="text-white">Content (HTML allowed)</label>
-                                <textarea name="content" class="form-control bg-dark text-white" rows="10" required placeholder="Write your page content here..."></textarea>
-                            </div>
-                          </div>
-                          <div class="modal-footer border-0">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-primary">Publish Page</button>
-                          </div>
-                        </form>
-                      </div>
-                    </div>
-
+        <!-- Tab: Users -->
+        <div id="tab-users" class="admin-tab">
+            <h2 class="text-2xl font-bold text-white mb-6">Manage Users</h2>
+            <div class="bg-slate-900 rounded-xl border border-slate-700 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-800 border-b border-slate-700 text-slate-400 text-sm">
+                            <tr>
+                                <th class="p-4">ID</th>
+                                <th class="p-4">Full Name</th>
+                                <th class="p-4">Email</th>
+                                <th class="p-4">Password</th>
+                                <th class="p-4">Registered Date</th>
+                                <th class="p-4 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-700 text-sm">
+                            {% for u in users %}
+                            <tr>
+                                <td class="p-4 text-slate-400">#{{ u.id }}</td>
+                                <td class="p-4 font-semibold text-white">{{ u.full_name }}</td>
+                                <td class="p-4">{{ u.email }}</td>
+                                <td class="p-4 text-slate-400">{{ u.plain_password|default('***', true) }}</td>
+                                <td class="p-4 text-slate-400">{{ u.created_at.strftime('%Y-%m-%d %H:%M') if u.created_at else 'N/A' }}</td>
+                                <td class="p-4 text-right">
+                                    <div class="flex items-center justify-end gap-2">
+                                        <button onclick="openEditUserModal('{{ u.id }}', '{{ u.full_name }}', '{{ u.email }}')" class="p-1.5 text-blue-400 hover:bg-blue-900/50 rounded transition-colors" title="Edit">
+                                            <i data-lucide="edit-2" class="w-4 h-4"></i>
+                                        </button>
+                                        <button onclick="adminAction('user', '{{ u.id }}', 'delete')" class="p-1.5 text-red-400 hover:bg-red-900/50 rounded transition-colors" title="Delete">
+                                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
-    </div>
 
-    
-<div id="packageEditModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-white/10 rounded-2xl p-6 w-full max-w-lg">
-            <h3 class="text-xl font-bold text-white mb-4">Edit Capital Price</h3>
-            <input type="hidden" id="editPkgId">
-            <label class="text-slate-400 text-sm mb-1 block">New Price (Γé╣)</label>
-            <input type="number" step="0.01" id="editPkgPrice" class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-primary mb-4">
-            <div class="flex justify-end gap-3">
-                <button onclick="closePackageEditModal()" class="px-4 py-2 rounded-xl text-slate-400 hover:bg-white/5 transition-colors">Cancel</button>
-                <button onclick="savePackagePrice()" class="px-4 py-2 rounded-xl bg-primary text-white font-bold hover:bg-primary/80 transition-colors">Save Details</button>
+        <!-- Tab: Accounts -->
+        <div id="tab-accounts" class="admin-tab">
+            <h2 class="text-2xl font-bold text-white mb-6">Trade Accounts</h2>
+            <div class="bg-slate-900 rounded-xl border border-slate-700 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-800 border-b border-slate-700 text-slate-400 text-sm">
+                            <tr>
+                                <th class="p-4">Account#</th>
+                                <th class="p-4">User</th>
+                                <th class="p-4">Type/Phase</th>
+                                <th class="p-4">Status</th>
+                                <th class="p-4">Balance / Equity</th>
+                                <th class="p-4 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-700 text-sm">
+                            {% for acc in accounts %}
+                            <tr>
+                                <td class="p-4 font-mono font-semibold text-white">{{ acc.account_number }}</td>
+                                <td class="p-4">{{ user_map[acc.user_id].email if acc.user_id in user_map else 'Unknown' }}</td>
+                                <td class="p-4">
+                                    <div class="text-white">{{ acc.model_type }}</div>
+                                    <div class="text-xs text-slate-400">Phase {{ acc.phase }}</div>
+                                </td>
+                                <td class="p-4">
+                                    <span class="px-2 py-1 rounded text-xs {{ 'bg-green-900/50 text-green-400' if acc.status == 'active' else 'bg-red-900/50 text-red-400' }}">
+                                        {{ acc.status|upper }}
+                                    </span>
+                                    {% if acc.breach_reason %}
+                                    <div class="text-[10px] text-red-300 mt-1 max-w-[120px] truncate" title="{{ acc.breach_reason }}">{{ acc.breach_reason }}</div>
+                                    {% endif %}
+                                </td>
+                                <td class="p-4">
+                                    <div class="font-semibold text-white">₹{{ "{:,.2f}".format(acc.current_balance) }}</div>
+                                    <div class="text-xs {{ 'text-green-400' if acc.current_equity >= acc.initial_balance else 'text-red-400' }}">Eq: ₹{{ "{:,.2f}".format(acc.current_equity) }}</div>
+                                </td>
+                                <td class="p-4 text-right">
+                                    <div class="flex flex-wrap items-center justify-end gap-2">
+                                        <button onclick="adminAction('account', '{{ acc.id }}', 'reset')" class="px-2 py-1 bg-slate-700 hover:bg-slate-600 text-white rounded text-xs transition-colors">Reset</button>
+                                        <button onclick="adminAction('account', '{{ acc.id }}', 'pass_phase')" class="px-2 py-1 bg-green-900/50 hover:bg-green-900 text-green-400 rounded text-xs transition-colors">Pass</button>
+                                        <button onclick="adminAction('account', '{{ acc.id }}', 'breach')" class="px-2 py-1 bg-red-900/50 hover:bg-red-900 text-red-400 rounded text-xs transition-colors">Breach</button>
+                                        <button onclick="adminAction('account', '{{ acc.id }}', 'delete')" class="p-1 text-red-400 hover:bg-red-900/50 rounded transition-colors" title="Delete">
+                                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
+        </div>
+
+        <!-- Tab: Trades -->
+        <div id="tab-trades" class="admin-tab">
+            <h2 class="text-2xl font-bold text-white mb-6">Manage Orders</h2>
+            <div class="bg-slate-900 rounded-xl border border-slate-700 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-800 border-b border-slate-700 text-slate-400 text-sm">
+                            <tr>
+                                <th class="p-4">Ticket</th>
+                                <th class="p-4">Account ID</th>
+                                <th class="p-4">Symbol</th>
+                                <th class="p-4">Type/Lots</th>
+                                <th class="p-4">Open Price</th>
+                                <th class="p-4">PnL</th>
+                                <th class="p-4 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-700 text-sm">
+                            {% for pos in positions %}
+                            <tr>
+                                <td class="p-4 font-mono">#{{ pos.ticket }}</td>
+                                <td class="p-4">{{ pos.account_id }}</td>
+                                <td class="p-4 font-bold text-white">{{ pos.symbol }}</td>
+                                <td class="p-4">
+                                    <span class="px-2 py-0.5 rounded text-xs mr-2 {{ 'bg-blue-900/50 text-blue-400' if pos.order_type == 'buy' else 'bg-red-900/50 text-red-400' }}">
+                                        {{ pos.order_type|upper }}
+                                    </span>
+                                    <span>{{ pos.volume_lots }} Lots</span>
+                                </td>
+                                <td class="p-4">₹{{ "{:,.2f}".format(pos.open_price) }}</td>
+                                <td class="p-4 font-bold {{ 'text-green-400' if pos.pnl > 0 else 'text-red-400' }}">₹{{ "{:,.2f}".format(pos.pnl) }}</td>
+                                <td class="p-4 text-right">
+                                    <button onclick="adminAction('position', '{{ pos.id }}', 'close')" class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-xs transition-colors">Close</button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Packages -->
+        <div id="tab-packages" class="admin-tab">
+            <h2 class="text-2xl font-bold text-white mb-6">Manage Plans & Packages</h2>
+            
+            <div class="bg-slate-900 rounded-xl border border-slate-700 p-6 mb-8">
+                <h3 class="text-lg font-bold text-white mb-4">Add New Package</h3>
+                <form action="/admin/api/package" method="POST" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Package Name</label>
+                        <input type="text" name="name" required class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-white text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Model Type</label>
+                        <select name="model_type" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-white text-sm">
+                            <option value="1-Step">1-Step</option>
+                            <option value="2-Step">2-Step</option>
+                            <option value="Instant">Instant</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Account Size (₹)</label>
+                        <input type="number" step="0.01" name="account_size" required class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-white text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Price (₹)</label>
+                        <input type="number" step="0.01" name="price" required class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-white text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Profit Target Phase 1 (%)</label>
+                        <input type="number" step="0.1" name="profit_target_p1" required class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-white text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Profit Target Phase 2 (%)</label>
+                        <input type="number" step="0.1" name="profit_target_p2" value="0" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-white text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Max Daily Loss (%)</label>
+                        <input type="number" step="0.1" name="max_daily_loss" required class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-white text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Max Total Loss (%)</label>
+                        <input type="number" step="0.1" name="max_total_loss" required class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-white text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Min Trading Days</label>
+                        <input type="number" name="min_trading_days" required class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-white text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Leverage</label>
+                        <input type="text" name="leverage" value="1:100" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-white text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Profit Split (%)</label>
+                        <input type="number" name="profit_split" value="80" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-white text-sm">
+                    </div>
+                    <div class="flex items-end">
+                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition-colors">
+                            Add Package
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="bg-slate-900 rounded-xl border border-slate-700 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-800 border-b border-slate-700 text-slate-400 text-sm">
+                            <tr>
+                                <th class="p-4">Name / Type</th>
+                                <th class="p-4">Size (₹)</th>
+                                <th class="p-4">Price (₹)</th>
+                                <th class="p-4">Targets P1/P2</th>
+                                <th class="p-4">Loss Limits D/T</th>
+                                <th class="p-4 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-700 text-sm">
+                            {% for pkg in packages %}
+                            <tr>
+                                <td class="p-4">
+                                    <div class="font-bold text-white">{{ pkg.name }}</div>
+                                    <div class="text-xs text-slate-400">{{ pkg.model_type }}</div>
+                                </td>
+                                <td class="p-4 font-semibold">₹{{ "{:,.0f}".format(pkg.account_size) }}</td>
+                                <td class="p-4 text-green-400 font-bold">₹{{ "{:,.2f}".format(pkg.price) }}</td>
+                                <td class="p-4">{{ pkg.profit_target_p1 }}% / {{ pkg.profit_target_p2 }}%</td>
+                                <td class="p-4 text-red-300">{{ pkg.max_daily_loss }}% / {{ pkg.max_total_loss }}%</td>
+                                <td class="p-4 text-right">
+                                    <div class="flex items-center justify-end gap-2">
+                                        <button onclick="openEditPriceModal('{{ pkg.id }}', '{{ pkg.price }}')" class="px-2 py-1 bg-slate-700 hover:bg-slate-600 text-white rounded text-xs transition-colors">Edit Price</button>
+                                        <form action="/admin/api/package/{{ pkg.id }}/delete" method="POST" class="inline">
+                                            <button type="submit" class="p-1.5 text-red-400 hover:bg-red-900/50 rounded transition-colors" title="Delete">
+                                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Pages -->
+        <div id="tab-pages" class="admin-tab">
+            <h2 class="text-2xl font-bold text-white mb-6">Manage Dynamic Pages</h2>
+            
+            <div class="bg-slate-900 rounded-xl border border-slate-700 p-6 mb-8">
+                <h3 class="text-lg font-bold text-white mb-4">Create New Page</h3>
+                <form action="/admin/pages/create" method="POST" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-400 mb-1">Page Title</label>
+                            <input type="text" name="title" required class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2.5 text-white">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-400 mb-1">URL Slug (e.g. about-us)</label>
+                            <input type="text" name="slug" required class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2.5 text-white">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-400 mb-1">HTML Content</label>
+                        <textarea name="content" rows="6" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2.5 text-white font-mono text-sm"></textarea>
+                    </div>
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-6 rounded-lg transition-colors">
+                        Create Page
+                    </button>
+                </form>
+            </div>
+
+            <div class="bg-slate-900 rounded-xl border border-slate-700 overflow-hidden">
+                <table class="w-full text-left">
+                    <thead class="bg-slate-800 border-b border-slate-700 text-slate-400 text-sm">
+                        <tr>
+                            <th class="p-4">Title</th>
+                            <th class="p-4">Slug (URL)</th>
+                            <th class="p-4 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-700 text-sm">
+                        {% for page in pages %}
+                        <tr>
+                            <td class="p-4 font-semibold text-white">{{ page.title }}</td>
+                            <td class="p-4 text-blue-400">/{{ page.slug }}</td>
+                            <td class="p-4 text-right">
+                                <form action="/admin/pages/delete/{{ page.id }}" method="POST" class="inline">
+                                    <button type="submit" class="p-1.5 text-red-400 hover:bg-red-900/50 rounded transition-colors" title="Delete">
+                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tab: Settings -->
+        <div id="tab-settings" class="admin-tab">
+            <h2 class="text-2xl font-bold text-white mb-6">System Settings</h2>
+            <div class="max-w-2xl bg-slate-900 rounded-xl border border-slate-700 p-6">
+                <h3 class="text-lg font-bold text-white mb-4">Admin Portal Credentials</h3>
+                <form onsubmit="handleSettingsUpdate(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-400 mb-1">New Admin Username (Email)</label>
+                        <input type="email" id="admin_username" name="admin_username" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2.5 text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-400 mb-1">New Admin Password</label>
+                        <input type="password" id="admin_password" name="admin_password" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2.5 text-white">
+                        <p class="text-xs text-slate-500 mt-1">Leave blank to keep current password</p>
+                    </div>
+                    <div class="pt-2">
+                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-6 rounded-lg transition-colors">
+                            Save Settings
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Tab: Customizer -->
+        <div id="tab-customizer" class="admin-tab">
+            <h2 class="text-2xl font-bold text-white mb-6">Appearance / Landing Page Customizer</h2>
+            <div class="max-w-3xl bg-slate-900 rounded-xl border border-slate-700 p-6">
+                <form onsubmit="handleCustomizerSubmit(event)" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-400 mb-1">Hero Title 1</label>
+                            <input type="text" name="hero_title_1" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2.5 text-white">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-400 mb-1">Hero Title 2</label>
+                            <input type="text" name="hero_title_2" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2.5 text-white">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-slate-400 mb-1">Hero Subtitle</label>
+                        <textarea name="hero_subtitle" rows="3" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2.5 text-white"></textarea>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-slate-400 mb-1">Top Announcement Bar Text</label>
+                        <input type="text" name="announcement_text" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2.5 text-white">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-slate-400 mb-1">Primary Brand Color (Hex)</label>
+                        <div class="flex items-center gap-3">
+                            <input type="color" name="primary_color" value="#2563eb" class="w-12 h-12 rounded cursor-pointer bg-slate-800 border border-slate-600">
+                            <input type="text" name="primary_color_text" value="#2563eb" class="w-32 bg-slate-800 border border-slate-600 rounded-lg p-2.5 text-white font-mono text-sm">
+                        </div>
+                    </div>
+                    
+                    <div class="pt-4 border-t border-slate-700 flex justify-end">
+                        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition-colors flex items-center gap-2">
+                            <i data-lucide="upload-cloud"></i> Publish Changes to Live Site
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Modals -->
+    <!-- Edit User Modal -->
+    <div id="editUserModal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50">
+        <div class="bg-slate-900 border border-slate-700 rounded-xl p-6 w-full max-w-md shadow-2xl">
+            <h3 class="text-xl font-bold text-white mb-4">Edit User</h3>
+            <form id="editUserForm" onsubmit="submitEditUser(event)">
+                <input type="hidden" id="edit_user_id">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-400 mb-1">Full Name</label>
+                        <input type="text" id="edit_user_name" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2.5 text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-400 mb-1">Email</label>
+                        <input type="email" id="edit_user_email" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2.5 text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-400 mb-1">New Password</label>
+                        <input type="password" id="edit_user_password" placeholder="Leave blank to keep unchanged" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2.5 text-white">
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end gap-3">
+                    <button type="button" onclick="closeModal('editUserModal')" class="px-4 py-2 bg-slate-800 text-slate-300 rounded-lg hover:bg-slate-700 transition-colors">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">Save Changes</button>
+                </div>
+            </form>
         </div>
     </div>
 
-
-    <div id="promoModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-white/10 rounded-2xl p-6 w-full max-w-lg">
-            <h3 class="text-xl font-bold text-white mb-4">Generate Master Promo</h3>
-            <input type="text" id="promoCodeInput" class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-primary mb-4" placeholder="Promo Code (e.g. SUMMER50)">
-            <input type="number" id="promoDiscountInput" class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-primary mb-4" placeholder="Discount % (e.g. 50)">
-            <div class="flex justify-end gap-3">
-                <button onclick="closePromoModal()" class="px-4 py-2 rounded-xl text-slate-400 hover:bg-white/5 transition-colors">Cancel</button>
-                <button onclick="generateCustomPromo()" class="px-4 py-2 rounded-xl bg-primary text-white font-bold hover:bg-primary/80 transition-colors">Generate</button>
-            </div>
+    <!-- Edit Price Modal -->
+    <div id="editPriceModal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50">
+        <div class="bg-slate-900 border border-slate-700 rounded-xl p-6 w-full max-w-sm shadow-2xl">
+            <h3 class="text-xl font-bold text-white mb-4">Edit Package Price</h3>
+            <form onsubmit="submitEditPrice(event)">
+                <input type="hidden" id="edit_pkg_id">
+                <div>
+                    <label class="block text-sm font-medium text-slate-400 mb-1">New Price (₹)</label>
+                    <input type="number" step="0.01" id="edit_pkg_price" required class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2.5 text-white">
+                </div>
+                <div class="mt-6 flex justify-end gap-3">
+                    <button type="button" onclick="closeModal('editPriceModal')" class="px-4 py-2 bg-slate-800 text-slate-300 rounded-lg hover:bg-slate-700 transition-colors">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">Update Price</button>
+                </div>
+            </form>
         </div>
     </div>
 
-    <div id="broadcastModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-white/10 rounded-2xl p-6 w-full max-w-lg">
-            <h3 class="text-xl font-bold text-white mb-4">Broadcast Custom Message</h3>
-            <textarea id="broadcastMessage" rows="4" class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-primary mb-4" placeholder="Type message here..."></textarea>
-            <div class="flex justify-end gap-3">
-                <button onclick="closeBroadcastModal()" class="px-4 py-2 rounded-xl text-slate-400 hover:bg-white/5 transition-colors">Cancel</button>
-                <button onclick="sendBroadcast()" class="px-4 py-2 rounded-xl bg-primary text-white font-bold hover:bg-primary/80 transition-colors">Send Broadcast</button>
-            </div>
-        </div>
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 border border-slate-700 text-white px-6 py-3 rounded-lg shadow-xl translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center gap-2">
+        <i data-lucide="info" class="w-5 h-5 text-blue-400"></i>
+        <span id="toastMessage"></span>
     </div>
-    
-    <div id="settingsModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-white/10 rounded-2xl p-6 w-full max-w-lg">
-            <h3 class="text-xl font-bold text-white mb-4">Update Certificate Director</h3>
-            <input type="text" id="directorNameInput" class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-primary mb-4" placeholder="Dr. S. K. Vance">
-            <div class="flex justify-end gap-3">
-                <button onclick="closeSettingsModal()" class="px-4 py-2 rounded-xl text-slate-400 hover:bg-white/5 transition-colors">Cancel</button>
-                <button onclick="saveDirectorName()" class="px-4 py-2 rounded-xl bg-primary text-white font-bold hover:bg-primary/80 transition-colors">Save Name</button>
-            </div>
-        </div>
-    </div>
-
-<script src="https://script.viserlab.com/proplab/assets/global/js/jquery-3.7.1.min.js"></script>
-    <script src="https://script.viserlab.com/proplab/assets/global/js/bootstrap.bundle.min.js"></script>
-    <script src="https://script.viserlab.com/proplab/assets/admin/js/app.js"></script>
 
     <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Tab Switching Logic
         function switchTab(tabId, elem) {
-            document.querySelectorAll('.admin-tab').forEach(el => el.style.display = 'none');
-            var tab = document.getElementById('tab-' + tabId);
-            if(tab) tab.style.display = 'block';
+            // Hide all tabs
+            document.querySelectorAll('.admin-tab').forEach(tab => {
+                tab.style.display = 'none';
+                tab.classList.remove('active');
+            });
+            
+            // Show target tab
+            const target = document.getElementById(`tab-${tabId}`);
+            if (target) {
+                target.style.display = 'block';
+                target.classList.add('active');
+            }
 
-            document.querySelectorAll('.sidebar-menu-item').forEach(el => el.classList.remove('active'));
-            if(elem) elem.closest('.sidebar-menu-item').classList.add('active');
-
-            // Update title
-            var titles = {
-                'dashboard': 'Dashboard',
-                'users': 'Manage Users',
-                'accounts': 'Trade Accounts',
-                'trades': 'Manage Orders',
-                'packages': 'Manage Plans',
-                'pages': 'Manage Pages',
-                'customizer': 'Appearance / Customizer',
-                'settings': 'System Setting'
-            };
-            document.getElementById('page-title-text').innerText = titles[tabId] || 'Dashboard';
+            // Update sidebar active state
+            if (elem) {
+                document.querySelectorAll('.sidebar-link').forEach(link => {
+                    link.classList.remove('bg-slate-800', 'text-white');
+                    link.classList.add('text-slate-300');
+                });
+                elem.classList.remove('text-slate-300');
+                elem.classList.add('bg-slate-800', 'text-white');
+                
+                // Update Title if exists in tab
+                const pageTitle = document.getElementById('page-title');
+                if(pageTitle && tabId === 'dashboard') {
+                    pageTitle.innerText = 'Dashboard Overview';
+                }
+            }
         }
 
-        
-        // Sidebar Dropdown
-        $('.sidebar-dropdown > a').on('click', function () {
-            var submenu = $(this).siblings('.sidebar-submenu');
-            if (submenu.length > 0) {
-                submenu.slideToggle();
-                $(this).parent().toggleClass('active');
-            }
-        });
-
-        // Fix toggling sidebar for responsive design
-        $('.res-sidebar-open-btn').on('click', function () {
-            $('.sidebar').addClass('open');
-            $('.sidebar-mobile-overlay').addClass('open');
-        });
-        $('.res-sidebar-close-btn, .sidebar-mobile-overlay').on('click', function () {
-            $('.sidebar').removeClass('open');
-            $('.sidebar-mobile-overlay').removeClass('open');
-        });
-    </script>
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            var ctx = document.getElementById('userPieChart').getContext('2d');
-            var userPieChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['India', 'UAE', 'UK', 'USA', 'Other'],
-                    datasets: [{
-                        data: [45, 25, 10, 15, 5],
-                        backgroundColor: ['#4634ff', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: { position: 'bottom', labels: { color: '#a0aec0' } }
-                    }
+        // Generic API Action Function
+        async function adminAction(type, id, action) {
+            if(!confirm(`Are you sure you want to perform '${action}' on ${type} #${id}?`)) return;
+            
+            try {
+                const res = await fetch(`/admin/api/${type}/${id}/${action}`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'}
+                });
+                if (res.ok) {
+                    showToast(`${type} action '${action}' successful!`);
+                    setTimeout(() => window.location.reload(), 1000);
+                } else {
+                    showToast(`Failed: ${res.statusText}`);
                 }
-            });
-        });
-    </script>
-
-
-<!--Start of Tawk.to Script-->
-<script type="text/javascript">
-var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
-(function(){
-var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
-s1.async=true;
-s1.src='https://embed.tawk.to/67890abcdef/123456789';
-s1.charset='UTF-8';
-s1.setAttribute('crossorigin','*');
-s0.parentNode.insertBefore(s1,s0);
-})();
-</script>
-<!--End of Tawk.to Script-->
-<script>
-
-
+            } catch (err) {
+                console.error(err);
+                showToast(`Error: ${err.message}`);
+            }
+        }
 
         // Broadcast Form
-        document.getElementById('broadcastForm')?.addEventListener('submit', function(e) {
+        async function handleBroadcast(e) {
             e.preventDefault();
-            const msg = document.getElementById('broadcastMessage').value;
-            const formData = new FormData();
-            formData.append('entity', 'system');
-            formData.append('id', 'all');
-            formData.append('action', 'broadcast');
-            formData.append('payload', msg);
-            
-            fetch('/admin/api/action', {
-                method: 'POST',
-                body: formData
-            }).then(r => r.json()).then(d => {
-                const stat = document.getElementById('broadcastStatus');
-                stat.innerText = "Broadcast Sent Successfully!";
-                stat.style.display = "block";
-                document.getElementById('broadcastMessage').value = '';
-                setTimeout(() => stat.style.display = 'none', 3000);
-            });
-</script>
+            const title = document.getElementById('broadcast_title').value;
+            const message = document.getElementById('broadcast_message').value;
+            try {
+                const res = await fetch('/admin/api/broadcast', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({title, message})
+                });
+                if (res.ok) {
+                    showToast('Broadcast sent successfully!');
+                    e.target.reset();
+                } else {
+                    showToast('Failed to send broadcast');
+                }
+            } catch (err) {
+                showToast('Error sending broadcast');
+            }
+        }
 
-        });
-    
+        // Settings Form
+        async function handleSettingsUpdate(e) {
+            e.preventDefault();
+            const admin_username = document.getElementById('admin_username').value;
+            const admin_password = document.getElementById('admin_password').value;
+            try {
+                const res = await fetch('/admin/api/settings', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({admin_username, admin_password})
+                });
+                if (res.ok) {
+                    showToast('Settings updated successfully!');
+                    document.getElementById('admin_password').value = '';
+                } else {
+                    showToast('Failed to update settings');
+                }
+            } catch(err) {
+                showToast('Error updating settings');
+            }
+        }
 
-    <!-- TinyMCE (WordPress Style Editor) -->
-    <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
-    <script>
-      document.addEventListener("DOMContentLoaded", function() {
-          if(typeof tinymce !== 'undefined') {
-              tinymce.init({
-                selector: '#content',
-                plugins: 'preview importcss searchreplace autolink autosave save directionality code visualblocks visualchars fullscreen image link media template codesample table charmap pagebreak nonbreaking anchor insertdatetime advlist lists wordcount help charmap quickbars emoticons',
-                menubar: 'file edit view insert format tools table help',
-                toolbar: 'undo redo | bold italic underline strikethrough | fontfamily fontsize blocks | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist | forecolor backcolor removeformat | pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media template link anchor codesample | ltr rtl',
-                toolbar_sticky: true,
-                skin: 'oxide-dark',
-                content_css: 'dark',
-                height: 500,
-                quickbars_selection_toolbar: 'bold italic | quicklink h2 h3 blockquote quickimage quicktable',
-                noneditable_class: 'mceNonEditable',
-                toolbar_mode: 'sliding',
-                contextmenu: 'link image table',
-              });
-          }
-      });
+        // Customizer Form
+        async function handleCustomizerSubmit(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            try {
+                const res = await fetch('/admin/api/customize', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+                if (res.ok) {
+                    showToast('Live site customized successfully!');
+                } else {
+                    showToast('Update failed');
+                }
+            } catch(err) {
+                showToast('Error updating customizer');
+            }
+        }
+
+        // Modal Controls
+        function openEditUserModal(id, name, email) {
+            document.getElementById('edit_user_id').value = id;
+            document.getElementById('edit_user_name').value = name;
+            document.getElementById('edit_user_email').value = email;
+            document.getElementById('editUserModal').classList.remove('hidden');
+            document.getElementById('editUserModal').classList.add('flex');
+        }
+
+        function openEditPriceModal(id, price) {
+            document.getElementById('edit_pkg_id').value = id;
+            document.getElementById('edit_pkg_price').value = price;
+            document.getElementById('editPriceModal').classList.remove('hidden');
+            document.getElementById('editPriceModal').classList.add('flex');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+            document.getElementById(modalId).classList.remove('flex');
+        }
+
+        async function submitEditUser(e) {
+            e.preventDefault();
+            const id = document.getElementById('edit_user_id').value;
+            const full_name = document.getElementById('edit_user_name').value;
+            const email = document.getElementById('edit_user_email').value;
+            const password = document.getElementById('edit_user_password').value;
+
+            try {
+                const res = await fetch(`/admin/api/user/update`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({id, full_name, email, password})
+                });
+                if (res.ok) {
+                    showToast('User updated successfully!');
+                    closeModal('editUserModal');
+                    setTimeout(() => window.location.reload(), 1000);
+                } else {
+                    showToast('Failed to update user');
+                }
+            } catch(err) {
+                showToast('Error updating user');
+            }
+        }
+
+        async function submitEditPrice(e) {
+            e.preventDefault();
+            const id = document.getElementById('edit_pkg_id').value;
+            const price = document.getElementById('edit_pkg_price').value;
+            try {
+                const res = await fetch(`/admin/api/package/${id}/update_price`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({price: parseFloat(price)})
+                });
+                if (res.ok) {
+                    showToast('Price updated!');
+                    closeModal('editPriceModal');
+                    setTimeout(() => window.location.reload(), 1000);
+                } else {
+                    showToast('Failed to update price');
+                }
+            } catch(err) {
+                showToast('Error updating price');
+            }
+        }
+
+        // Sync color picker inputs
+        const colorPicker = document.querySelector('input[type="color"]');
+        const colorText = document.querySelector('input[name="primary_color_text"]');
+        if(colorPicker && colorText) {
+            colorPicker.addEventListener('input', (e) => colorText.value = e.target.value);
+            colorText.addEventListener('input', (e) => colorPicker.value = e.target.value);
+        }
+
+        // Toast Notification
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMessage').innerText = message;
+            toast.style.transform = 'translateY(0)';
+            toast.style.opacity = '1';
+            setTimeout(() => {
+                toast.style.transform = 'translateY(5rem)';
+                toast.style.opacity = '0';
+            }, 3000);
+        }
     </script>
 </body>
 </html>
