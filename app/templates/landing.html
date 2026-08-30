@@ -214,62 +214,31 @@
         </div>
     </section>
 
-    <!-- Features Section -->
-    <section id="features" class="py-24 relative">
+    <!-- HOW IT WORKS -->
+    <section id="how-it-works" class="py-24 bg-slate-900 relative">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-16" data-aos="fade-up">
-                <h2 class="text-3xl md:text-5xl font-display font-bold mb-4">Why Traders Choose Us</h2>
-                <p class="text-gray-400 max-w-2xl mx-auto text-lg">We provide the best conditions in the industry so you can focus entirely on your trading strategy.</p>
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">How It Works</h2>
+                <p class="text-slate-400 max-w-2xl mx-auto">Get funded in three simple steps.</p>
             </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Feature 1 -->
-                <div class="glass-card p-8 rounded-2xl hover:bg-white/[0.02] transition-colors group" data-aos="fade-up" data-aos-delay="100">
-                    <div class="w-14 h-14 rounded-xl bg-brand-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                        <i data-lucide="clock" class="w-7 h-7 text-brand-400"></i>
-                    </div>
-                    <h3 class="text-xl font-bold font-display mb-3 text-white">No Time Limits</h3>
-                    <p class="text-gray-400 leading-relaxed">Trade at your own pace. We have removed all time restrictions on our evaluation phases so you never feel rushed.</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Step 1 -->
+                <div class="bg-slate-800 rounded-2xl p-8 border border-slate-700 hover:border-indigo-500 transition-colors relative">
+                    <div class="w-12 h-12 bg-indigo-500/20 text-indigo-400 rounded-xl flex items-center justify-center font-bold text-xl mb-6">1</div>
+                    <h3 class="text-xl font-bold text-white mb-3">{{ landing_data.step1_title }}</h3>
+                    <p class="text-slate-400">{{ landing_data.step1_desc }}</p>
                 </div>
-                <!-- Feature 2 -->
-                <div class="glass-card p-8 rounded-2xl hover:bg-white/[0.02] transition-colors group" data-aos="fade-up" data-aos-delay="200">
-                    <div class="w-14 h-14 rounded-xl bg-blue-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                        <i data-lucide="percent" class="w-7 h-7 text-blue-400"></i>
-                    </div>
-                    <h3 class="text-xl font-bold font-display mb-3 text-white">Up to 90% Profit Split</h3>
-                    <p class="text-gray-400 leading-relaxed">Keep the lion's share of your hard-earned profits. We offer an industry-leading scaling plan that boosts your split.</p>
+                <!-- Step 2 -->
+                <div class="bg-slate-800 rounded-2xl p-8 border border-slate-700 hover:border-emerald-500 transition-colors relative">
+                    <div class="w-12 h-12 bg-emerald-500/20 text-emerald-400 rounded-xl flex items-center justify-center font-bold text-xl mb-6">2</div>
+                    <h3 class="text-xl font-bold text-white mb-3">{{ landing_data.step2_title }}</h3>
+                    <p class="text-slate-400">{{ landing_data.step2_desc }}</p>
                 </div>
-                <!-- Feature 3 -->
-                <div class="glass-card p-8 rounded-2xl hover:bg-white/[0.02] transition-colors group" data-aos="fade-up" data-aos-delay="300">
-                    <div class="w-14 h-14 rounded-xl bg-purple-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                        <i data-lucide="credit-card" class="w-7 h-7 text-purple-400"></i>
-                    </div>
-                    <h3 class="text-xl font-bold font-display mb-3 text-white">Bi-Weekly Payouts</h3>
-                    <p class="text-gray-400 leading-relaxed">Request your payouts easily and receive your funds within 24 hours. We process payments twice a month, reliably.</p>
-                </div>
-                <!-- Feature 4 -->
-                <div class="glass-card p-8 rounded-2xl hover:bg-white/[0.02] transition-colors group" data-aos="fade-up" data-aos-delay="400">
-                    <div class="w-14 h-14 rounded-xl bg-emerald-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                        <i data-lucide="candlestick-chart" class="w-7 h-7 text-emerald-400"></i>
-                    </div>
-                    <h3 class="text-xl font-bold font-display mb-3 text-white">Raw Spreads & Low Commissions</h3>
-                    <p class="text-gray-400 leading-relaxed">Trade in true institutional conditions. Our deep liquidity pools ensure minimal slippage and ultra-low costs.</p>
-                </div>
-                <!-- Feature 5 -->
-                <div class="glass-card p-8 rounded-2xl hover:bg-white/[0.02] transition-colors group" data-aos="fade-up" data-aos-delay="500">
-                    <div class="w-14 h-14 rounded-xl bg-orange-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                        <i data-lucide="laptop" class="w-7 h-7 text-orange-400"></i>
-                    </div>
-                    <h3 class="text-xl font-bold font-display mb-3 text-white">Advanced Dashboard</h3>
-                    <p class="text-gray-400 leading-relaxed">Track every metric. Our custom-built proprietary dashboard gives you granular insights into your trading performance.</p>
-                </div>
-                <!-- Feature 6 -->
-                <div class="glass-card p-8 rounded-2xl hover:bg-white/[0.02] transition-colors group" data-aos="fade-up" data-aos-delay="600">
-                    <div class="w-14 h-14 rounded-xl bg-rose-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                        <i data-lucide="scale" class="w-7 h-7 text-rose-400"></i>
-                    </div>
-                    <h3 class="text-xl font-bold font-display mb-3 text-white">Fair Drawdown Rules</h3>
-                    <p class="text-gray-400 leading-relaxed">Our drawdown is calculated based on balance, not equity, giving you more breathing room to execute your strategy.</p>
+                <!-- Step 3 -->
+                <div class="bg-slate-800 rounded-2xl p-8 border border-slate-700 hover:border-amber-500 transition-colors relative">
+                    <div class="w-12 h-12 bg-amber-500/20 text-amber-400 rounded-xl flex items-center justify-center font-bold text-xl mb-6">3</div>
+                    <h3 class="text-xl font-bold text-white mb-3">{{ landing_data.step3_title }}</h3>
+                    <p class="text-slate-400">{{ landing_data.step3_desc }}</p>
                 </div>
             </div>
         </div>
@@ -476,68 +445,54 @@
     </section>
 
     <!-- Footer -->
-    <footer class="border-t border-white/5 bg-slate-950 pt-20 pb-10">
+    <footer class="bg-slate-950 py-16 border-t border-slate-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
-                <div class="col-span-1 md:col-span-1">
-                    <a href="/" class="flex items-center gap-2 mb-6">
-                        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-400 to-blue-600 flex items-center justify-center">
-                            <i data-lucide="trending-up" class="w-5 h-5 text-white"></i>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+                <div class="col-span-2 md:col-span-1">
+                    <div class="flex items-center gap-2 mb-6">
+                        <div class="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center">
+                            <i data-lucide="shield" class="w-5 h-5 text-white"></i>
                         </div>
-                        <span class="font-display font-bold text-xl tracking-tight">{{ app_name | default('FundedDesk') }}</span>
-                    </a>
-                    <p class="text-gray-400 text-sm leading-relaxed mb-6">
-                        Empowering disciplined traders with the capital they need to succeed in the financial markets.
-                    </p>
-                    <div class="flex space-x-4">
-                        <a href="#" class="text-gray-400 hover:text-white transition-colors"><i data-lucide="twitter" class="w-5 h-5"></i></a>
-                        <a href="#" class="text-gray-400 hover:text-white transition-colors"><i data-lucide="instagram" class="w-5 h-5"></i></a>
-                        <a href="#" class="text-gray-400 hover:text-white transition-colors"><i data-lucide="message-square" class="w-5 h-5"></i></a>
+                        <span class="text-xl font-black text-white tracking-tight">{{ app_name }}</span>
                     </div>
+                    <p class="text-slate-400 text-sm mb-6">{{ app_tagline }}</p>
+                    <a href="mailto:myfundeddesk@gmail.com" class="text-brand-400 hover:text-brand-300 font-bold">myfundeddesk@gmail.com</a>
                 </div>
                 
                 <div>
-                    <h4 class="text-white font-bold mb-6 uppercase text-sm tracking-wider">Company</h4>
-                    <ul class="space-y-4">
-                        <li><a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">About Us</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">Contact</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">Careers</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">Affiliate Program</a></li>
+                    <h4 class="text-white font-bold mb-4 uppercase tracking-wider text-sm">Platform</h4>
+                    <ul class="space-y-3">
+                        <li><a href="/how-it-works" class="text-slate-400 hover:text-white transition-colors text-sm">How it works</a></li>
+                        <li><a href="/challenges" class="text-slate-400 hover:text-white transition-colors text-sm">Challenges</a></li>
+                        <li><a href="/instruments" class="text-slate-400 hover:text-white transition-colors text-sm">Instruments</a></li>
+                        <li><a href="/pricing" class="text-slate-400 hover:text-white transition-colors text-sm">Pricing</a></li>
                     </ul>
                 </div>
                 
                 <div>
-                    <h4 class="text-white font-bold mb-6 uppercase text-sm tracking-wider">Resources</h4>
-                    <ul class="space-y-4">
-                        <li><a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">Help Center</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">Trading Rules</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">Blog</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">Economic Calendar</a></li>
+                    <h4 class="text-white font-bold mb-4 uppercase tracking-wider text-sm">Resources</h4>
+                    <ul class="space-y-3">
+                        <li><a href="/faq" class="text-slate-400 hover:text-white transition-colors text-sm">FAQ</a></li>
+                        <li><a href="/about" class="text-slate-400 hover:text-white transition-colors text-sm">About</a></li>
+                        <li><a href="/contact" class="text-slate-400 hover:text-white transition-colors text-sm">Contact</a></li>
                     </ul>
                 </div>
                 
                 <div>
-                    <h4 class="text-white font-bold mb-6 uppercase text-sm tracking-wider">Legal</h4>
-                    <ul class="space-y-4">
-                        <li><a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">Terms of Service</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">Privacy Policy</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">Risk Disclosure</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">Cookie Policy</a></li>
+                    <h4 class="text-white font-bold mb-4 uppercase tracking-wider text-sm">Legal</h4>
+                    <ul class="space-y-3">
+                        <li><a href="/privacy-policy" class="text-slate-400 hover:text-white transition-colors text-sm">Privacy Policy</a></li>
+                        <li><a href="/terms" class="text-slate-400 hover:text-white transition-colors text-sm">Terms & Conditions</a></li>
+                        <li><a href="/refund-policy" class="text-slate-400 hover:text-white transition-colors text-sm">Refund Policy</a></li>
+                        <li><a href="/risk-disclaimer" class="text-slate-400 hover:text-white transition-colors text-sm">Risk Disclaimer</a></li>
                     </ul>
                 </div>
             </div>
-            
-            <div class="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-                <p class="text-gray-500 text-sm text-center md:text-left">
-                    &copy; 2024 {{ app_name | default('FundedDesk') }}. All rights reserved.
-                </p>
-                <p class="text-gray-600 text-xs text-center md:text-right max-w-xl">
-                    Disclaimer: {{ app_name | default('FundedDesk') }} provides simulated trading environments. We do not provide financial advice, broker services, or hold client funds. All trading activities carry risk.
-                </p>
+            <div class="pt-8 border-t border-slate-800 text-center text-slate-500 text-sm">
+                &copy; 2026 {{ app_name }}. All rights reserved. Not a broker. We provide simulated trading evaluations.
             </div>
         </div>
     </footer>
-
     <!-- Initialize Scripts -->
     <script>
         lucide.createIcons();

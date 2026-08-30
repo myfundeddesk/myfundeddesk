@@ -121,6 +121,13 @@
             <a href="#" onclick="switchTab('customizer', this)" class="sidebar-link nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/30 transition-all duration-300" data-tab="customizer">
                 <i data-lucide="palette" class="w-5 h-5 group-hover:text-blue-400 transition-colors"></i> <span class="font-medium">Appearance</span>
             </a>
+            <a href="#" onclick="switchTab('landing', this)" class="sidebar-link nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/30 transition-all duration-300" data-tab="landing">
+                <i data-lucide="layout-template" class="w-5 h-5 group-hover:text-blue-400 transition-colors"></i> <span class="font-medium">Landing Builder</span>
+            </a>
+            <a href="#" onclick="switchTab('contact', this)" class="sidebar-link nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/30 transition-all duration-300" data-tab="contact">
+                <i data-lucide="mail" class="w-5 h-5 group-hover:text-blue-400 transition-colors"></i> <span class="font-medium">Support Mails</span>
+            </a>
+
             
             <div class="pt-6 mt-6 border-t border-slate-800/50">
                 <a href="/trading" target="_blank" class="flex items-center gap-3 px-4 py-3 rounded-xl text-blue-400 hover:bg-blue-900/20 hover:text-blue-300 transition-all duration-300 border border-transparent hover:border-blue-900/50">
@@ -597,7 +604,7 @@
                             <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">URL Slug Route</label>
                             <div class="flex">
                                 <span class="inline-flex items-center px-4 rounded-l-xl border border-r-0 border-slate-700/50 bg-slate-800/80 text-slate-400 text-sm">
-                                    yourdomain.com/page/
+                                    yourdomain.com/
                                 </span>
                                 <input type="text" name="slug" required class="flex-1 bg-slate-900/50 border border-slate-700/50 rounded-r-xl p-3 text-white focus:border-emerald-500 focus:ring-1 outline-none transition-all placeholder-slate-600" placeholder="terms">
                             </div>
@@ -631,7 +638,7 @@
                                 <i data-lucide="file-text" class="w-5 h-5 text-slate-500"></i> {{ page.title }}
                             </td>
                             <td class="p-5">
-                                <a href="/page/{{ page.slug }}" target="_blank" class="inline-flex items-center gap-1.5 text-blue-400 hover:text-blue-300 font-mono bg-blue-500/10 px-3 py-1 rounded-lg transition-colors border border-blue-500/20">
+                                <a href="/{{ page.slug }}" target="_blank" class="inline-flex items-center gap-1.5 text-blue-400 hover:text-blue-300 font-mono bg-blue-500/10 px-3 py-1 rounded-lg transition-colors border border-blue-500/20">
                                     /page/{{ page.slug }} <i data-lucide="external-link" class="w-3 h-3"></i>
                                 </a>
                             </td>

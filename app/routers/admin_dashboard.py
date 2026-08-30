@@ -149,8 +149,8 @@ async def admin_dashboard(request: Request, _ = Depends(require_super_admin), db
     )
 
 # --- ADMIN API ACTIONS ---
-@router.post("/admin/api/account/{account_id}/action")
-async def admin_account_action(account_id: int, action: str = Form(...), _ = Depends(require_super_admin), db: Session = Depends(get_db)):
+@router.post("/admin/api/account/{account_id}/{action}")
+async def admin_account_action(account_id: int, action: str, _ = Depends(require_super_admin), db: Session = Depends(get_db)):
     account = db.query(TradingAccount).filter(TradingAccount.id == account_id).first()
     if not account:
         return JSONResponse({"success": False, "error": "Account not found"})
@@ -198,8 +198,8 @@ async def admin_account_action(account_id: int, action: str = Form(...), _ = Dep
     db.commit()
     return JSONResponse({"success": True})
 
-@router.post("/admin/api/user/{user_id}/action")
-async def admin_user_action(user_id: int, action: str = Form(...), _ = Depends(require_super_admin), db: Session = Depends(get_db)):
+@router.post("/admin/api/user/{user_id}/{action}")
+async def admin_user_action(user_id: int, action: str, _ = Depends(require_super_admin), db: Session = Depends(get_db)):
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         return JSONResponse({"success": False, "error": "User not found"})
@@ -397,10 +397,10 @@ async def admin_delete_package(
         db.commit()
     return RedirectResponse(url="/admin", status_code=303)
 
-@router.post("/admin/api/package/{pkg_id}/action")
+@router.post("/admin/api/package/{pkg_id}/{action}")
 async def admin_package_action(
     pkg_id: int,
-    action: str = Form(...),
+    action: str,
     payload: str = Form(None),
     _ = Depends(require_super_admin),
     db: Session = Depends(get_db)

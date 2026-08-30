@@ -21,11 +21,17 @@ async def landing_page(request: Request, user = Depends(get_optional_user), db: 
     settings = {s.key: s.value for s in settings_db}
     
     # Defaults
-    landing_data = {
+        landing_data = {
         'hero_title_1': settings.get('landing_hero_title_1', 'Built for Traders.'),
         'hero_title_2': settings.get('landing_hero_title_2', 'Funded by Us.'),
-        'hero_subtitle': settings.get('landing_hero_subtitle', 'We provide up to ?1,00,00,000 in real capital. You keep 90% of the profits. No hidden rules. No excuses. Just pure trading.'),
-        'announcement_text': settings.get('landing_announcement', '?? Update 2.0: 100k Instant account')
+        'hero_subtitle': settings.get('landing_hero_subtitle', 'We provide up to ₹1,00,00,000 in real capital. You keep 90% of the profits. No hidden rules. No excuses. Just pure trading.'),
+        'announcement_text': settings.get('landing_announcement', '🚀 Update 2.0: 100k Instant account'),
+        'step1_title': settings.get('landing_step1_title', '1. Choose Your Challenge'),
+        'step1_desc': settings.get('landing_step1_desc', 'Select a funding package that suits your trading style and risk appetite.'),
+        'step2_title': settings.get('landing_step2_title', '2. Prove Your Skills'),
+        'step2_desc': settings.get('landing_step2_desc', 'Trade securely on our proprietary terminal and meet the profit targets.'),
+        'step3_title': settings.get('landing_step3_title', '3. Get Funded & Payouts'),
+        'step3_desc': settings.get('landing_step3_desc', 'Once you pass, trade our capital and request payouts up to 90% profit split.')
     }
 
     return templates.TemplateResponse(
@@ -77,3 +83,8 @@ async def submit_contact(data: ContactForm, db: Session = Depends(get_db)):
         return {"success": True}
     except Exception as e:
         return {"success": False, "error": str(e)}
+
+from fastapi.responses import RedirectResponse
+@router.get('/page/{slug}')
+async def redirect_old_page(slug: str):
+    return RedirectResponse(url=f'/{slug}', status_code=301)
