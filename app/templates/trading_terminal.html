@@ -172,9 +172,9 @@
                 </div>
 
                 <!-- Chart 2 (Right) - Hidden by default -->
-                <div id="right-chart-wrapper" class="flex-1 h-full relative bg-white dark:bg-darkpanel hidden">
+                <div id="right-chart-wrapper" class="flex-1 h-full relative bg-[#0f172a] border-l border-[#1e293b] hidden">
+                    <div id="lw_chart_container_2" class="w-full h-full relative" style="display:none;"></div>
                     <div id="tv_chart_container_2" class="w-full h-full relative"></div>
-                    <div id="lw_chart_container_2" class="w-full h-full relative" style="display: none;"></div>
                 </div>
 
             </div>
@@ -308,14 +308,6 @@
     var tvWidget1 = null;
     var tvWidget2 = null;
     var isDualChart = false;
-    var activeSymbol = "{{ symbol }}";
-    var lwChart = null;
-    var lwSeries = null;
-    var lastLwCandle = null;
-    
-    var lwChart2 = null;
-    var lwSeries2 = null;
-    var lastLwCandle2 = null;
     var isTrading = false;
     var pricesData = {};
 
@@ -387,8 +379,9 @@
         
         if (isDualChart) {
             wrapper2.classList.remove('hidden');
-            if (!lwChart2) {
-                renderDualChart('BANKNIFTY');
+            if (!tvWidget2 && !lwChart2) {
+                // Initialize second chart to BankNifty equivalent
+                renderOptionChart('BANKNIFTY', 2);
             }
         } else {
             wrapper2.classList.add('hidden');
@@ -456,19 +449,20 @@
                     }
                 }
                 
-                if(isDualChart && p.symbol === 'BANKNIFTY') {
+                // Update Dual Chart if open and symbol matches BankNifty
+                if (isDualChart && p.symbol === 'BANKNIFTY') {
                     if (typeof lwSeries2 !== 'undefined' && lwSeries2 && lastLwCandle2) {
-                        var now = Math.floor(Date.now() / 1000);
-                        if (now - lastLwCandle2.time > 300) {
-                            lastLwCandle2 = {time: now, open: p.mid, high: p.mid, low: p.mid, close: p.mid};
+                        var now2 = Math.floor(Date.now() / 1000);
+                        if (now2 - lastLwCandle2.time > 300) {
+                            lastLwCandle2 = {time: now2, open: p.mid, high: p.mid, low: p.mid, close: p.mid};
                             lwSeries2.addPoint([lastLwCandle2.time * 1000, lastLwCandle2.open, lastLwCandle2.high, lastLwCandle2.low, lastLwCandle2.close], true, false);
                         } else {
                             lastLwCandle2.close = p.mid;
                             lastLwCandle2.high = Math.max(lastLwCandle2.high, p.mid);
                             lastLwCandle2.low = Math.min(lastLwCandle2.low, p.mid);
-                            var lastPoint = lwSeries2.data[lwSeries2.data.length - 1];
-                            if(lastPoint) {
-                                lastPoint.update([lastLwCandle2.time * 1000, lastLwCandle2.open, lastLwCandle2.high, lastLwCandle2.low, lastLwCandle2.close]);
+                            var lastPoint2 = lwSeries2.data[lwSeries2.data.length - 1];
+                            if(lastPoint2) {
+                                lastPoint2.update([lastLwCandle2.time * 1000, lastLwCandle2.open, lastLwCandle2.high, lastLwCandle2.low, lastLwCandle2.close]);
                             }
                         }
                     }
@@ -746,10 +740,17 @@
     
 
 
-    async function renderOptionChart(symbol) {
+    var lwChart = null;
+    var lwSeries = null;
+    var lastLwCandle = null;
+    var lwChart2 = null;
+    var lwSeries2 = null;
+    var lastLwCandle2 = null;
+
+    async function renderOptionChart(symbol, containerIndex = 1) {
         try {
-            document.getElementById("tv_chart_container_1").style.display = "none";
-            var lwContainer = document.getElementById("lw_chart_container_1");
+            document.getElementById("tv_chart_container_" + containerIndex).style.display = "none";
+            var lwContainer = document.getElementById("lw_chart_container_" + containerIndex);
             lwContainer.style.display = "block";
             lwContainer.innerHTML = "";
             
@@ -763,59 +764,54 @@
                 c.close
             ]);
             
+            var localLastCandle = null;
             if(hcData.length > 0) {
-                lastLwCandle = {time: hcData[hcData.length - 1][0]/1000, open: hcData[hcData.length - 1][1]}; 
+                localLastCandle = {time: hcData[hcData.length - 1][0]/1000, open: hcData[hcData.length - 1][1]}; 
             }
 
-            lwChart = Highcharts.stockChart('lw_chart_container_1', {
+            // Create the chart
+            var chart = Highcharts.stockChart('lw_chart_container_' + containerIndex, {
                 chart: { backgroundColor: '#0f172a' },
                 rangeSelector: { selected: 1, enabled: false },
                 navigator: { enabled: false },
                 scrollbar: { enabled: false },
                 credits: { enabled: false },
                 plotOptions: {
-                    candlestick: { color: '#ef4444', upColor: '#22c55e', lineColor: '#ef4444', upLineColor: '#22c55e' }
+                    candlestick: {
+                        color: '#ef4444',
+                        upColor: '#22c55e',
+                        lineColor: '#ef4444',
+                        upLineColor: '#22c55e'
+                    }
                 },
-                yAxis: [{ labels: { style: { color: '#94a3b8' } }, gridLineColor: '#1e293b' }],
-                xAxis: [{ labels: { style: { color: '#94a3b8' } }, gridLineColor: '#1e293b' }],
-                series: [{ type: 'candlestick', name: symbol, data: hcData }]
+                yAxis: [{
+                    labels: { style: { color: '#94a3b8' } },
+                    gridLineColor: '#1e293b'
+                }],
+                xAxis: [{
+                    labels: { style: { color: '#94a3b8' } },
+                    gridLineColor: '#1e293b'
+                }],
+                series: [{
+                    type: 'candlestick',
+                    name: symbol,
+                    data: hcData
+                }]
             });
             
-            lwSeries = lwChart.series[0];
+            if (containerIndex === 1) {
+                lwChart = chart;
+                lwSeries = chart.series[0];
+                lastLwCandle = localLastCandle;
+            } else {
+                lwChart2 = chart;
+                lwSeries2 = chart.series[0];
+                lastLwCandle2 = localLastCandle;
+            }
+            
         } catch(e) {
             console.error("Option Chart Error:", e);
         }
-    }
-
-    async function renderDualChart(symbol) {
-        try {
-            document.getElementById("tv_chart_container_2").style.display = "none";
-            var lwContainer = document.getElementById("lw_chart_container_2");
-            lwContainer.style.display = "block";
-            lwContainer.innerHTML = "";
-            
-            var res = await fetch('/api/market/candles/' + symbol);
-            var data = await res.json();
-            var hcData = data.map(c => [ c.time * 1000, c.open, c.high, c.low, c.close ]);
-            
-            if(hcData.length > 0) {
-                lastLwCandle2 = {time: hcData[hcData.length - 1][0]/1000, open: hcData[hcData.length - 1][1]}; 
-            }
-
-            lwChart2 = Highcharts.stockChart('lw_chart_container_2', {
-                chart: { backgroundColor: '#0f172a' },
-                rangeSelector: { selected: 1, enabled: false },
-                navigator: { enabled: false },
-                scrollbar: { enabled: false },
-                credits: { enabled: false },
-                plotOptions: { candlestick: { color: '#ef4444', upColor: '#22c55e', lineColor: '#ef4444', upLineColor: '#22c55e' } },
-                yAxis: [{ labels: { style: { color: '#94a3b8' } }, gridLineColor: '#1e293b' }],
-                xAxis: [{ labels: { style: { color: '#94a3b8' } }, gridLineColor: '#1e293b' }],
-                series: [{ type: 'candlestick', name: symbol, data: hcData }]
-            });
-            
-            lwSeries2 = lwChart2.series[0];
-        } catch(e) { console.error("Dual Chart Error:", e); }
     }
 
     
