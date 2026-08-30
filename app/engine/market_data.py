@@ -250,14 +250,40 @@ class MarketDataEngine:
                 
         return candles
 
+    def _is_indian_market_open(self) -> bool:
+        from datetime import datetime, timedelta, timezone
+        now_utc = datetime.now(timezone.utc)
+        ist_now = now_utc + timedelta(hours=5, minutes=30)
+        if ist_now.weekday() in (5, 6): return False
+        time_in_mins = ist_now.hour * 60 + ist_now.minute
+        return (9 * 60 + 15) <= time_in_mins <= (15 * 60 + 30)
+
     def tick(self, symbol: str = None) -> Dict[str, Any]:
         """Advance price ticks dynamically"""
         symbols_to_tick = [symbol] if symbol and symbol in INSTRUMENTS else list(INSTRUMENTS.keys())
         updated = {}
+        
+        market_open = self._is_indian_market_open()
 
         with self.lock:
             for sym in symbols_to_tick:
                 cfg = INSTRUMENTS[sym]
+                
+                if sym in ["NIFTY50", "BANKNIFTY", "SENSEX", "FINNIFTY", "MIDCPNIFTY", "RELIANCE", "HDFCBANK"]:
+                    # Do not randomize real Indian instruments EVER to ensure data is 100% accurate
+                    updated[sym] = {
+                        "symbol": sym,
+                        "name": cfg["name"],
+                        "category": cfg["category"],
+                        "bid": self.prices[sym]["bid"],
+                        "ask": self.prices[sym]["ask"],
+                        "mid": self.prices[sym]["mid"],
+                        "change": 0.0,
+                        "change_pct": 0.0,
+                        "digits": cfg["digits"]
+                    }
+                    continue
+
                 cur_mid = self.prices[sym]["mid"]
                 vol = cfg["volatility"] * random.uniform(0.4, 1.6)
                 step = random.gauss(0, vol)
@@ -277,7 +303,6 @@ class MarketDataEngine:
                         last_c["close"] = round(new_mid, cfg["digits"])
                         last_c["high"] = max(last_c["high"], round(new_mid, cfg["digits"]))
                         last_c["low"] = min(last_c["low"], round(new_mid, cfg["digits"]))
-                        last_c["volume"] += 1
                     else:
                         self.candle_cache[sym].append({
                             "time": now_ts,
@@ -296,10 +321,10 @@ class MarketDataEngine:
                     "category": cfg["category"],
                     "bid": new_bid,
                     "ask": new_ask,
-                    "mid": round(new_mid, cfg["digits"]),
-                    "spread_pips": round(cfg["spread"] / cfg["pip_size"], 1),
-                    "digits": cfg["digits"],
-                    "change_24h": self.prices[sym]["change_24h"]
+                    "mid": self.prices[sym]["mid"],
+                    "change": round((new_mid - cfg["base_price"]) / cfg["base_price"] * 100, 2),
+                    "change_pct": round((new_mid - cfg["base_price"]) / cfg["base_price"] * 100, 2),
+                    "digits": cfg["digits"]
                 }
 
         return updated

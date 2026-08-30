@@ -788,9 +788,43 @@
             // Create the chart
             var chart = Highcharts.stockChart('lw_chart_container_' + containerIndex, {
                 chart: { backgroundColor: '#0f172a' },
-                rangeSelector: { selected: 1, enabled: false },
-                navigator: { enabled: false },
-                scrollbar: { enabled: false },
+                rangeSelector: {
+                    enabled: true,
+                    buttons: [{
+                        type: 'minute', count: 5, text: '5m'
+                    }, {
+                        type: 'minute', count: 15, text: '15m'
+                    }, {
+                        type: 'hour', count: 1, text: '1h'
+                    }, {
+                        type: 'day', count: 1, text: '1D'
+                    }, {
+                        type: 'all', text: 'All'
+                    }],
+                    selected: 4,
+                    buttonTheme: {
+                        fill: '#1e293b',
+                        stroke: 'none',
+                        style: { color: '#94a3b8' },
+                        states: {
+                            hover: { fill: '#334155', style: { color: '#fff' } },
+                            select: { fill: '#3b82f6', style: { color: '#fff' } }
+                        }
+                    },
+                    inputStyle: { color: '#94a3b8' },
+                    labelStyle: { color: '#94a3b8' }
+                },
+                stockTools: {
+                    gui: {
+                        enabled: true
+                    }
+                },
+                navigator: { 
+                    enabled: true,
+                    maskFill: 'rgba(59, 130, 246, 0.2)',
+                    series: { color: '#3b82f6', lineColor: '#3b82f6' }
+                },
+                scrollbar: { enabled: true },
                 credits: { enabled: false },
                 plotOptions: {
                     candlestick: {
@@ -811,7 +845,8 @@
                 series: [{
                     type: 'candlestick',
                     name: symbol,
-                    data: hcData
+                    data: hcData,
+                    id: 'main-series'
                 }]
             });
             
