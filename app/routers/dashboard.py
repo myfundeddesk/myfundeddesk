@@ -23,31 +23,42 @@ async def dashboard_page(request: Request, user: User = Depends(require_auth), d
         if acc.status == "ACTIVE":
             evaluate_account_and_trades(db, acc)
 
-    active_accounts = [a for a in accounts if a.status == "ACTIVE"]
-    passed_accounts = [a for a in accounts if a.status == "PASSED"]
+    
+    active_evaluations = [a for a in accounts if a.status == "ACTIVE" and a.phase in ["Phase 1", "Phase 2"]]
+    funded_accounts = [a for a in accounts if a.status == "ACTIVE" and a.phase == "Funded"]
     breached_accounts = [a for a in accounts if a.status == "BREACHED"]
-
+    
     # Calculate summary stats
     total_balance = sum(a.current_balance for a in accounts)
     total_equity = sum(a.current_equity for a in accounts)
     total_profit = sum(a.current_profit for a in accounts)
+    
+    class DummyMetrics:
+        win_rate = 65.4
+        profit_factor = 1.8
+        total_trades = 124
+        
+    metrics = DummyMetrics()
+
 
     return templates.TemplateResponse(
         request=request,
         name="dashboard.html",
         context={
-            "app_name": APP_NAME,
-            "app_tagline": APP_TAGLINE,
-            "active_page": "dashboard",
-            "user": user,
-            "accounts": accounts, "notifications": notifications,
-            "active_accounts": active_accounts,
-            "passed_accounts": passed_accounts,
-            "breached_accounts": breached_accounts,
-            "total_balance": round(total_balance, 2),
-            "total_equity": round(total_equity, 2),
-            "total_profit": round(total_profit, 2),
-        }
+        "app_name": APP_NAME,
+        "app_tagline": APP_TAGLINE,
+        "active_page": "dashboard",
+        "user": user,
+        "accounts": accounts,
+        "notifications": notifications,
+        "active_evaluations": active_evaluations,
+        "funded_accounts": funded_accounts,
+        "breached_accounts": breached_accounts,
+        "total_balance": round(total_balance, 2),
+        "total_equity": round(total_equity, 2),
+        "total_profit": round(total_profit, 2),
+        "metrics": metrics
+    }
     )
 
 
