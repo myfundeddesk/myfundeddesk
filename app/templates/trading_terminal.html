@@ -502,8 +502,7 @@
         } catch (e) { console.error(e); }
     }
 
-    async 
-    function closeAllTrades() {
+    async function closeAllTrades() {
         if (!confirm('Close ALL open positions?')) return;
         document.querySelectorAll('.btn-close-trade').forEach(btn => btn.click());
     }
