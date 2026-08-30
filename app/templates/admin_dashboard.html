@@ -8,145 +8,257 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/line-awesome/1.3.0/line-awesome/css/line-awesome.min.css">
     <style>
-        .admin-tab { display: none; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #020617; } /* slate-950 */
+        .admin-tab { display: none; animation: fadeIn 0.3s ease-in-out; }
         .admin-tab.active { display: block; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .tox-notifications-container { display: none !important; }
-        /* Custom scrollbar for webkit */
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #1e293b; }
-        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(51, 65, 85, 0.5);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .premium-glow {
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.15);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(to right, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-item {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 3px;
+            background: linear-gradient(to bottom, #3b82f6, #8b5cf6);
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+            transform-origin: left;
+        }
+
+        .nav-item:hover::before, .nav-item.active-nav::before {
+            transform: scaleY(1);
+        }
+        
+        .table-row-hover:hover {
+            background: rgba(30, 41, 59, 0.5);
+        }
     </style>
 </head>
-<body class="bg-slate-800 text-slate-200 font-sans h-screen overflow-hidden flex">
+<body class="text-slate-300 h-screen overflow-hidden flex">
 
     <!-- Sidebar -->
-    <aside class="w-64 bg-slate-900 h-full flex flex-col border-r border-slate-700 shrink-0">
-        <div class="p-4 border-b border-slate-700 flex items-center justify-between">
-            <h1 class="text-xl font-bold text-white tracking-wider flex items-center gap-2">
-                <i data-lucide="shield"></i> {{ app_name|default('MyFundedDesk') }}
+    <aside class="w-72 bg-slate-950/80 backdrop-blur-xl border-r border-slate-800 flex flex-col shrink-0 shadow-2xl relative z-10">
+        <div class="p-6 flex items-center justify-between border-b border-slate-800/50">
+            <h1 class="text-2xl font-bold text-white tracking-tight flex items-center gap-3">
+                <div class="p-2 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg shadow-lg shadow-blue-900/20">
+                    <i data-lucide="shield" class="text-white w-6 h-6"></i>
+                </div>
+                <span class="gradient-text">{{ app_name|default('MyFundedDesk') }}</span>
             </h1>
         </div>
         
-        <div class="p-4 flex items-center gap-3 border-b border-slate-700/50">
-            <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold">
+        <div class="p-6 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center text-white font-bold border border-slate-600 shadow-inner">
                 {{ admin_name[:1]|upper if admin_name else 'A' }}
             </div>
             <div>
-                <p class="text-sm font-semibold text-white">Admin</p>
-                <p class="text-xs text-slate-400">{{ admin_name }}</p>
+                <p class="text-sm font-bold text-white">Administrator</p>
+                <p class="text-xs text-slate-400 flex items-center gap-1 mt-1">
+                    <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> Online
+                </p>
             </div>
         </div>
 
-        <nav class="flex-1 overflow-y-auto p-4 space-y-1">
-            <a href="#" onclick="switchTab('dashboard', this)" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white bg-slate-800 text-white transition-colors" data-tab="dashboard">
-                <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Dashboard
+        <nav class="flex-1 overflow-y-auto px-4 py-2 space-y-1.5">
+            <a href="#" onclick="switchTab('dashboard', this)" class="sidebar-link nav-item active-nav flex items-center gap-3 px-4 py-3 rounded-xl text-white bg-slate-800/50 border border-slate-700/50 transition-all duration-300 shadow-sm" data-tab="dashboard">
+                <i data-lucide="layout-dashboard" class="w-5 h-5 text-blue-400"></i> <span class="font-medium">Dashboard</span>
             </a>
-            <a href="#" onclick="switchTab('users', this)" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors" data-tab="users">
-                <i data-lucide="users" class="w-5 h-5"></i> Manage Users
+            <a href="#" onclick="switchTab('users', this)" class="sidebar-link nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/30 transition-all duration-300" data-tab="users">
+                <i data-lucide="users" class="w-5 h-5 group-hover:text-blue-400 transition-colors"></i> <span class="font-medium">Manage Users</span>
             </a>
-            <a href="#" onclick="switchTab('accounts', this)" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors" data-tab="accounts">
-                <i data-lucide="briefcase" class="w-5 h-5"></i> Trade Accounts
+            <a href="#" onclick="switchTab('accounts', this)" class="sidebar-link nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/30 transition-all duration-300" data-tab="accounts">
+                <i data-lucide="briefcase" class="w-5 h-5 group-hover:text-blue-400 transition-colors"></i> <span class="font-medium">Trade Accounts</span>
             </a>
-            <a href="#" onclick="switchTab('trades', this)" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors" data-tab="trades">
-                <i data-lucide="shopping-cart" class="w-5 h-5"></i> Manage Orders
+            <a href="#" onclick="switchTab('trades', this)" class="sidebar-link nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/30 transition-all duration-300" data-tab="trades">
+                <i data-lucide="shopping-cart" class="w-5 h-5 group-hover:text-blue-400 transition-colors"></i> <span class="font-medium">Manage Orders</span>
             </a>
-            <a href="#" onclick="switchTab('packages', this)" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors" data-tab="packages">
-                <i data-lucide="bar-chart-3" class="w-5 h-5"></i> Manage Plans
+            <a href="#" onclick="switchTab('packages', this)" class="sidebar-link nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/30 transition-all duration-300" data-tab="packages">
+                <i data-lucide="bar-chart-3" class="w-5 h-5 group-hover:text-blue-400 transition-colors"></i> <span class="font-medium">Manage Plans</span>
             </a>
-            <a href="#" onclick="switchTab('pages', this)" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors" data-tab="pages">
-                <i data-lucide="file-text" class="w-5 h-5"></i> Manage Pages
+            <a href="#" onclick="switchTab('pages', this)" class="sidebar-link nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/30 transition-all duration-300" data-tab="pages">
+                <i data-lucide="file-text" class="w-5 h-5 group-hover:text-blue-400 transition-colors"></i> <span class="font-medium">Manage Pages</span>
             </a>
-            <a href="#" onclick="switchTab('settings', this)" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors" data-tab="settings">
-                <i data-lucide="settings" class="w-5 h-5"></i> System Setting
+            <a href="#" onclick="switchTab('settings', this)" class="sidebar-link nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/30 transition-all duration-300" data-tab="settings">
+                <i data-lucide="settings" class="w-5 h-5 group-hover:text-blue-400 transition-colors"></i> <span class="font-medium">System Settings</span>
             </a>
-            <a href="#" onclick="switchTab('customizer', this)" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors" data-tab="customizer">
-                <i data-lucide="palette" class="w-5 h-5"></i> Appearance
+            <a href="#" onclick="switchTab('customizer', this)" class="sidebar-link nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/30 transition-all duration-300" data-tab="customizer">
+                <i data-lucide="palette" class="w-5 h-5 group-hover:text-blue-400 transition-colors"></i> <span class="font-medium">Appearance</span>
             </a>
             
-            <div class="pt-4 mt-4 border-t border-slate-700">
-                <a href="/trading" target="_blank" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-400 hover:bg-blue-900/30 hover:text-blue-300 transition-colors">
-                    <i data-lucide="globe" class="w-5 h-5"></i> Visit Terminal
+            <div class="pt-6 mt-6 border-t border-slate-800/50">
+                <a href="/trading" target="_blank" class="flex items-center gap-3 px-4 py-3 rounded-xl text-blue-400 hover:bg-blue-900/20 hover:text-blue-300 transition-all duration-300 border border-transparent hover:border-blue-900/50">
+                    <i data-lucide="globe" class="w-5 h-5"></i> <span class="font-medium">Visit Terminal</span>
                 </a>
-                <a href="/admin/logout" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-red-400 hover:bg-red-900/30 hover:text-red-300 transition-colors mt-1">
-                    <i data-lucide="log-out" class="w-5 h-5"></i> Logout
+                <a href="/admin/logout" class="flex items-center gap-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-900/20 hover:text-red-300 transition-all duration-300 mt-2 border border-transparent hover:border-red-900/50">
+                    <i data-lucide="log-out" class="w-5 h-5"></i> <span class="font-medium">Secure Logout</span>
                 </a>
             </div>
         </nav>
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-1 overflow-y-auto h-full p-8 relative" id="main-content">
+    <main class="flex-1 overflow-y-auto h-full p-8 lg:p-10 relative bg-[#020617] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(30,58,138,0.15),rgba(2,6,23,0))]" id="main-content">
         
         <!-- Tab: Dashboard -->
-        <div id="tab-dashboard" class="admin-tab active">
-            <h2 class="text-2xl font-bold text-white mb-6" id="page-title">Dashboard Overview</h2>
+        <div id="tab-dashboard" class="admin-tab active max-w-7xl mx-auto">
+            <div class="flex items-center justify-between mb-8">
+                <div>
+                    <h2 class="text-3xl font-bold text-white tracking-tight" id="page-title">Dashboard Overview</h2>
+                    <p class="text-slate-400 mt-1">Welcome back. Here's what's happening today.</p>
+                </div>
+                <div class="hidden md:flex gap-3">
+                    <button class="px-4 py-2 glass-panel rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors flex items-center gap-2">
+                        <i data-lucide="download" class="w-4 h-4"></i> Export Report
+                    </button>
+                </div>
+            </div>
             
             <!-- Stats Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <div class="bg-slate-900 p-6 rounded-xl border border-slate-700 flex flex-col">
-                    <span class="text-slate-400 text-sm font-medium mb-2">Total Users</span>
-                    <span class="text-3xl font-bold text-white">{{ stats.total_users }}</span>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+                <div class="glass-panel p-6 rounded-2xl flex flex-col relative overflow-hidden group">
+                    <div class="absolute right-0 top-0 w-24 h-24 bg-blue-500/10 rounded-bl-full -z-10 group-hover:bg-blue-500/20 transition-colors duration-500"></div>
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="text-slate-400 text-sm font-medium">Total Users</span>
+                        <div class="p-2 bg-blue-500/10 text-blue-400 rounded-lg"><i data-lucide="users" class="w-5 h-5"></i></div>
+                    </div>
+                    <span class="text-4xl font-bold text-white">{{ stats.total_users }}</span>
                 </div>
-                <div class="bg-slate-900 p-6 rounded-xl border border-slate-700 flex flex-col">
-                    <span class="text-slate-400 text-sm font-medium mb-2">Total Accounts</span>
-                    <span class="text-3xl font-bold text-white">{{ stats.total_accounts }}</span>
+                
+                <div class="glass-panel p-6 rounded-2xl flex flex-col relative overflow-hidden group">
+                    <div class="absolute right-0 top-0 w-24 h-24 bg-indigo-500/10 rounded-bl-full -z-10 group-hover:bg-indigo-500/20 transition-colors duration-500"></div>
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="text-slate-400 text-sm font-medium">Total Accounts</span>
+                        <div class="p-2 bg-indigo-500/10 text-indigo-400 rounded-lg"><i data-lucide="briefcase" class="w-5 h-5"></i></div>
+                    </div>
+                    <span class="text-4xl font-bold text-white">{{ stats.total_accounts }}</span>
                 </div>
-                <div class="bg-slate-900 p-6 rounded-xl border border-slate-700 flex flex-col">
-                    <span class="text-slate-400 text-sm font-medium mb-2">Active Accounts</span>
-                    <span class="text-3xl font-bold text-green-400">{{ stats.active_accounts }}</span>
+
+                <div class="glass-panel p-6 rounded-2xl flex flex-col relative overflow-hidden group">
+                    <div class="absolute right-0 top-0 w-24 h-24 bg-emerald-500/10 rounded-bl-full -z-10 group-hover:bg-emerald-500/20 transition-colors duration-500"></div>
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="text-slate-400 text-sm font-medium">Active Accounts</span>
+                        <div class="p-2 bg-emerald-500/10 text-emerald-400 rounded-lg"><i data-lucide="activity" class="w-5 h-5"></i></div>
+                    </div>
+                    <span class="text-4xl font-bold text-emerald-400">{{ stats.active_accounts }}</span>
                 </div>
-                <div class="bg-slate-900 p-6 rounded-xl border border-slate-700 flex flex-col">
-                    <span class="text-slate-400 text-sm font-medium mb-2">Breached Accounts</span>
-                    <span class="text-3xl font-bold text-red-400">{{ stats.breached_accounts }}</span>
+
+                <div class="glass-panel p-6 rounded-2xl flex flex-col relative overflow-hidden group">
+                    <div class="absolute right-0 top-0 w-24 h-24 bg-red-500/10 rounded-bl-full -z-10 group-hover:bg-red-500/20 transition-colors duration-500"></div>
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="text-slate-400 text-sm font-medium">Breached Accounts</span>
+                        <div class="p-2 bg-red-500/10 text-red-400 rounded-lg"><i data-lucide="alert-triangle" class="w-5 h-5"></i></div>
+                    </div>
+                    <span class="text-4xl font-bold text-red-400">{{ stats.breached_accounts }}</span>
                 </div>
-                <div class="bg-slate-900 p-6 rounded-xl border border-slate-700 flex flex-col">
-                    <span class="text-slate-400 text-sm font-medium mb-2">Funded Accounts</span>
-                    <span class="text-3xl font-bold text-blue-400">{{ stats.total_funded|default(0) }}</span>
+
+                <div class="glass-panel p-6 rounded-2xl flex flex-col relative overflow-hidden group">
+                    <div class="absolute right-0 top-0 w-24 h-24 bg-cyan-500/10 rounded-bl-full -z-10 group-hover:bg-cyan-500/20 transition-colors duration-500"></div>
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="text-slate-400 text-sm font-medium">Funded Accounts</span>
+                        <div class="p-2 bg-cyan-500/10 text-cyan-400 rounded-lg"><i data-lucide="award" class="w-5 h-5"></i></div>
+                    </div>
+                    <span class="text-4xl font-bold text-cyan-400">{{ stats.total_funded|default(0) }}</span>
                 </div>
-                <div class="bg-slate-900 p-6 rounded-xl border border-slate-700 flex flex-col">
-                    <span class="text-slate-400 text-sm font-medium mb-2">Total Trades</span>
-                    <span class="text-3xl font-bold text-white">{{ stats.total_trades }}</span>
+
+                <div class="glass-panel p-6 rounded-2xl flex flex-col relative overflow-hidden group">
+                    <div class="absolute right-0 top-0 w-24 h-24 bg-purple-500/10 rounded-bl-full -z-10 group-hover:bg-purple-500/20 transition-colors duration-500"></div>
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="text-slate-400 text-sm font-medium">Total Trades</span>
+                        <div class="p-2 bg-purple-500/10 text-purple-400 rounded-lg"><i data-lucide="trending-up" class="w-5 h-5"></i></div>
+                    </div>
+                    <span class="text-4xl font-bold text-white">{{ stats.total_trades }}</span>
                 </div>
-                <div class="bg-slate-900 p-6 rounded-xl border border-slate-700 flex flex-col lg:col-span-2">
-                    <span class="text-slate-400 text-sm font-medium mb-2">Total AUM</span>
-                    <span class="text-3xl font-bold text-yellow-400">₹{{ "{:,.2f}".format(stats.total_aum|default(0)) }}</span>
+
+                <div class="glass-panel p-6 rounded-2xl flex flex-col relative overflow-hidden group lg:col-span-2 premium-glow border-blue-900/50">
+                    <div class="absolute right-0 top-0 w-48 h-48 bg-gradient-to-bl from-yellow-500/10 to-blue-500/5 rounded-bl-full -z-10"></div>
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="text-slate-400 text-sm font-medium">Total Assets Under Management (AUM)</span>
+                        <div class="p-2 bg-yellow-500/10 text-yellow-400 rounded-lg"><i data-lucide="pie-chart" class="w-5 h-5"></i></div>
+                    </div>
+                    <span class="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-200 mt-auto">
+                        &#8377;{{ "{:,.2f}".format(stats.total_aum|default(0)) }}
+                    </span>
                 </div>
             </div>
 
             <!-- Dashboard Row 2 -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
                 <!-- Recent Orders -->
-                <div class="lg:col-span-2 bg-slate-900 rounded-xl border border-slate-700 overflow-hidden">
-                    <div class="p-5 border-b border-slate-700">
-                        <h3 class="text-lg font-bold text-white">Recent Trade Positions</h3>
+                <div class="lg:col-span-2 glass-panel rounded-2xl overflow-hidden flex flex-col">
+                    <div class="p-6 border-b border-slate-800/60 flex items-center justify-between">
+                        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                            <i data-lucide="activity" class="w-5 h-5 text-blue-400"></i> Recent Market Activity
+                        </h3>
+                        <button onclick="switchTab('trades', document.querySelector('[data-tab=\'trades\']'))" class="text-sm text-blue-400 hover:text-blue-300 font-medium">View All</button>
                     </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left">
-                            <thead class="bg-slate-800 border-b border-slate-700 text-slate-400 text-sm">
+                    <div class="overflow-x-auto flex-1">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="bg-slate-900/50 border-b border-slate-800/60 text-slate-400 text-xs uppercase tracking-wider font-semibold">
                                 <tr>
-                                    <th class="p-4">Ticket</th>
-                                    <th class="p-4">Symbol</th>
-                                    <th class="p-4">Type</th>
-                                    <th class="p-4">Lots</th>
-                                    <th class="p-4">PnL</th>
+                                    <th class="p-5">Ticket</th>
+                                    <th class="p-5">Symbol</th>
+                                    <th class="p-5">Type</th>
+                                    <th class="p-5">Volume</th>
+                                    <th class="p-5 text-right">PnL</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-slate-700 text-sm">
+                            <tbody class="divide-y divide-slate-800/50 text-sm">
                                 {% for pos in positions[:5] %}
-                                <tr>
-                                    <td class="p-4">#{{ pos.ticket }}</td>
-                                    <td class="p-4 font-semibold text-white">{{ pos.symbol }}</td>
-                                    <td class="p-4">
-                                        <span class="px-2 py-1 rounded text-xs {{ 'bg-blue-900/50 text-blue-400' if pos.order_type == 'buy' else 'bg-red-900/50 text-red-400' }}">
+                                <tr class="table-row-hover transition-colors">
+                                    <td class="p-5 font-mono text-slate-400">#{{ pos.ticket }}</td>
+                                    <td class="p-5 font-bold text-white flex items-center gap-2">
+                                        <div class="w-6 h-6 rounded-full bg-slate-800 flex items-center justify-center text-[10px]">{{ pos.symbol[:2] }}</div>
+                                        {{ pos.symbol }}
+                                    </td>
+                                    <td class="p-5">
+                                        <span class="px-2.5 py-1 rounded-md text-xs font-medium {{ 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' if pos.order_type == 'buy' else 'bg-rose-500/10 text-rose-400 border border-rose-500/20' }}">
                                             {{ pos.order_type|upper }}
                                         </span>
                                     </td>
-                                    <td class="p-4">{{ pos.volume_lots }}</td>
-                                    <td class="p-4 font-bold {{ 'text-green-400' if pos.pnl > 0 else 'text-red-400' }}">₹{{ "{:,.2f}".format(pos.pnl) }}</td>
+                                    <td class="p-5 font-medium text-slate-300">{{ pos.volume_lots }}</td>
+                                    <td class="p-5 font-bold text-right {{ 'text-emerald-400' if pos.pnl > 0 else 'text-rose-400' }}">
+                                        {{ '+' if pos.pnl > 0 else '' }}&#8377;{{ "{:,.2f}".format(pos.pnl) }}
+                                    </td>
                                 </tr>
                                 {% else %}
-                                <tr><td colspan="5" class="p-4 text-center text-slate-500">No recent trades</td></tr>
+                                <tr><td colspan="5" class="p-10 text-center text-slate-500 flex flex-col items-center gap-2"><i data-lucide="inbox" class="w-8 h-8 opacity-50"></i> No recent trading activity</td></tr>
                                 {% endfor %}
                             </tbody>
                         </table>
@@ -154,19 +266,24 @@
                 </div>
 
                 <!-- Push Notifications -->
-                <div class="bg-slate-900 rounded-xl border border-slate-700 p-5">
-                    <h3 class="text-lg font-bold text-white mb-4">Broadcast Notification</h3>
-                    <form onsubmit="handleBroadcast(event)" class="space-y-4">
+                <div class="glass-panel rounded-2xl p-6 flex flex-col relative overflow-hidden">
+                    <div class="absolute right-0 top-0 w-32 h-32 bg-blue-600/5 rounded-bl-full -z-10"></div>
+                    <div class="mb-6 flex items-center gap-3">
+                        <div class="p-2.5 bg-blue-500/10 text-blue-400 rounded-xl"><i data-lucide="radio" class="w-5 h-5"></i></div>
+                        <h3 class="text-lg font-bold text-white">Broadcast Alert</h3>
+                    </div>
+                    
+                    <form onsubmit="handleBroadcast(event)" class="space-y-5 flex-1 flex flex-col">
                         <div>
-                            <label class="block text-sm font-medium text-slate-400 mb-1">Title</label>
-                            <input type="text" id="broadcast_title" required class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2.5 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none">
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Announcement Title</label>
+                            <input type="text" id="broadcast_title" required class="w-full bg-slate-900/50 border border-slate-700/50 rounded-xl p-3 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all placeholder-slate-600" placeholder="e.g. Server Maintenance">
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-slate-400 mb-1">Message</label>
-                            <textarea id="broadcast_message" rows="4" required class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2.5 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"></textarea>
+                        <div class="flex-1">
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Message Body</label>
+                            <textarea id="broadcast_message" rows="5" required class="w-full h-[120px] bg-slate-900/50 border border-slate-700/50 rounded-xl p-3 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all resize-none placeholder-slate-600" placeholder="Type your broadcast message to all users..."></textarea>
                         </div>
-                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2">
-                            <i data-lucide="send" class="w-4 h-4"></i> Send Broadcast
+                        <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold py-3 rounded-xl shadow-lg shadow-blue-900/20 transition-all flex items-center justify-center gap-2">
+                            <i data-lucide="send" class="w-4 h-4"></i> Broadcast Now
                         </button>
                     </form>
                 </div>
@@ -174,35 +291,47 @@
         </div>
 
         <!-- Tab: Users -->
-        <div id="tab-users" class="admin-tab">
-            <h2 class="text-2xl font-bold text-white mb-6">Manage Users</h2>
-            <div class="bg-slate-900 rounded-xl border border-slate-700 overflow-hidden">
+        <div id="tab-users" class="admin-tab max-w-7xl mx-auto">
+            <div class="flex items-center justify-between mb-8">
+                <h2 class="text-3xl font-bold text-white tracking-tight">Manage Users</h2>
+            </div>
+            
+            <div class="glass-panel rounded-2xl overflow-hidden border border-slate-800">
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left">
-                        <thead class="bg-slate-800 border-b border-slate-700 text-slate-400 text-sm">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-slate-900/80 border-b border-slate-800 text-slate-400 text-xs uppercase tracking-wider font-semibold">
                             <tr>
-                                <th class="p-4">ID</th>
-                                <th class="p-4">Full Name</th>
-                                <th class="p-4">Email</th>
-                                <th class="p-4">Password</th>
-                                <th class="p-4">Registered Date</th>
-                                <th class="p-4 text-right">Actions</th>
+                                <th class="p-5">User ID</th>
+                                <th class="p-5">Client Info</th>
+                                <th class="p-5">Security</th>
+                                <th class="p-5">Joined Date</th>
+                                <th class="p-5 text-right">Actions</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-700 text-sm">
+                        <tbody class="divide-y divide-slate-800/60 text-sm">
                             {% for u in users %}
-                            <tr>
-                                <td class="p-4 text-slate-400">#{{ u.id }}</td>
-                                <td class="p-4 font-semibold text-white">{{ u.full_name }}</td>
-                                <td class="p-4">{{ u.email }}</td>
-                                <td class="p-4 text-slate-400">{{ u.plain_password|default('***', true) }}</td>
-                                <td class="p-4 text-slate-400">{{ u.created_at.strftime('%Y-%m-%d %H:%M') if u.created_at else 'N/A' }}</td>
-                                <td class="p-4 text-right">
+                            <tr class="table-row-hover transition-colors">
+                                <td class="p-5 font-mono text-slate-500">#{{ u.id }}</td>
+                                <td class="p-5">
+                                    <div class="font-bold text-white text-base">{{ u.full_name }}</div>
+                                    <div class="text-slate-400 text-xs flex items-center gap-1 mt-1"><i data-lucide="mail" class="w-3 h-3"></i> {{ u.email }}</div>
+                                </td>
+                                <td class="p-5">
+                                    <div class="flex items-center gap-2 bg-slate-900/50 border border-slate-700/50 rounded-lg px-3 py-1.5 w-max">
+                                        <i data-lucide="key" class="w-4 h-4 text-slate-500"></i>
+                                        <span class="text-slate-300 font-mono text-xs">{{ u.plain_password|default('••••••••', true) }}</span>
+                                    </div>
+                                </td>
+                                <td class="p-5 text-slate-400 flex items-center gap-2">
+                                    <i data-lucide="calendar" class="w-4 h-4 opacity-50"></i>
+                                    {{ u.created_at.strftime('%b %d, %Y') if u.created_at else 'Unknown' }}
+                                </td>
+                                <td class="p-5 text-right">
                                     <div class="flex items-center justify-end gap-2">
-                                        <button onclick="openEditUserModal('{{ u.id }}', '{{ u.full_name }}', '{{ u.email }}')" class="p-1.5 text-blue-400 hover:bg-blue-900/50 rounded transition-colors" title="Edit">
+                                        <button onclick="openEditUserModal('{{ u.id }}', '{{ u.full_name }}', '{{ u.email }}')" class="p-2 text-blue-400 hover:bg-blue-500/10 hover:text-blue-300 rounded-lg transition-colors border border-transparent hover:border-blue-500/20" title="Edit Profile">
                                             <i data-lucide="edit-2" class="w-4 h-4"></i>
                                         </button>
-                                        <button onclick="adminAction('user', '{{ u.id }}', 'delete')" class="p-1.5 text-red-400 hover:bg-red-900/50 rounded transition-colors" title="Delete">
+                                        <button onclick="adminAction('user', '{{ u.id }}', 'delete')" class="p-2 text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 rounded-lg transition-colors border border-transparent hover:border-rose-500/20" title="Delete User">
                                             <i data-lucide="trash-2" class="w-4 h-4"></i>
                                         </button>
                                     </div>
@@ -216,48 +345,54 @@
         </div>
 
         <!-- Tab: Accounts -->
-        <div id="tab-accounts" class="admin-tab">
-            <h2 class="text-2xl font-bold text-white mb-6">Trade Accounts</h2>
-            <div class="bg-slate-900 rounded-xl border border-slate-700 overflow-hidden">
+        <div id="tab-accounts" class="admin-tab max-w-7xl mx-auto">
+            <div class="flex items-center justify-between mb-8">
+                <h2 class="text-3xl font-bold text-white tracking-tight">Trade Accounts</h2>
+            </div>
+            
+            <div class="glass-panel rounded-2xl overflow-hidden border border-slate-800">
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left">
-                        <thead class="bg-slate-800 border-b border-slate-700 text-slate-400 text-sm">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-slate-900/80 border-b border-slate-800 text-slate-400 text-xs uppercase tracking-wider font-semibold">
                             <tr>
-                                <th class="p-4">Account#</th>
-                                <th class="p-4">User</th>
-                                <th class="p-4">Type/Phase</th>
-                                <th class="p-4">Status</th>
-                                <th class="p-4">Balance / Equity</th>
-                                <th class="p-4 text-right">Actions</th>
+                                <th class="p-5">Account Number</th>
+                                <th class="p-5">Client Email</th>
+                                <th class="p-5">Plan Details</th>
+                                <th class="p-5">Status</th>
+                                <th class="p-5">Financials</th>
+                                <th class="p-5 text-right">Actions</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-700 text-sm">
+                        <tbody class="divide-y divide-slate-800/60 text-sm">
                             {% for acc in accounts %}
-                            <tr>
-                                <td class="p-4 font-mono font-semibold text-white">{{ acc.account_number }}</td>
-                                <td class="p-4">{{ user_map[acc.user_id].email if acc.user_id in user_map else 'Unknown' }}</td>
-                                <td class="p-4">
-                                    <div class="text-white">{{ acc.model_type }}</div>
-                                    <div class="text-xs text-slate-400">Phase {{ acc.phase }}</div>
+                            <tr class="table-row-hover transition-colors">
+                                <td class="p-5 font-mono font-bold text-blue-400 text-base flex items-center gap-2">
+                                    <i data-lucide="hash" class="w-4 h-4 opacity-50"></i>{{ acc.account_number }}
                                 </td>
-                                <td class="p-4">
-                                    <span class="px-2 py-1 rounded text-xs {{ 'bg-green-900/50 text-green-400' if acc.status == 'active' else 'bg-red-900/50 text-red-400' }}">
+                                <td class="p-5 text-slate-300">{{ user_map[acc.user_id].email if acc.user_id in user_map else 'Unknown' }}</td>
+                                <td class="p-5">
+                                    <div class="font-semibold text-white">{{ acc.model_type }}</div>
+                                    <div class="inline-flex items-center px-2 py-0.5 rounded-full bg-slate-800 text-[10px] font-medium text-slate-300 mt-1">Phase {{ acc.phase }}</div>
+                                </td>
+                                <td class="p-5">
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold {{ 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' if acc.status == 'active' else 'bg-rose-500/10 text-rose-400 border border-rose-500/20' }}">
+                                        <span class="w-1.5 h-1.5 rounded-full {{ 'bg-emerald-400' if acc.status == 'active' else 'bg-rose-400' }}"></span>
                                         {{ acc.status|upper }}
                                     </span>
                                     {% if acc.breach_reason %}
-                                    <div class="text-[10px] text-red-300 mt-1 max-w-[120px] truncate" title="{{ acc.breach_reason }}">{{ acc.breach_reason }}</div>
+                                    <div class="text-[10px] text-rose-300/70 mt-1.5 max-w-[140px] truncate" title="{{ acc.breach_reason }}">{{ acc.breach_reason }}</div>
                                     {% endif %}
                                 </td>
-                                <td class="p-4">
-                                    <div class="font-semibold text-white">₹{{ "{:,.2f}".format(acc.current_balance) }}</div>
-                                    <div class="text-xs {{ 'text-green-400' if acc.current_equity >= acc.initial_balance else 'text-red-400' }}">Eq: ₹{{ "{:,.2f}".format(acc.current_equity) }}</div>
+                                <td class="p-5">
+                                    <div class="font-bold text-white text-base">&#8377;{{ "{:,.2f}".format(acc.current_balance) }}</div>
+                                    <div class="text-xs font-medium mt-1 {{ 'text-emerald-400' if acc.current_equity >= acc.initial_balance else 'text-rose-400' }}">Eq: &#8377;{{ "{:,.2f}".format(acc.current_equity) }}</div>
                                 </td>
-                                <td class="p-4 text-right">
+                                <td class="p-5 text-right">
                                     <div class="flex flex-wrap items-center justify-end gap-2">
-                                        <button onclick="adminAction('account', '{{ acc.id }}', 'reset')" class="px-2 py-1 bg-slate-700 hover:bg-slate-600 text-white rounded text-xs transition-colors">Reset</button>
-                                        <button onclick="adminAction('account', '{{ acc.id }}', 'pass_phase')" class="px-2 py-1 bg-green-900/50 hover:bg-green-900 text-green-400 rounded text-xs transition-colors">Pass</button>
-                                        <button onclick="adminAction('account', '{{ acc.id }}', 'breach')" class="px-2 py-1 bg-red-900/50 hover:bg-red-900 text-red-400 rounded text-xs transition-colors">Breach</button>
-                                        <button onclick="adminAction('account', '{{ acc.id }}', 'delete')" class="p-1 text-red-400 hover:bg-red-900/50 rounded transition-colors" title="Delete">
+                                        <button onclick="adminAction('account', '{{ acc.id }}', 'reset')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white rounded-lg text-xs font-medium transition-all shadow-sm">Reset</button>
+                                        <button onclick="adminAction('account', '{{ acc.id }}', 'pass_phase')" class="px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 rounded-lg text-xs font-medium transition-all shadow-sm">Pass Phase</button>
+                                        <button onclick="adminAction('account', '{{ acc.id }}', 'breach')" class="px-3 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-400 rounded-lg text-xs font-medium transition-all shadow-sm">Breach</button>
+                                        <button onclick="adminAction('account', '{{ acc.id }}', 'delete')" class="p-1.5 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors border border-transparent hover:border-rose-500/20" title="Delete">
                                             <i data-lucide="trash-2" class="w-4 h-4"></i>
                                         </button>
                                     </div>
@@ -271,38 +406,47 @@
         </div>
 
         <!-- Tab: Trades -->
-        <div id="tab-trades" class="admin-tab">
-            <h2 class="text-2xl font-bold text-white mb-6">Manage Orders</h2>
-            <div class="bg-slate-900 rounded-xl border border-slate-700 overflow-hidden">
+        <div id="tab-trades" class="admin-tab max-w-7xl mx-auto">
+            <div class="flex items-center justify-between mb-8">
+                <h2 class="text-3xl font-bold text-white tracking-tight">Order Management</h2>
+            </div>
+            
+            <div class="glass-panel rounded-2xl overflow-hidden border border-slate-800">
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left">
-                        <thead class="bg-slate-800 border-b border-slate-700 text-slate-400 text-sm">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-slate-900/80 border-b border-slate-800 text-slate-400 text-xs uppercase tracking-wider font-semibold">
                             <tr>
-                                <th class="p-4">Ticket</th>
-                                <th class="p-4">Account ID</th>
-                                <th class="p-4">Symbol</th>
-                                <th class="p-4">Type/Lots</th>
-                                <th class="p-4">Open Price</th>
-                                <th class="p-4">PnL</th>
-                                <th class="p-4 text-right">Actions</th>
+                                <th class="p-5">Order ID</th>
+                                <th class="p-5">Account Link</th>
+                                <th class="p-5">Market</th>
+                                <th class="p-5">Position</th>
+                                <th class="p-5">Entry Price</th>
+                                <th class="p-5">Current PnL</th>
+                                <th class="p-5 text-right">Action</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-700 text-sm">
+                        <tbody class="divide-y divide-slate-800/60 text-sm">
                             {% for pos in positions %}
-                            <tr>
-                                <td class="p-4 font-mono">#{{ pos.ticket }}</td>
-                                <td class="p-4">{{ pos.account_id }}</td>
-                                <td class="p-4 font-bold text-white">{{ pos.symbol }}</td>
-                                <td class="p-4">
-                                    <span class="px-2 py-0.5 rounded text-xs mr-2 {{ 'bg-blue-900/50 text-blue-400' if pos.order_type == 'buy' else 'bg-red-900/50 text-red-400' }}">
-                                        {{ pos.order_type|upper }}
-                                    </span>
-                                    <span>{{ pos.volume_lots }} Lots</span>
+                            <tr class="table-row-hover transition-colors">
+                                <td class="p-5 font-mono text-slate-400">#{{ pos.ticket }}</td>
+                                <td class="p-5 font-mono text-blue-400 flex items-center gap-1"><i data-lucide="link" class="w-3 h-3"></i> {{ pos.account_id }}</td>
+                                <td class="p-5 font-bold text-white text-base">{{ pos.symbol }}</td>
+                                <td class="p-5">
+                                    <div class="flex items-center gap-2">
+                                        <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider {{ 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' if pos.order_type == 'buy' else 'bg-rose-500/10 text-rose-400 border border-rose-500/20' }}">
+                                            {{ pos.order_type }}
+                                        </span>
+                                        <span class="text-slate-300 font-medium">{{ pos.volume_lots }} Lot</span>
+                                    </div>
                                 </td>
-                                <td class="p-4">₹{{ "{:,.2f}".format(pos.open_price) }}</td>
-                                <td class="p-4 font-bold {{ 'text-green-400' if pos.pnl > 0 else 'text-red-400' }}">₹{{ "{:,.2f}".format(pos.pnl) }}</td>
-                                <td class="p-4 text-right">
-                                    <button onclick="adminAction('position', '{{ pos.id }}', 'close')" class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-xs transition-colors">Close</button>
+                                <td class="p-5 text-slate-300 font-mono">&#8377;{{ "{:,.2f}".format(pos.open_price) }}</td>
+                                <td class="p-5 font-bold text-base {{ 'text-emerald-400' if pos.pnl > 0 else 'text-rose-400' }}">
+                                    {{ '+' if pos.pnl > 0 else '' }}&#8377;{{ "{:,.2f}".format(pos.pnl) }}
+                                </td>
+                                <td class="p-5 text-right">
+                                    <button onclick="adminAction('position', '{{ pos.id }}', 'close')" class="px-4 py-1.5 bg-rose-600/90 hover:bg-rose-500 text-white font-medium rounded-lg text-xs transition-all shadow-lg shadow-rose-900/20 flex items-center justify-center gap-1.5 ml-auto">
+                                        <i data-lucide="x-circle" class="w-3 h-3"></i> Force Close
+                                    </button>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -313,97 +457,110 @@
         </div>
 
         <!-- Tab: Packages -->
-        <div id="tab-packages" class="admin-tab">
-            <h2 class="text-2xl font-bold text-white mb-6">Manage Plans & Packages</h2>
+        <div id="tab-packages" class="admin-tab max-w-7xl mx-auto">
+            <div class="flex items-center justify-between mb-8">
+                <h2 class="text-3xl font-bold text-white tracking-tight">Funding Plans & Packages</h2>
+            </div>
             
-            <div class="bg-slate-900 rounded-xl border border-slate-700 p-6 mb-8">
-                <h3 class="text-lg font-bold text-white mb-4">Add New Package</h3>
-                <form action="/admin/api/package" method="POST" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div class="glass-panel rounded-2xl border border-slate-800 p-8 mb-10 relative overflow-hidden">
+                <div class="absolute right-0 top-0 w-64 h-64 bg-indigo-600/5 rounded-bl-full -z-10"></div>
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="p-2.5 bg-indigo-500/10 text-indigo-400 rounded-xl"><i data-lucide="plus-circle" class="w-5 h-5"></i></div>
+                    <h3 class="text-xl font-bold text-white">Create New Funding Package</h3>
+                </div>
+                
+                <form action="/admin/api/package" method="POST" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
                     <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1">Package Name</label>
-                        <input type="text" name="name" required class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-white text-sm">
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Package Name</label>
+                        <input type="text" name="name" required class="w-full bg-slate-900/50 border border-slate-700/50 rounded-xl p-3 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all placeholder-slate-600" placeholder="e.g. 100k Pro">
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1">Model Type</label>
-                        <select name="model_type" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-white text-sm">
-                            <option value="1-Step">1-Step</option>
-                            <option value="2-Step">2-Step</option>
-                            <option value="Instant">Instant</option>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Evaluation Model</label>
+                        <select name="model_type" class="w-full bg-slate-900/50 border border-slate-700/50 rounded-xl p-3 text-white focus:border-indigo-500 outline-none appearance-none cursor-pointer">
+                            <option value="1-Step">1-Step Evaluation</option>
+                            <option value="2-Step">2-Step Evaluation</option>
+                            <option value="Instant">Instant Funding</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1">Account Size (₹)</label>
-                        <input type="number" step="0.01" name="account_size" required class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-white text-sm">
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Account Size (&#8377;)</label>
+                        <input type="number" step="0.01" name="account_size" required class="w-full bg-slate-900/50 border border-slate-700/50 rounded-xl p-3 text-white focus:border-indigo-500 focus:ring-1 outline-none" placeholder="100000">
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1">Price (₹)</label>
-                        <input type="number" step="0.01" name="price" required class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-white text-sm">
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Price Fee (&#8377;)</label>
+                        <input type="number" step="0.01" name="price" required class="w-full bg-slate-900/50 border border-slate-700/50 rounded-xl p-3 text-white focus:border-indigo-500 focus:ring-1 outline-none" placeholder="499.00">
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1">Profit Target Phase 1 (%)</label>
-                        <input type="number" step="0.1" name="profit_target_p1" required class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-white text-sm">
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Phase 1 Target (%)</label>
+                        <input type="number" step="0.1" name="profit_target_p1" required class="w-full bg-slate-900/50 border border-slate-700/50 rounded-xl p-3 text-white focus:border-indigo-500 focus:ring-1 outline-none" placeholder="8.0">
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1">Profit Target Phase 2 (%)</label>
-                        <input type="number" step="0.1" name="profit_target_p2" value="0" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-white text-sm">
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Phase 2 Target (%)</label>
+                        <input type="number" step="0.1" name="profit_target_p2" value="0" class="w-full bg-slate-900/50 border border-slate-700/50 rounded-xl p-3 text-white focus:border-indigo-500 focus:ring-1 outline-none" placeholder="5.0">
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1">Max Daily Loss (%)</label>
-                        <input type="number" step="0.1" name="max_daily_loss" required class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-white text-sm">
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Max Daily Drawdown (%)</label>
+                        <input type="number" step="0.1" name="max_daily_loss" required class="w-full bg-slate-900/50 border border-slate-700/50 rounded-xl p-3 text-white focus:border-indigo-500 focus:ring-1 outline-none" placeholder="5.0">
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1">Max Total Loss (%)</label>
-                        <input type="number" step="0.1" name="max_total_loss" required class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-white text-sm">
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Max Total Drawdown (%)</label>
+                        <input type="number" step="0.1" name="max_total_loss" required class="w-full bg-slate-900/50 border border-slate-700/50 rounded-xl p-3 text-white focus:border-indigo-500 focus:ring-1 outline-none" placeholder="10.0">
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1">Min Trading Days</label>
-                        <input type="number" name="min_trading_days" required class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-white text-sm">
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Min Trading Days</label>
+                        <input type="number" name="min_trading_days" required class="w-full bg-slate-900/50 border border-slate-700/50 rounded-xl p-3 text-white focus:border-indigo-500 focus:ring-1 outline-none" value="0">
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1">Leverage</label>
-                        <input type="text" name="leverage" value="1:100" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-white text-sm">
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Leverage Ratio</label>
+                        <input type="text" name="leverage" value="1:100" class="w-full bg-slate-900/50 border border-slate-700/50 rounded-xl p-3 text-white focus:border-indigo-500 focus:ring-1 outline-none">
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1">Profit Split (%)</label>
-                        <input type="number" name="profit_split" value="80" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-white text-sm">
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Profit Split (%)</label>
+                        <input type="number" name="profit_split" value="80" class="w-full bg-slate-900/50 border border-slate-700/50 rounded-xl p-3 text-white focus:border-indigo-500 focus:ring-1 outline-none">
                     </div>
                     <div class="flex items-end">
-                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition-colors">
-                            Add Package
+                        <button type="submit" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold py-3 rounded-xl shadow-lg shadow-indigo-900/20 transition-all flex justify-center gap-2">
+                            <i data-lucide="plus" class="w-5 h-5"></i> Add Package
                         </button>
                     </div>
                 </form>
             </div>
 
-            <div class="bg-slate-900 rounded-xl border border-slate-700 overflow-hidden">
+            <div class="glass-panel rounded-2xl overflow-hidden border border-slate-800">
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left">
-                        <thead class="bg-slate-800 border-b border-slate-700 text-slate-400 text-sm">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-slate-900/80 border-b border-slate-800 text-slate-400 text-xs uppercase tracking-wider font-semibold">
                             <tr>
-                                <th class="p-4">Name / Type</th>
-                                <th class="p-4">Size (₹)</th>
-                                <th class="p-4">Price (₹)</th>
-                                <th class="p-4">Targets P1/P2</th>
-                                <th class="p-4">Loss Limits D/T</th>
-                                <th class="p-4 text-right">Actions</th>
+                                <th class="p-5">Plan Identity</th>
+                                <th class="p-5">Capital Size (&#8377;)</th>
+                                <th class="p-5">Fee (&#8377;)</th>
+                                <th class="p-5">Targets (P1/P2)</th>
+                                <th class="p-5">Limits (Daily/Total)</th>
+                                <th class="p-5 text-right">Actions</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-700 text-sm">
+                        <tbody class="divide-y divide-slate-800/60 text-sm">
                             {% for pkg in packages %}
-                            <tr>
-                                <td class="p-4">
-                                    <div class="font-bold text-white">{{ pkg.name }}</div>
-                                    <div class="text-xs text-slate-400">{{ pkg.model_type }}</div>
+                            <tr class="table-row-hover transition-colors">
+                                <td class="p-5">
+                                    <div class="font-bold text-white text-base">{{ pkg.name }}</div>
+                                    <div class="inline-flex items-center px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 text-[10px] font-bold tracking-wide mt-1">{{ pkg.model_type|upper }}</div>
                                 </td>
-                                <td class="p-4 font-semibold">₹{{ "{:,.0f}".format(pkg.account_size) }}</td>
-                                <td class="p-4 text-green-400 font-bold">₹{{ "{:,.2f}".format(pkg.price) }}</td>
-                                <td class="p-4">{{ pkg.profit_target_p1 }}% / {{ pkg.profit_target_p2 }}%</td>
-                                <td class="p-4 text-red-300">{{ pkg.max_daily_loss }}% / {{ pkg.max_total_loss }}%</td>
-                                <td class="p-4 text-right">
+                                <td class="p-5 font-bold text-white text-lg tracking-tight">&#8377;{{ "{:,.0f}".format(pkg.account_size) }}</td>
+                                <td class="p-5 font-bold text-emerald-400 bg-emerald-500/5 rounded-lg">&#8377;{{ "{:,.2f}".format(pkg.price) }}</td>
+                                <td class="p-5 text-slate-300 font-medium">
+                                    <span class="text-emerald-400">{{ pkg.profit_target_p1 }}%</span> <span class="text-slate-500 mx-1">/</span> <span class="text-blue-400">{{ pkg.profit_target_p2 }}%</span>
+                                </td>
+                                <td class="p-5 text-slate-300 font-medium">
+                                    <span class="text-rose-400">{{ pkg.max_daily_loss }}%</span> <span class="text-slate-500 mx-1">/</span> <span class="text-rose-500">{{ pkg.max_total_loss }}%</span>
+                                </td>
+                                <td class="p-5 text-right">
                                     <div class="flex items-center justify-end gap-2">
-                                        <button onclick="openEditPriceModal('{{ pkg.id }}', '{{ pkg.price }}')" class="px-2 py-1 bg-slate-700 hover:bg-slate-600 text-white rounded text-xs transition-colors">Edit Price</button>
+                                        <button onclick="openEditPriceModal('{{ pkg.id }}', '{{ pkg.price }}')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white rounded-lg text-xs font-medium transition-all shadow-sm flex items-center gap-1.5">
+                                            <i data-lucide="tag" class="w-3 h-3"></i> Edit Fee
+                                        </button>
                                         <form action="/admin/api/package/{{ pkg.id }}/delete" method="POST" class="inline">
-                                            <button type="submit" class="p-1.5 text-red-400 hover:bg-red-900/50 rounded transition-colors" title="Delete">
+                                            <button type="submit" class="p-2 text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 rounded-lg transition-colors border border-transparent hover:border-rose-500/20" title="Delete Plan">
                                                 <i data-lucide="trash-2" class="w-4 h-4"></i>
                                             </button>
                                         </form>
@@ -418,49 +575,69 @@
         </div>
 
         <!-- Tab: Pages -->
-        <div id="tab-pages" class="admin-tab">
-            <h2 class="text-2xl font-bold text-white mb-6">Manage Dynamic Pages</h2>
+        <div id="tab-pages" class="admin-tab max-w-7xl mx-auto">
+            <div class="flex items-center justify-between mb-8">
+                <h2 class="text-3xl font-bold text-white tracking-tight">Content & Pages</h2>
+            </div>
             
-            <div class="bg-slate-900 rounded-xl border border-slate-700 p-6 mb-8">
-                <h3 class="text-lg font-bold text-white mb-4">Create New Page</h3>
-                <form action="/admin/pages/create" method="POST" class="space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="glass-panel rounded-2xl border border-slate-800 p-8 mb-10 relative overflow-hidden">
+                <div class="absolute right-0 top-0 w-64 h-64 bg-emerald-600/5 rounded-bl-full -z-10"></div>
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="p-2.5 bg-emerald-500/10 text-emerald-400 rounded-xl"><i data-lucide="file-plus" class="w-5 h-5"></i></div>
+                    <h3 class="text-xl font-bold text-white">Create Static Page</h3>
+                </div>
+                
+                <form action="/admin/pages/create" method="POST" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label class="block text-sm font-medium text-slate-400 mb-1">Page Title</label>
-                            <input type="text" name="title" required class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2.5 text-white">
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Page Title</label>
+                            <input type="text" name="title" required class="w-full bg-slate-900/50 border border-slate-700/50 rounded-xl p-3 text-white focus:border-emerald-500 focus:ring-1 outline-none transition-all placeholder-slate-600" placeholder="e.g. Terms of Service">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-slate-400 mb-1">URL Slug (e.g. about-us)</label>
-                            <input type="text" name="slug" required class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2.5 text-white">
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">URL Slug Route</label>
+                            <div class="flex">
+                                <span class="inline-flex items-center px-4 rounded-l-xl border border-r-0 border-slate-700/50 bg-slate-800/80 text-slate-400 text-sm">
+                                    yourdomain.com/
+                                </span>
+                                <input type="text" name="slug" required class="flex-1 bg-slate-900/50 border border-slate-700/50 rounded-r-xl p-3 text-white focus:border-emerald-500 focus:ring-1 outline-none transition-all placeholder-slate-600" placeholder="terms">
+                            </div>
                         </div>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-400 mb-1">HTML Content</label>
-                        <textarea name="content" rows="6" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2.5 text-white font-mono text-sm"></textarea>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Raw HTML Content</label>
+                        <textarea name="content" rows="8" class="w-full bg-slate-900/50 border border-slate-700/50 rounded-xl p-4 text-emerald-300 font-mono text-sm focus:border-emerald-500 focus:ring-1 outline-none transition-all placeholder-slate-700 leading-relaxed" placeholder="<h1>Welcome</h1><p>Start typing HTML here...</p>"></textarea>
                     </div>
-                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-6 rounded-lg transition-colors">
-                        Create Page
-                    </button>
+                    <div class="flex justify-end">
+                        <button type="submit" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold py-3 px-8 rounded-xl shadow-lg shadow-emerald-900/20 transition-all flex items-center gap-2">
+                            <i data-lucide="save" class="w-5 h-5"></i> Publish Page
+                        </button>
+                    </div>
                 </form>
             </div>
 
-            <div class="bg-slate-900 rounded-xl border border-slate-700 overflow-hidden">
-                <table class="w-full text-left">
-                    <thead class="bg-slate-800 border-b border-slate-700 text-slate-400 text-sm">
+            <div class="glass-panel rounded-2xl overflow-hidden border border-slate-800">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-slate-900/80 border-b border-slate-800 text-slate-400 text-xs uppercase tracking-wider font-semibold">
                         <tr>
-                            <th class="p-4">Title</th>
-                            <th class="p-4">Slug (URL)</th>
-                            <th class="p-4 text-right">Actions</th>
+                            <th class="p-5">Page Document</th>
+                            <th class="p-5">Live URL Route</th>
+                            <th class="p-5 text-right">Actions</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-700 text-sm">
+                    <tbody class="divide-y divide-slate-800/60 text-sm">
                         {% for page in pages %}
-                        <tr>
-                            <td class="p-4 font-semibold text-white">{{ page.title }}</td>
-                            <td class="p-4 text-blue-400">/{{ page.slug }}</td>
-                            <td class="p-4 text-right">
+                        <tr class="table-row-hover transition-colors">
+                            <td class="p-5 font-bold text-white text-base flex items-center gap-3">
+                                <i data-lucide="file-text" class="w-5 h-5 text-slate-500"></i> {{ page.title }}
+                            </td>
+                            <td class="p-5">
+                                <a href="/{{ page.slug }}" target="_blank" class="inline-flex items-center gap-1.5 text-blue-400 hover:text-blue-300 font-mono bg-blue-500/10 px-3 py-1 rounded-lg transition-colors border border-blue-500/20">
+                                    /{{ page.slug }} <i data-lucide="external-link" class="w-3 h-3"></i>
+                                </a>
+                            </td>
+                            <td class="p-5 text-right">
                                 <form action="/admin/pages/delete/{{ page.id }}" method="POST" class="inline">
-                                    <button type="submit" class="p-1.5 text-red-400 hover:bg-red-900/50 rounded transition-colors" title="Delete">
+                                    <button type="submit" class="p-2 text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 rounded-lg transition-colors border border-transparent hover:border-rose-500/20" title="Delete Page">
                                         <i data-lucide="trash-2" class="w-4 h-4"></i>
                                     </button>
                                 </form>
@@ -473,23 +650,40 @@
         </div>
 
         <!-- Tab: Settings -->
-        <div id="tab-settings" class="admin-tab">
-            <h2 class="text-2xl font-bold text-white mb-6">System Settings</h2>
-            <div class="max-w-2xl bg-slate-900 rounded-xl border border-slate-700 p-6">
-                <h3 class="text-lg font-bold text-white mb-4">Admin Portal Credentials</h3>
-                <form onsubmit="handleSettingsUpdate(event)" class="space-y-4">
+        <div id="tab-settings" class="admin-tab max-w-7xl mx-auto">
+            <div class="flex items-center justify-between mb-8">
+                <h2 class="text-3xl font-bold text-white tracking-tight">System Security</h2>
+            </div>
+            
+            <div class="max-w-2xl glass-panel rounded-2xl border border-slate-800 p-8 relative overflow-hidden">
+                <div class="absolute right-0 top-0 w-48 h-48 bg-slate-700/10 rounded-bl-full -z-10"></div>
+                <div class="flex items-center gap-3 mb-8">
+                    <div class="p-3 bg-slate-800 rounded-xl border border-slate-700 shadow-inner"><i data-lucide="lock" class="w-6 h-6 text-slate-300"></i></div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-400 mb-1">New Admin Username (Email)</label>
-                        <input type="email" id="admin_username" name="admin_username" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2.5 text-white">
+                        <h3 class="text-xl font-bold text-white">Administrator Credentials</h3>
+                        <p class="text-sm text-slate-400 mt-1">Update your portal access information here.</p>
+                    </div>
+                </div>
+                
+                <form onsubmit="handleSettingsUpdate(event)" class="space-y-6">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Admin Email / Username</label>
+                        <div class="relative">
+                            <i data-lucide="mail" class="absolute left-4 top-3.5 w-5 h-5 text-slate-500"></i>
+                            <input type="email" id="admin_username" name="admin_username" class="w-full bg-slate-900/80 border border-slate-700 rounded-xl py-3 pl-12 pr-4 text-white focus:border-blue-500 focus:ring-1 outline-none transition-all">
+                        </div>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-400 mb-1">New Admin Password</label>
-                        <input type="password" id="admin_password" name="admin_password" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2.5 text-white">
-                        <p class="text-xs text-slate-500 mt-1">Leave blank to keep current password</p>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">New Admin Password</label>
+                        <div class="relative">
+                            <i data-lucide="key" class="absolute left-4 top-3.5 w-5 h-5 text-slate-500"></i>
+                            <input type="password" id="admin_password" name="admin_password" class="w-full bg-slate-900/80 border border-slate-700 rounded-xl py-3 pl-12 pr-4 text-white focus:border-blue-500 focus:ring-1 outline-none transition-all placeholder-slate-600" placeholder="••••••••••••">
+                        </div>
+                        <p class="text-[11px] text-slate-500 mt-2 ml-1 flex items-center gap-1"><i data-lucide="info" class="w-3 h-3"></i> Leave field blank to retain current master password.</p>
                     </div>
-                    <div class="pt-2">
-                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-6 rounded-lg transition-colors">
-                            Save Settings
+                    <div class="pt-4 border-t border-slate-800/80">
+                        <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-xl shadow-lg shadow-blue-900/20 transition-all flex items-center gap-2">
+                            <i data-lucide="shield-check" class="w-5 h-5"></i> Update Security Settings
                         </button>
                     </div>
                 </form>
@@ -497,42 +691,69 @@
         </div>
 
         <!-- Tab: Customizer -->
-        <div id="tab-customizer" class="admin-tab">
-            <h2 class="text-2xl font-bold text-white mb-6">Appearance / Landing Page Customizer</h2>
-            <div class="max-w-3xl bg-slate-900 rounded-xl border border-slate-700 p-6">
-                <form onsubmit="handleCustomizerSubmit(event)" class="space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-sm font-medium text-slate-400 mb-1">Hero Title 1</label>
-                            <input type="text" name="hero_title_1" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2.5 text-white">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-slate-400 mb-1">Hero Title 2</label>
-                            <input type="text" name="hero_title_2" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2.5 text-white">
-                        </div>
-                    </div>
-                    
+        <div id="tab-customizer" class="admin-tab max-w-7xl mx-auto">
+            <div class="flex items-center justify-between mb-8">
+                <h2 class="text-3xl font-bold text-white tracking-tight">Brand Identity & Appearance</h2>
+            </div>
+            
+            <div class="glass-panel rounded-2xl border border-slate-800 p-8 relative overflow-hidden">
+                <div class="absolute right-0 top-0 w-64 h-64 bg-fuchsia-600/5 rounded-bl-full -z-10"></div>
+                
+                <div class="flex items-center gap-3 mb-8 pb-6 border-b border-slate-800/80">
+                    <div class="p-3 bg-gradient-to-br from-fuchsia-600 to-purple-600 rounded-xl shadow-lg"><i data-lucide="paint-brush" class="w-6 h-6 text-white"></i></div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-400 mb-1">Hero Subtitle</label>
-                        <textarea name="hero_subtitle" rows="3" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2.5 text-white"></textarea>
+                        <h3 class="text-xl font-bold text-white">Landing Page Customizer</h3>
+                        <p class="text-sm text-slate-400 mt-1">Changes made here will instantly reflect on the public storefront.</p>
                     </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-slate-400 mb-1">Top Announcement Bar Text</label>
-                        <input type="text" name="announcement_text" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2.5 text-white">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-slate-400 mb-1">Primary Brand Color (Hex)</label>
-                        <div class="flex items-center gap-3">
-                            <input type="color" name="primary_color" value="#2563eb" class="w-12 h-12 rounded cursor-pointer bg-slate-800 border border-slate-600">
-                            <input type="text" name="primary_color_text" value="#2563eb" class="w-32 bg-slate-800 border border-slate-600 rounded-lg p-2.5 text-white font-mono text-sm">
+                </div>
+
+                <form onsubmit="handleCustomizerSubmit(event)" class="space-y-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="space-y-6">
+                            <h4 class="text-sm font-bold text-white uppercase tracking-widest text-slate-300 border-b border-slate-800 pb-2">Typography & Content</h4>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Main Hero Headline (Part 1)</label>
+                                <input type="text" name="hero_title_1" class="w-full bg-slate-900/60 border border-slate-700/50 rounded-xl p-3 text-white focus:border-fuchsia-500 focus:ring-1 outline-none transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Main Hero Headline (Part 2 - Highlighted)</label>
+                                <input type="text" name="hero_title_2" class="w-full bg-slate-900/60 border border-slate-700/50 rounded-xl p-3 text-fuchsia-400 font-semibold focus:border-fuchsia-500 focus:ring-1 outline-none transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Hero Description Subtext</label>
+                                <textarea name="hero_subtitle" rows="4" class="w-full bg-slate-900/60 border border-slate-700/50 rounded-xl p-3 text-slate-300 focus:border-fuchsia-500 focus:ring-1 outline-none transition-all resize-none"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="space-y-6">
+                            <h4 class="text-sm font-bold text-white uppercase tracking-widest text-slate-300 border-b border-slate-800 pb-2">Branding & Banners</h4>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Global Announcement Banner</label>
+                                <div class="relative">
+                                    <i data-lucide="megaphone" class="absolute left-3.5 top-3.5 w-4 h-4 text-yellow-500"></i>
+                                    <input type="text" name="announcement_text" class="w-full bg-slate-900/60 border border-slate-700/50 rounded-xl py-3 pl-10 pr-4 text-yellow-100 focus:border-yellow-500 focus:ring-1 outline-none transition-all">
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Primary Brand Theme Color</label>
+                                <div class="flex items-center gap-4 p-4 bg-slate-900/60 border border-slate-700/50 rounded-xl">
+                                    <div class="relative overflow-hidden rounded-lg w-16 h-16 border-2 border-slate-600 shadow-lg cursor-pointer group">
+                                        <input type="color" name="primary_color" value="#2563eb" class="absolute -top-4 -left-4 w-32 h-32 cursor-pointer z-10 opacity-0">
+                                        <div class="absolute inset-0 bg-[#2563eb] color-preview pointer-events-none group-hover:scale-110 transition-transform"></div>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-xs text-slate-500 mb-1">Hex Code</p>
+                                        <input type="text" name="primary_color_text" value="#2563eb" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2.5 text-white font-mono text-sm focus:border-fuchsia-500 outline-none">
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="pt-4 border-t border-slate-700 flex justify-end">
-                        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition-colors flex items-center gap-2">
-                            <i data-lucide="upload-cloud"></i> Publish Changes to Live Site
+                    <div class="pt-8 border-t border-slate-800 flex justify-end">
+                        <button type="submit" class="bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-bold py-4 px-10 rounded-xl shadow-xl shadow-fuchsia-900/30 transition-all flex items-center gap-3 transform hover:-translate-y-1">
+                            <i data-lucide="sparkles" class="w-5 h-5"></i> Deploy Live Appearance
                         </button>
                     </div>
                 </form>
@@ -543,55 +764,70 @@
 
     <!-- Modals -->
     <!-- Edit User Modal -->
-    <div id="editUserModal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50">
-        <div class="bg-slate-900 border border-slate-700 rounded-xl p-6 w-full max-w-md shadow-2xl">
-            <h3 class="text-xl font-bold text-white mb-4">Edit User</h3>
+    <div id="editUserModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center z-50 transition-opacity">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl p-8 w-full max-w-md shadow-2xl relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-blue-500"></div>
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-white flex items-center gap-2"><i data-lucide="user-cog" class="text-blue-400"></i> Edit Client Info</h3>
+                <button type="button" onclick="closeModal('editUserModal')" class="text-slate-500 hover:text-white transition-colors"><i data-lucide="x"></i></button>
+            </div>
+            
             <form id="editUserForm" onsubmit="submitEditUser(event)">
                 <input type="hidden" id="edit_user_id">
-                <div class="space-y-4">
+                <div class="space-y-5">
                     <div>
-                        <label class="block text-sm font-medium text-slate-400 mb-1">Full Name</label>
-                        <input type="text" id="edit_user_name" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2.5 text-white">
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Full Name</label>
+                        <input type="text" id="edit_user_name" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white focus:border-blue-500 outline-none transition-all">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-400 mb-1">Email</label>
-                        <input type="email" id="edit_user_email" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2.5 text-white">
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Email Address</label>
+                        <input type="email" id="edit_user_email" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white focus:border-blue-500 outline-none transition-all">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-400 mb-1">New Password</label>
-                        <input type="password" id="edit_user_password" placeholder="Leave blank to keep unchanged" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2.5 text-white">
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Override Password</label>
+                        <input type="password" id="edit_user_password" placeholder="Leave empty to keep current..." class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white focus:border-blue-500 outline-none transition-all placeholder-slate-600">
                     </div>
                 </div>
-                <div class="mt-6 flex justify-end gap-3">
-                    <button type="button" onclick="closeModal('editUserModal')" class="px-4 py-2 bg-slate-800 text-slate-300 rounded-lg hover:bg-slate-700 transition-colors">Cancel</button>
-                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">Save Changes</button>
+                <div class="mt-8 flex justify-end gap-3">
+                    <button type="button" onclick="closeModal('editUserModal')" class="px-5 py-2.5 bg-slate-800 text-slate-300 font-medium rounded-xl hover:bg-slate-700 transition-colors">Cancel</button>
+                    <button type="submit" class="px-5 py-2.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-500 transition-colors shadow-lg shadow-blue-900/20">Save Profile</button>
                 </div>
             </form>
         </div>
     </div>
 
     <!-- Edit Price Modal -->
-    <div id="editPriceModal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50">
-        <div class="bg-slate-900 border border-slate-700 rounded-xl p-6 w-full max-w-sm shadow-2xl">
-            <h3 class="text-xl font-bold text-white mb-4">Edit Package Price</h3>
+    <div id="editPriceModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center z-50 transition-opacity">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl p-8 w-full max-w-sm shadow-2xl relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-emerald-500"></div>
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-white flex items-center gap-2"><i data-lucide="tag" class="text-emerald-400"></i> Update Plan Fee</h3>
+                <button type="button" onclick="closeModal('editPriceModal')" class="text-slate-500 hover:text-white transition-colors"><i data-lucide="x"></i></button>
+            </div>
+            
             <form onsubmit="submitEditPrice(event)">
                 <input type="hidden" id="edit_pkg_id">
                 <div>
-                    <label class="block text-sm font-medium text-slate-400 mb-1">New Price (₹)</label>
-                    <input type="number" step="0.01" id="edit_pkg_price" required class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2.5 text-white">
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">New Price Amount (&#8377;)</label>
+                    <div class="relative">
+                        <span class="absolute left-4 top-3.5 text-slate-400 font-medium">&#8377;</span>
+                        <input type="number" step="0.01" id="edit_pkg_price" required class="w-full bg-slate-800 border border-slate-700 rounded-xl py-3 pl-10 pr-4 text-white text-lg font-bold focus:border-emerald-500 outline-none transition-all">
+                    </div>
                 </div>
-                <div class="mt-6 flex justify-end gap-3">
-                    <button type="button" onclick="closeModal('editPriceModal')" class="px-4 py-2 bg-slate-800 text-slate-300 rounded-lg hover:bg-slate-700 transition-colors">Cancel</button>
-                    <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">Update Price</button>
+                <div class="mt-8 flex justify-end gap-3">
+                    <button type="button" onclick="closeModal('editPriceModal')" class="px-5 py-2.5 bg-slate-800 text-slate-300 font-medium rounded-xl hover:bg-slate-700 transition-colors">Cancel</button>
+                    <button type="submit" class="px-5 py-2.5 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-500 transition-colors shadow-lg shadow-emerald-900/20">Confirm Price</button>
                 </div>
             </form>
         </div>
     </div>
 
     <!-- Toast Notification -->
-    <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 border border-slate-700 text-white px-6 py-3 rounded-lg shadow-xl translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center gap-2">
-        <i data-lucide="info" class="w-5 h-5 text-blue-400"></i>
-        <span id="toastMessage"></span>
+    <div id="toast" class="fixed bottom-8 right-8 bg-slate-800/90 backdrop-blur border border-slate-700 text-white px-6 py-4 rounded-xl shadow-2xl translate-y-[150%] opacity-0 transition-all duration-500 z-50 flex items-center gap-3 min-w-[300px]">
+        <div class="p-2 bg-blue-500/20 rounded-lg">
+            <i data-lucide="check-circle" class="w-5 h-5 text-blue-400"></i>
+        </div>
+        <span id="toastMessage" class="font-medium tracking-wide"></span>
     </div>
 
     <script>
@@ -616,11 +852,23 @@
             // Update sidebar active state
             if (elem) {
                 document.querySelectorAll('.sidebar-link').forEach(link => {
-                    link.classList.remove('bg-slate-800', 'text-white');
-                    link.classList.add('text-slate-300');
+                    link.classList.remove('bg-slate-800/50', 'border-slate-700/50', 'text-white', 'active-nav', 'shadow-sm');
+                    link.classList.add('text-slate-400', 'border-transparent');
+                    // Reset icon color
+                    const icon = link.querySelector('i');
+                    if(icon && link !== elem) {
+                        icon.classList.remove('text-blue-400');
+                    }
                 });
-                elem.classList.remove('text-slate-300');
-                elem.classList.add('bg-slate-800', 'text-white');
+                
+                elem.classList.remove('text-slate-400', 'border-transparent');
+                elem.classList.add('bg-slate-800/50', 'border-slate-700/50', 'text-white', 'active-nav', 'shadow-sm');
+                
+                // Highlight icon
+                const activeIcon = elem.querySelector('i');
+                if(activeIcon) {
+                    activeIcon.classList.add('text-blue-400');
+                }
                 
                 // Update Title if exists in tab
                 const pageTitle = document.getElementById('page-title');
@@ -721,20 +969,23 @@
             document.getElementById('edit_user_id').value = id;
             document.getElementById('edit_user_name').value = name;
             document.getElementById('edit_user_email').value = email;
-            document.getElementById('editUserModal').classList.remove('hidden');
-            document.getElementById('editUserModal').classList.add('flex');
+            const modal = document.getElementById('editUserModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
         }
 
         function openEditPriceModal(id, price) {
             document.getElementById('edit_pkg_id').value = id;
             document.getElementById('edit_pkg_price').value = price;
-            document.getElementById('editPriceModal').classList.remove('hidden');
-            document.getElementById('editPriceModal').classList.add('flex');
+            const modal = document.getElementById('editPriceModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
         }
 
         function closeModal(modalId) {
-            document.getElementById(modalId).classList.add('hidden');
-            document.getElementById(modalId).classList.remove('flex');
+            const modal = document.getElementById(modalId);
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
         }
 
         async function submitEditUser(e) {
@@ -787,9 +1038,17 @@
         // Sync color picker inputs
         const colorPicker = document.querySelector('input[type="color"]');
         const colorText = document.querySelector('input[name="primary_color_text"]');
+        const colorPreview = document.querySelector('.color-preview');
+        
         if(colorPicker && colorText) {
-            colorPicker.addEventListener('input', (e) => colorText.value = e.target.value);
-            colorText.addEventListener('input', (e) => colorPicker.value = e.target.value);
+            colorPicker.addEventListener('input', (e) => {
+                colorText.value = e.target.value;
+                if(colorPreview) colorPreview.style.backgroundColor = e.target.value;
+            });
+            colorText.addEventListener('input', (e) => {
+                colorPicker.value = e.target.value;
+                if(colorPreview) colorPreview.style.backgroundColor = e.target.value;
+            });
         }
 
         // Toast Notification
@@ -799,9 +1058,9 @@
             toast.style.transform = 'translateY(0)';
             toast.style.opacity = '1';
             setTimeout(() => {
-                toast.style.transform = 'translateY(5rem)';
+                toast.style.transform = 'translateY(150%)';
                 toast.style.opacity = '0';
-            }, 3000);
+            }, 4000);
         }
     </script>
 </body>
