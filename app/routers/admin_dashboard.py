@@ -113,8 +113,14 @@ async def admin_dashboard(request: Request, _ = Depends(require_super_admin), db
     
     user_map = {u.id: u for u in db.query(User).all()}
     
-    from app.models import DynamicPage
+    from app.models import DynamicPage, AppSetting
     pages = db.query(DynamicPage).all()
+    settings_qs = db.query(AppSetting).all()
+    settings = {s.key: s.value for s in settings_qs}
+    from app.models import ContactMessage
+    contact_messages = db.query(ContactMessage).order_by(ContactMessage.created_at.desc()).all()
+
+
     
     return templates.TemplateResponse(
         request=request,
@@ -136,7 +142,9 @@ async def admin_dashboard(request: Request, _ = Depends(require_super_admin), db
             "positions": positions,
             "packages": packages,
             "user_map": user_map,
-            "pages": pages
+            "pages": pages,
+            "settings": settings,
+            "contact_messages": contact_messages
         }
     )
 

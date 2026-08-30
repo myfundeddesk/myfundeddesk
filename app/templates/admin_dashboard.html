@@ -701,6 +701,33 @@
             </div>
         </div>
 
+        
+        <!-- Tab: Contact Messages -->
+        <div id="tab-contact" class="admin-tab max-w-7xl mx-auto" style="display: none;">
+            <div class="flex items-center justify-between mb-8">
+                <h2 class="text-3xl font-bold text-white tracking-tight">Support Messages</h2>
+            </div>
+            
+            <div class="glass-panel rounded-2xl border border-slate-800 p-6 relative">
+                <div class="space-y-4">
+                    {% for msg in contact_messages %}
+                    <div class="p-4 bg-slate-800/50 rounded-xl border border-slate-700">
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <h4 class="text-white font-bold">{{ msg.subject }}</h4>
+                                <p class="text-xs text-slate-400">{{ msg.name }} &lt;{{ msg.email }}&gt;</p>
+                            </div>
+                            <span class="text-[10px] text-slate-500">{{ msg.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                        </div>
+                        <p class="text-sm text-slate-300 mt-2">{{ msg.message }}</p>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-8 text-slate-500">No support messages yet.</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
         <!-- Tab: Settings -->
         <div id="tab-settings" class="admin-tab max-w-7xl mx-auto">
             <div class="flex items-center justify-between mb-8">
