@@ -24,6 +24,14 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+    <script src="https://code.highcharts.com/stock/highstock.js"></script>
+    <script src="https://code.highcharts.com/stock/modules/drag-panes.js"></script>
+    <script src="https://code.highcharts.com/stock/modules/annotations-advanced.js"></script>
+    <script src="https://code.highcharts.com/stock/modules/price-indicator.js"></script>
+    <script src="https://code.highcharts.com/stock/modules/full-screen.js"></script>
+    <script src="https://code.highcharts.com/stock/modules/stock-tools.js"></script>
+    <link rel="stylesheet" href="https://code.highcharts.com/css/stocktools/gui.css">
+    <link rel="stylesheet" href="https://code.highcharts.com/css/annotations/gui.css">
     <script src="/static/js/lightweight-charts.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; }
@@ -354,9 +362,13 @@
     }
 
     function initCharts() {
-        var tvSym = tvSymbolMap[activeSymbol] || ('NSE:' + activeSymbol);
-        var interval = (tvSym.startsWith('NSE') || tvSym.startsWith('BSE') || tvSym.startsWith('TVC')) ? "D" : "5";
-        tvWidget1 = initTVWidget("tv_chart_container_1", tvSym, interval);
+        if (activeSymbol.endsWith("CE") || activeSymbol.endsWith("PE") || activeSymbol.includes("24") || activeSymbol.includes("25") || activeSymbol.includes("26") || activeSymbol === "NIFTY50" || activeSymbol === "BANKNIFTY" || activeSymbol === "SENSEX" || activeSymbol === "FINNIFTY" || activeSymbol === "MIDCPNIFTY" || activeSymbol === "RELIANCE" || activeSymbol === "HDFCBANK") {
+            renderOptionChart(activeSymbol);
+        } else {
+            var tvSym = tvSymbolMap[activeSymbol] || ('NSE:' + activeSymbol);
+            var interval = (tvSym.startsWith('NSE') || tvSym.startsWith('BSE') || tvSym.startsWith('TVC')) ? "D" : "5";
+            tvWidget1 = initTVWidget("tv_chart_container_1", tvSym, interval);
+        }
         
         var wl = document.getElementById('wl-' + activeSymbol);
         if(wl) wl.classList.add('active');
@@ -424,15 +436,19 @@
                     if(qtAsk) qtAsk.innerText = p.ask.toFixed(2);
                     
                     if (typeof lwSeries !== 'undefined' && lwSeries && lastLwCandle) {
-                        var now = Math.floor(Date.now() / 1000) + 19800; // IST rough
+                        var now = Math.floor(Date.now() / 1000);
                         if (now - lastLwCandle.time > 300) {
                             lastLwCandle = {time: now, open: p.mid, high: p.mid, low: p.mid, close: p.mid};
+                            lwSeries.addPoint([lastLwCandle.time * 1000, lastLwCandle.open, lastLwCandle.high, lastLwCandle.low, lastLwCandle.close], true, false);
                         } else {
                             lastLwCandle.close = p.mid;
                             lastLwCandle.high = Math.max(lastLwCandle.high, p.mid);
                             lastLwCandle.low = Math.min(lastLwCandle.low, p.mid);
+                            var lastPoint = lwSeries.data[lwSeries.data.length - 1];
+                            if(lastPoint) {
+                                lastPoint.update([lastLwCandle.time * 1000, lastLwCandle.open, lastLwCandle.high, lastLwCandle.low, lastLwCandle.close]);
+                            }
                         }
-                        lwSeries.update(lastLwCandle);
                     }
                 }
             }
@@ -719,36 +735,55 @@
             lwContainer.style.display = "block";
             lwContainer.innerHTML = "";
             
-            // Allow DOM to reflow so clientWidth is populated
-            await new Promise(r => setTimeout(r, 50));
-            
-            var w = lwContainer.clientWidth || 800;
-            var h = lwContainer.clientHeight || 500;
-            
-            lwChart = LightweightCharts.createChart(lwContainer, {
-                width: w,
-                height: h,
-                layout: { background: { type: 'solid', color: '#0f172a' }, textColor: '#94a3b8' },
-                grid: { vertLines: { color: '#1e293b' }, horzLines: { color: '#1e293b' } },
-                timeScale: { timeVisible: true, secondsVisible: false },
-            });
-            
-            lwSeries = lwChart.addCandlestickSeries({
-                upColor: '#22c55e', downColor: '#ef4444', borderVisible: false,
-                wickUpColor: '#22c55e', wickDownColor: '#ef4444'
-            });
-
             var res = await fetch('/api/market/candles/' + symbol);
             var data = await res.json();
-            var cData = data.map(c => ({
-                time: c.time + 19800,
-                open: c.open, high: c.high, low: c.low, close: c.close
-            }));
-            lwSeries.setData(cData);
-            if(cData.length > 0) lastLwCandle = cData[cData.length - 1];
+            var hcData = data.map(c => [
+                c.time * 1000, 
+                c.open, 
+                c.high, 
+                c.low, 
+                c.close
+            ]);
+            
+            if(hcData.length > 0) {
+                lastLwCandle = {time: hcData[hcData.length - 1][0]/1000, open: hcData[hcData.length - 1][1]}; // Keep reference for polling
+            }
+
+            // Create the chart
+            lwChart = Highcharts.stockChart('lw_chart_container_1', {
+                chart: { backgroundColor: '#0f172a' },
+                rangeSelector: { selected: 1, enabled: false },
+                navigator: { enabled: false },
+                scrollbar: { enabled: false },
+                credits: { enabled: false },
+                plotOptions: {
+                    candlestick: {
+                        color: '#ef4444',
+                        upColor: '#22c55e',
+                        lineColor: '#ef4444',
+                        upLineColor: '#22c55e'
+                    }
+                },
+                yAxis: [{
+                    labels: { style: { color: '#94a3b8' } },
+                    gridLineColor: '#1e293b'
+                }],
+                xAxis: [{
+                    labels: { style: { color: '#94a3b8' } },
+                    gridLineColor: '#1e293b'
+                }],
+                series: [{
+                    type: 'candlestick',
+                    name: symbol,
+                    data: hcData
+                }]
+            });
+            
+            // Set lwSeries so pollPrices can update it
+            lwSeries = lwChart.series[0];
+            
         } catch(e) {
             console.error("Option Chart Error:", e);
-            document.getElementById("lw_chart_container_1").innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#94a3b8;font-family:monospace;">Option Chart Loading Failed: ' + e.message + ' <br> Stack: ' + e.stack + '</div>';
         }
     }
 
@@ -868,7 +903,7 @@
         
         document.getElementById('order-symbol-title').innerText = sym;
         
-        if (sym.endsWith("CE") || sym.endsWith("PE") || sym.includes("24") || sym.includes("25") || sym.includes("26")) {
+        if (sym.endsWith("CE") || sym.endsWith("PE") || sym.includes("24") || sym.includes("25") || sym.includes("26") || sym === "NIFTY50" || sym === "BANKNIFTY" || sym === "SENSEX" || sym === "FINNIFTY" || sym === "MIDCPNIFTY" || sym === "RELIANCE" || sym === "HDFCBANK") {
             renderOptionChart(sym);
         } else {
             document.getElementById("lw_chart_container_1").style.display = "none";
