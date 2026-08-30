@@ -120,9 +120,13 @@ def evaluate_account_and_trades(db: Session, account: TradingAccount) -> dict:
     if account.status == "ACTIVE":
         
         # A. Check Inactivity (21 Days)
-        if account.last_trade_time and (now - account.last_trade_time).days > 21:
-            _breach_account(db, account, open_trades, "Account Inactivity (21 Days)")
-            return _build_response(account, total_floating_pnl, {"type": "BREACH", "reason": account.breach_reason})
+        if account.last_trade_time:
+            last_trade = account.last_trade_time
+            if last_trade.tzinfo is None:
+                last_trade = last_trade.replace(tzinfo=now.tzinfo)
+            if (now - last_trade).days > 21:
+                _breach_account(db, account, open_trades, "Account Inactivity (21 Days)")
+                return _build_response(account, total_floating_pnl, {"type": "BREACH", "reason": account.breach_reason})
 
         # B. Check Weekend Rule (No open trades Friday 15:35 to Monday 09:15 IST)
         if len(open_trades) > 0:
