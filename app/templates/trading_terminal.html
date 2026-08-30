@@ -354,7 +354,7 @@
     }
 
     function initCharts() {
-        if (activeSymbol.endsWith("CE") || activeSymbol.endsWith("PE") || activeSymbol.includes("24") || activeSymbol.includes("25") || activeSymbol.includes("26")) {
+        if (activeSymbol.endsWith("CE") || activeSymbol.endsWith("PE") || activeSymbol.includes("24") || activeSymbol.includes("25") || activeSymbol.includes("26") || activeSymbol === "NIFTY50" || activeSymbol === "BANKNIFTY" || activeSymbol === "SENSEX" || activeSymbol === "FINNIFTY" || activeSymbol === "MIDCPNIFTY" || activeSymbol === "RELIANCE" || activeSymbol === "HDFCBANK") {
             renderOptionChart(activeSymbol);
         } else {
             var tvSym = tvSymbolMap[activeSymbol] || ('NSE:' + activeSymbol);
@@ -427,7 +427,7 @@
                     if(qtBid) qtBid.innerText = p.bid.toFixed(2);
                     if(qtAsk) qtAsk.innerText = p.ask.toFixed(2);
                     
-                    if (typeof lwSeries !== 'undefined' && lwSeries && lastLwCandle && (activeSymbol.endsWith("CE") || activeSymbol.endsWith("PE"))) {
+                    if (typeof lwSeries !== 'undefined' && lwSeries && lastLwCandle) {
                         var now = Math.floor(Date.now() / 1000) + 19800; // IST rough
                         if (now - lastLwCandle.time > 300) {
                             lastLwCandle = {time: now, open: p.mid, high: p.mid, low: p.mid, close: p.mid};
@@ -733,7 +733,7 @@
                 width: w,
                 height: h,
                 layout: { background: { type: 'solid', color: '#0f172a' }, textColor: '#94a3b8' },
-                grid: { vertLines: { color: '#f0f0f0' }, horzLines: { color: '#f0f0f0' } },
+                grid: { vertLines: { color: '#1e293b' }, horzLines: { color: '#1e293b' } },
                 timeScale: { timeVisible: true, secondsVisible: false },
             });
             
@@ -872,7 +872,7 @@
         
         document.getElementById('order-symbol-title').innerText = sym;
         
-        if (sym.endsWith("CE") || sym.endsWith("PE") || sym.includes("24") || sym.includes("25") || sym.includes("26")) {
+        if (sym.endsWith("CE") || sym.endsWith("PE") || sym.includes("24") || sym.includes("25") || sym.includes("26") || sym === "NIFTY50" || sym === "BANKNIFTY" || sym === "SENSEX" || sym === "FINNIFTY" || sym === "MIDCPNIFTY" || sym === "RELIANCE" || sym === "HDFCBANK") {
             renderOptionChart(sym);
         } else {
             document.getElementById("lw_chart_container_1").style.display = "none";
