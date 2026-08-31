@@ -450,7 +450,7 @@
                     var statPrice = document.getElementById('status-price');
                     if(statPrice) statPrice.innerText = p.mid.toFixed(2);
                     
-                    if (isIndianMarketOpen() && typeof lwSeries !== 'undefined' && lwSeries && lastLwCandle) {
+                    if (typeof lwSeries !== 'undefined' && lwSeries && lastLwCandle) {
                         var now = Math.floor(Date.now() / 1000);
                         if (now - lastLwCandle.time > 300) {
                             lastLwCandle = {time: now, open: p.mid, high: p.mid, low: p.mid, close: p.mid};
@@ -461,14 +461,14 @@
                             lastLwCandle.low = Math.min(lastLwCandle.low, p.mid);
                             var lastPoint = lwSeries.data[lwSeries.data.length - 1];
                             if(lastPoint) {
-                                lastPoint.update([lastLwCandle.time * 1000, lastLwCandle.open, lastLwCandle.high, lastLwCandle.low, lastLwCandle.close]);
+                                lastPoint.update([lastLwCandle.time * 1000, lastLwCandle.open, lastLwCandle.high, lastLwCandle.low, lastLwCandle.close], true, false);
                             }
                         }
                     }
                 }
                 
                 // Update Dual Chart if open and symbol matches BankNifty
-                if (isIndianMarketOpen() && isDualChart && p.symbol === 'BANKNIFTY') {
+                if (isDualChart && p.symbol === 'BANKNIFTY') {
                     if (typeof lwSeries2 !== 'undefined' && lwSeries2 && lastLwCandle2) {
                         var now2 = Math.floor(Date.now() / 1000);
                         if (now2 - lastLwCandle2.time > 300) {
@@ -784,7 +784,7 @@
             
             var localLastCandle = null;
             if(hcData.length > 0) {
-                localLastCandle = {time: hcData[hcData.length - 1][0]/1000, open: hcData[hcData.length - 1][1]}; 
+                localLastCandle = {time: hcData[hcData.length - 1][0]/1000, open: hcData[hcData.length - 1][1], high: hcData[hcData.length - 1][2], low: hcData[hcData.length - 1][3], close: hcData[hcData.length - 1][4]}; 
             }
 
             Highcharts.setOptions({
