@@ -246,13 +246,11 @@ class MarketDataEngine:
                                     now_ts = int(time.time())
                                     if sym in self.candle_cache and len(self.candle_cache[sym]) > 0:
                                         last_c = self.candle_cache[sym][-1]
-                                        # If within the same 60-second window, update high/low/close
                                         if now_ts - last_c["time"] < 60: 
                                             last_c["close"] = round(last_p, cfg["digits"])
                                             last_c["high"] = round(max(last_c["high"], last_p), cfg["digits"])
                                             last_c["low"] = round(min(last_c["low"], last_p), cfg["digits"])
                                         else:
-                                            # New 1-minute candle
                                             new_candle = {
                                                 "time": now_ts - (now_ts % 60),
                                                 "open": last_c["close"],
@@ -284,6 +282,11 @@ class MarketDataEngine:
 
         threading.Thread(target=fetch_worker, daemon=True).start()
         threading.Thread(target=angel_one_worker, daemon=True).start()
+
+    def tick(self, symbol: str = None) -> Dict[str, Any]:
+        """Advance price ticks or return current live snapshot."""
+        with self.lock:
+            return {k: v.copy() for k, v in self.prices.items()}
 
     def _generate_realistic_fallback_candles(self, symbol: str, current_p: float, count: int = 300) -> List[Dict[str, Any]]:
         """Generates authentic looking 1-minute candles if real API has no response."""
@@ -352,6 +355,27 @@ class MarketDataEngine:
 
             return self.candle_cache.get(symbol, [])[-count:]
 
+    def get_all_prices(self) -> List[Dict[str, Any]]:
+        self.tick()
+        with self.lock:
+            result = []
+            for sym, cfg in INSTRUMENTS.items():
+                p = self.prices[sym]
+                result.append({
+                    "symbol": sym,
+                    "name": cfg["name"],
+                    "category": cfg["category"],
+                    "bid": p["bid"],
+                    "ask": p["ask"],
+                    "mid": p["mid"],
+                    "spread_pips": round(cfg["spread"] / cfg["pip_size"], 1),
+                    "digits": cfg["digits"],
+                    "change_24h": p["change_24h"],
+                    "high_24h": p["high_24h"],
+                    "low_24h": p["low_24h"]
+                })
+            return result
+
     def get_prices(self) -> Dict[str, Dict[str, float]]:
         with self.lock:
             res = {k: v.copy() for k, v in self.prices.items()}
@@ -394,5 +418,65 @@ class MarketDataEngine:
                 "high_24h": 105.0,
                 "low_24h": 95.0
             }
+
+    def calculate_pnl(self, symbol: str, order_type: str, lots: float, open_price: float) -> tuple[float, float, float]:
+        is_option = symbol.endswith("CE") or symbol.endswith("PE")
+        
+        if not is_option and symbol not in INSTRUMENTS:
+            return 0.0, open_price, 0.0
+            
+        if is_option:
+            if "BANKNIFTY" in symbol:
+                underlying = "BANKNIFTY"
+            elif "FINNIFTY" in symbol:
+                underlying = "FINNIFTY"
+            elif "MIDCPNIFTY" in symbol:
+                underlying = "MIDCPNIFTY"
+            elif "SENSEX" in symbol:
+                underlying = "SENSEX"
+            elif "NIFTY" in symbol:
+                underlying = "NIFTY50"
+            else:
+                underlying = "NIFTY50"
+            underlying_spot = self.prices.get(underlying, {}).get("mid", 24080.0)
+            opt_price = calculate_option_price_live(symbol, underlying_spot)
+            if opt_price is None: opt_price = open_price
+            
+            # Options spread logic
+            bid = opt_price - 0.25
+            ask = opt_price + 0.25
+            
+            current_exit_price = bid if order_type == "BUY" else ask
+            diff = current_exit_price - open_price if order_type == "BUY" else open_price - current_exit_price
+            
+            pips = diff
+            pnl = diff * lots
+            
+            turnover = (open_price + current_exit_price) * lots
+            stt_and_charges = turnover * 0.000125
+            total_fees = stt_and_charges + 40.0
+            pnl -= total_fees
+            return round(pnl, 2), round(current_exit_price, 2), round(pips, 1)
+
+        # Standard instruments
+        cfg = INSTRUMENTS[symbol]
+        cur_p = self.prices[symbol]
+        
+        if order_type == "BUY":
+            current_exit_price = cur_p["bid"]
+            diff = current_exit_price - open_price
+        else:
+            current_exit_price = cur_p["ask"]
+            diff = open_price - current_exit_price
+
+        pips = diff / cfg["pip_size"]
+        pnl = diff * lots
+        
+        turnover = (open_price + current_exit_price) * lots
+        stt_and_charges = turnover * 0.000125
+        total_fees = stt_and_charges + 40.0
+        pnl -= total_fees
+
+        return round(pnl, 2), round(current_exit_price, cfg["digits"]), round(pips, 1)
 
 market_engine = MarketDataEngine()
