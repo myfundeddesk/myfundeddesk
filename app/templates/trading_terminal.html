@@ -452,7 +452,7 @@
                     
                     if (typeof lwSeries !== 'undefined' && lwSeries && lastLwCandle) {
                         var now = Math.floor(Date.now() / 1000);
-                        if (now - lastLwCandle.time > 300) {
+                        if (now - lastLwCandle.time >= 60) {
                             lastLwCandle = {time: now, open: p.mid, high: p.mid, low: p.mid, close: p.mid};
                             lwSeries.addPoint([lastLwCandle.time * 1000, lastLwCandle.open, lastLwCandle.high, lastLwCandle.low, lastLwCandle.close], true, false);
                         } else {
@@ -471,7 +471,7 @@
                 if (isDualChart && p.symbol === 'BANKNIFTY') {
                     if (typeof lwSeries2 !== 'undefined' && lwSeries2 && lastLwCandle2) {
                         var now2 = Math.floor(Date.now() / 1000);
-                        if (now2 - lastLwCandle2.time > 300) {
+                        if (now2 - lastLwCandle2.time >= 60) {
                             lastLwCandle2 = {time: now2, open: p.mid, high: p.mid, low: p.mid, close: p.mid};
                             lwSeries2.addPoint([lastLwCandle2.time * 1000, lastLwCandle2.open, lastLwCandle2.high, lastLwCandle2.low, lastLwCandle2.close], true, false);
                         } else {
@@ -839,7 +839,10 @@
                         color: '#ef4444',
                         upColor: '#22c55e',
                         lineColor: '#ef4444',
-                        upLineColor: '#22c55e'
+                        upLineColor: '#22c55e',
+                        dataGrouping: {
+                            enabled: false
+                        }
                     }
                 },
                 yAxis: [{
@@ -847,6 +850,8 @@
                     gridLineColor: '#1e293b'
                 }],
                 xAxis: [{
+                    type: 'datetime',
+                    ordinal: true,
                     labels: { style: { color: '#94a3b8' } },
                     gridLineColor: '#1e293b'
                 }],
@@ -854,7 +859,10 @@
                     type: 'candlestick',
                     name: symbol,
                     data: hcData,
-                    id: 'main-series'
+                    id: 'main-series',
+                    dataGrouping: {
+                        enabled: false
+                    }
                 }]
             });
             
