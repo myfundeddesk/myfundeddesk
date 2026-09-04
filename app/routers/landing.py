@@ -46,6 +46,15 @@ async def landing_page(request: Request, user = Depends(get_optional_user), db: 
         }
     )
 
+@router.get("/rules", response_class=HTMLResponse)
+async def rules_page(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="rules.html",
+        context={"app_name": APP_NAME, "active_page": "rules"}
+    )
+
+
 from app.models import DynamicPage, AppSetting
 @router.get('/{slug}', response_class=HTMLResponse)
 async def dynamic_page_view(request: Request, slug: str, db: Session = Depends(get_db)):
