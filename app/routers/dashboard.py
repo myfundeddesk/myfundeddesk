@@ -13,9 +13,14 @@ from app.config import APP_NAME, APP_TAGLINE
 router = APIRouter()
 templates = Jinja2Templates(directory=str(Path(__file__).resolve().parent.parent / "templates"))
 
+from fastapi import Query
 @router.get("/dashboard", response_class=HTMLResponse)
-async def dashboard_page(request: Request, user: User = Depends(require_auth), db: Session = Depends(get_db)):
-    accounts = db.query(TradingAccount).filter(TradingAccount.user_id == user.id).all()
+async def dashboard_page(request: Request, model: str = Query(None), user: User = Depends(require_auth), db: Session = Depends(get_db)):
+    accounts_query = db.query(TradingAccount).filter(TradingAccount.user_id == user.id)
+    if model:
+        # Some accounts might have model_type like '1-Step', '2-Step', 'Instant'
+        accounts_query = accounts_query.filter(TradingAccount.model_type == model)
+    accounts = accounts_query.all()
     notifications = db.query(Notification).filter(Notification.user_id.is_(None)).order_by(Notification.created_at.desc()).limit(5).all()
     
     # Evaluate live metrics for active accounts
