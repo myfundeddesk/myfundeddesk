@@ -392,6 +392,13 @@
         }
         lucide.createIcons();
         if(typeof lwChart !== 'undefined' && lwChart) lwChart.applyOptions(getLightweightChartTheme());
+        if(typeof tvWidget1 !== 'undefined' && tvWidget1 && document.getElementById("tv_chart_container_1").style.display !== "none") {
+            var tvSym = tvSymbolMap[activeSymbol] || ('NSE:' + activeSymbol);
+            var interval = (tvSym.startsWith('NSE') || tvSym.startsWith('BSE') || tvSym.startsWith('TVC')) ? "D" : "5";
+            document.getElementById("tv_chart_container_1").innerHTML = "";
+            tvWidget1 = initTVWidget("tv_chart_container_1", tvSym, interval);
+        }
+
     }
     
     function getLightweightChartTheme() {
@@ -621,7 +628,6 @@
                             lwSeries2.update(lastLwCandle2);
                         }
                     }
-                }
                 }
             }
         } catch (e) {}
@@ -954,7 +960,6 @@
                 lastLwCandle2 = localLastCandle;
             }
         } catch (e) { console.error("Option Chart Error:", e); }
-    }
     }
 
     
