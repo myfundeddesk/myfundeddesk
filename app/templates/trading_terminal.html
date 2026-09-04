@@ -75,7 +75,6 @@
 
         .wl-item.active { background: #f8fafc; border-left: 3px solid #2962ff; }
     </style>
-
 <style>
     html:not(.dark) body { background-color: #f1f5f9; color: #334155; }
     html:not(.dark) .bg-[#050505], html:not(.dark) .bg-[#0a0a0a], html:not(.dark) .bg-[#0f172a], html:not(.dark) .bg-[#1e293b] {
@@ -195,22 +194,32 @@
                 
                 <!-- Chart 1 (Left) -->
                 <div class="flex-1 h-full relative bg-white dark:bg-darkpanel">
+
+        <div id="scalper-panel" class="hidden absolute top-4 left-4 z-50 bg-[#0f172a]/95 backdrop-blur border border-slate-700 rounded-xl p-4 shadow-2xl w-72">
+            <div class="flex justify-between items-center mb-3">
+                <div class="flex items-center gap-2 text-white font-black text-sm"><i data-lucide="zap" class="text-blue-500 w-4 h-4"></i> <span id="scalp-sym">NIFTY50</span></div>
+                <button onclick="toggleScalper()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <div class="text-xs text-slate-400 mb-4 font-mono" id="scalp-lot-size">Lot Size: 25</div>
+            <div class="flex items-center justify-between gap-3">
+                <button onclick="placeTrade('SELL')" class="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-lg shadow-[0_0_15px_rgba(239,68,68,0.3)] transition-all active:scale-95">SELL</button>
+                <div class="flex flex-col items-center bg-[#1e293b] rounded-lg px-2 py-1.5 border border-slate-700">
+                    <div class="text-[10px] text-slate-400 uppercase tracking-wider mb-1">Quantity</div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="adjScalpQty(-1)" class="text-slate-400 hover:text-white px-1 font-bold text-lg">-</button>
+                        <input type="number" id="scalp-qty" class="bg-transparent text-white font-bold w-14 text-center outline-none" value="25" readonly>
+                        <button onclick="adjScalpQty(1)" class="text-slate-400 hover:text-white px-1 font-bold text-lg">+</button>
+                    </div>
+                </div>
+                <button onclick="placeTrade('BUY')" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 rounded-lg shadow-[0_0_15px_rgba(59,130,246,0.3)] transition-all active:scale-95">BUY</button>
+            </div>
+        </div>
+
                     <div id="tv_chart_container_1" class="w-full h-full relative"></div>
                       <div id="lw_chart_container_1" class="w-full h-full relative hidden" style="position: absolute; top: 0; left: 0; z-index: 10; background: white;"></div>
                     
                     
                     <!-- Quick Trade Overlay for Chart 1 -->
-                    <div class="tv-floating-trade font-mono" id="quick-trade-panel">
-                        <div class="btn-trade-sell" onclick="placeTrade('SELL')">
-                            <div class="text-[10px] font-sans font-bold uppercase tracking-wider mb-0.5">Sell</div>
-                            <div class="text-sm font-black" id="qt-bid">...</div>
-                        </div>
-                        <input type="number" id="qt-qty" value="25" step="25" min="25" class="trade-qty-input">
-                        <div class="btn-trade-buy" onclick="placeTrade('BUY')">
-                            <div class="text-[10px] font-sans font-bold uppercase tracking-wider mb-0.5">Buy</div>
-                            <div class="text-sm font-black" id="qt-ask">...</div>
-                        </div>
-                    </div>
                 </div>
 
                 <!-- Chart 2 (Right) - Hidden by default -->
@@ -344,6 +353,110 @@
 <script>
     // STATE
     var activeSymbol = document.body.getAttribute('data-active-symbol') || 'NIFTY50';
+
+    const LOT_SIZES = {"NIFTY50": 25, "BANKNIFTY": 15, "FINNIFTY": 65, "MIDCPNIFTY": 50, "SENSEX": 10};
+    function getLotSize(sym) {
+        if(sym.includes('NIFTY') && sym.length > 10) {
+            if(sym.includes('BANKNIFTY')) return 15;
+            if(sym.includes('FINNIFTY')) return 65;
+            if(sym.includes('MIDCPNIFTY')) return 50;
+            return 25;
+        }
+        return LOT_SIZES[sym] || 1;
+    }
+    
+    function updateLotUI() {
+        var ls = getLotSize(activeSymbol);
+        var qtQty = document.getElementById('qt-qty');
+        var sqQty = document.getElementById('scalp-qty');
+        var sLot = document.getElementById('scalp-lot-size');
+        var sSym = document.getElementById('scalp-sym');
+        
+        if(qtQty) { qtQty.step = ls; qtQty.min = ls; qtQty.value = ls; }
+        if(sqQty) sqQty.value = ls;
+        if(sLot) sLot.innerText = 'Lot Size: ' + ls;
+        if(sSym) sSym.innerText = activeSymbol;
+    }
+    
+    let isScalperOpen = false;
+    function toggleScalper() {
+        isScalperOpen = !isScalperOpen;
+        document.getElementById('scalper-panel').style.display = isScalperOpen ? 'block' : 'none';
+        document.getElementById('scalper-status').className = isScalperOpen ? 'w-2 h-2 rounded-full bg-green-500 shadow-[0_0_5px_#22c55e]' : 'w-2 h-2 rounded-full bg-slate-400';
+    }
+    
+    function adjScalpQty(dir) {
+        var ls = getLotSize(activeSymbol);
+        var el = document.getElementById('scalp-qty');
+        var v = parseInt(el.value);
+        if(dir > 0) el.value = v + ls;
+        else if(v > ls) el.value = v - ls;
+        document.getElementById('qt-qty').value = el.value;
+    }
+    
+    function toggleTheme() {
+        const html = document.documentElement;
+        if (html.classList.contains('dark')) {
+            html.classList.remove('dark');
+            localStorage.setItem('theme', 'light');
+            document.body.style.backgroundColor = '#f1f5f9';
+            document.getElementById('theme-icon').setAttribute('data-lucide', 'sun');
+        } else {
+            html.classList.add('dark');
+            localStorage.setItem('theme', 'dark');
+            document.body.style.backgroundColor = '';
+            document.getElementById('theme-icon').setAttribute('data-lucide', 'moon');
+        }
+        lucide.createIcons();
+        if(typeof lwChart !== 'undefined' && lwChart) lwChart.applyOptions(getLightweightChartTheme());
+    }
+    
+    function getLightweightChartTheme() {
+        const isDark = document.documentElement.classList.contains('dark');
+        return {
+            layout: {
+                background: { type: 'solid', color: isDark ? '#0f172a' : '#ffffff' },
+                textColor: isDark ? '#94a3b8' : '#334155',
+            },
+            grid: {
+                vertLines: { color: isDark ? '#1e293b' : '#e2e8f0' },
+                horzLines: { color: isDark ? '#1e293b' : '#e2e8f0' },
+            }
+        };
+    }
+
+    let activeLayout = 1;
+    function setLayout(n) {
+        activeLayout = n;
+        isDualChart = n >= 2;
+        var container = document.getElementById('dual-chart-container');
+        var c1 = document.getElementById('left-chart-wrapper');
+        var c2 = document.getElementById('right-chart-wrapper');
+        var c3 = document.getElementById('chart-wrapper-3');
+        var c4 = document.getElementById('chart-wrapper-4');
+        
+        c1.style.display = 'flex';
+        c2.style.display = n >= 2 ? 'flex' : 'none';
+        if(c3) c3.style.display = n >= 4 ? 'flex' : 'none';
+        if(c4) c4.style.display = n >= 4 ? 'flex' : 'none';
+        
+        container.className = 'flex-1 overflow-hidden relative grid gap-1';
+        if(n === 1) container.classList.add('grid-cols-1', 'grid-rows-1');
+        else if(n === 2) container.classList.add('grid-cols-2', 'grid-rows-1');
+        else if(n === 4) container.classList.add('grid-cols-2', 'grid-rows-2');
+        
+        if(n >= 4) {
+            if(!document.getElementById('tv_chart_container_3').hasChildNodes() && !document.getElementById('lw_chart_container_3').hasChildNodes()) {
+                renderOptionChart('SENSEX', 3);
+            }
+            if(!document.getElementById('tv_chart_container_4').hasChildNodes() && !document.getElementById('lw_chart_container_4').hasChildNodes()) {
+                renderOptionChart('FINNIFTY', 4);
+            }
+        }
+        
+        setTimeout(() => { window.dispatchEvent(new Event('resize')); }, 100);
+    }
+
     var accAttr = document.body.getAttribute('data-account-id');
     var activeAccountId = (accAttr && accAttr !== 'null' && accAttr !== 'None') ? parseInt(accAttr) : null;
     
@@ -497,13 +610,16 @@
                     if (typeof lwSeries !== 'undefined' && lwSeries && lastLwCandle) {
                         var now = Math.floor(Date.now() / 1000);
                         if (now - lastLwCandle.time >= 60) {
-                            lastLwCandle = {time: now - (now % 60), open: p.mid, high: p.mid, low: p.mid, close: p.mid};
-                            lwSeries.update(lastLwCandle);
+                            lastLwCandle = {time: now, open: p.mid, high: p.mid, low: p.mid, close: p.mid};
+                            lwSeries.addPoint([lastLwCandle.time * 1000, lastLwCandle.open, lastLwCandle.high, lastLwCandle.low, lastLwCandle.close], true, false);
                         } else {
                             lastLwCandle.close = p.mid;
                             lastLwCandle.high = Math.max(lastLwCandle.high, p.mid);
                             lastLwCandle.low = Math.min(lastLwCandle.low, p.mid);
-                            lwSeries.update(lastLwCandle);
+                            var lastPoint = lwSeries.data[lwSeries.data.length - 1];
+                            if(lastPoint) {
+                                lastPoint.update([lastLwCandle.time * 1000, lastLwCandle.open, lastLwCandle.high, lastLwCandle.low, lastLwCandle.close], true, false);
+                            }
                         }
                     }
                 }
@@ -513,16 +629,18 @@
                     if (typeof lwSeries2 !== 'undefined' && lwSeries2 && lastLwCandle2) {
                         var now2 = Math.floor(Date.now() / 1000);
                         if (now2 - lastLwCandle2.time >= 60) {
-                            lastLwCandle2 = {time: now2 - (now2 % 60), open: p.mid, high: p.mid, low: p.mid, close: p.mid};
-                            lwSeries2.update(lastLwCandle2);
+                            lastLwCandle2 = {time: now2, open: p.mid, high: p.mid, low: p.mid, close: p.mid};
+                            lwSeries2.addPoint([lastLwCandle2.time * 1000, lastLwCandle2.open, lastLwCandle2.high, lastLwCandle2.low, lastLwCandle2.close], true, false);
                         } else {
                             lastLwCandle2.close = p.mid;
                             lastLwCandle2.high = Math.max(lastLwCandle2.high, p.mid);
                             lastLwCandle2.low = Math.min(lastLwCandle2.low, p.mid);
-                            lwSeries2.update(lastLwCandle2);
+                            var lastPoint2 = lwSeries2.data[lwSeries2.data.length - 1];
+                            if(lastPoint2) {
+                                lastPoint2.update([lastLwCandle2.time * 1000, lastLwCandle2.open, lastLwCandle2.high, lastLwCandle2.low, lastLwCandle2.close]);
+                            }
                         }
                     }
-                }
                 }
             }
         } catch (e) {}
@@ -804,7 +922,6 @@
     var lwSeries2 = null;
     var lastLwCandle2 = null;
 
-    
     async function renderOptionChart(symbol, containerIndex = 1) {
         try {
             document.getElementById("tv_chart_container_" + containerIndex).style.display = "none";
@@ -814,50 +931,111 @@
             
             var res = await fetch('/api/market/candles/' + symbol);
             var data = await res.json();
-            var hcData = data.map(c => ({
-                time: c.time,
-                open: c.open,
-                high: c.high,
-                low: c.low,
-                close: c.close
-            }));
+            var hcData = data.map(c => [
+                c.time * 1000, 
+                c.open, 
+                c.high, 
+                c.low, 
+                c.close
+            ]);
             
             var localLastCandle = null;
             if(hcData.length > 0) {
-                localLastCandle = hcData[hcData.length - 1];
+                localLastCandle = {time: hcData[hcData.length - 1][0]/1000, open: hcData[hcData.length - 1][1], high: hcData[hcData.length - 1][2], low: hcData[hcData.length - 1][3], close: hcData[hcData.length - 1][4]}; 
             }
-            
-            const chart = LightweightCharts.createChart(lwContainer, {
-                width: lwContainer.clientWidth,
-                height: lwContainer.clientHeight,
-                ...getLightweightChartTheme(),
-                timeScale: { timeVisible: true, secondsVisible: false }
+
+            Highcharts.setOptions({
+                time: {
+                    useUTC: false
+                }
             });
-            
-            const candleSeries = chart.addCandlestickSeries({
-                upColor: '#22c55e', downColor: '#ef4444', borderVisible: false,
-                wickUpColor: '#22c55e', wickDownColor: '#ef4444'
+
+            // Create the chart
+            var chart = Highcharts.stockChart('lw_chart_container_' + containerIndex, {
+                chart: { backgroundColor: '#0f172a' },
+                rangeSelector: {
+                    enabled: true,
+                    buttons: [{
+                        type: 'minute', count: 5, text: '5m'
+                    }, {
+                        type: 'minute', count: 15, text: '15m'
+                    }, {
+                        type: 'hour', count: 1, text: '1h'
+                    }, {
+                        type: 'day', count: 1, text: '1D'
+                    }, {
+                        type: 'all', text: 'All'
+                    }],
+                    selected: 4,
+                    buttonTheme: {
+                        fill: '#1e293b',
+                        stroke: 'none',
+                        style: { color: '#94a3b8' },
+                        states: {
+                            hover: { fill: '#334155', style: { color: '#fff' } },
+                            select: { fill: '#3b82f6', style: { color: '#fff' } }
+                        }
+                    },
+                    inputStyle: { color: '#94a3b8' },
+                    labelStyle: { color: '#94a3b8' }
+                },
+                stockTools: {
+                    gui: {
+                        enabled: true
+                    }
+                },
+                navigator: { 
+                    enabled: true,
+                    maskFill: 'rgba(59, 130, 246, 0.2)',
+                    series: { color: '#3b82f6', lineColor: '#3b82f6' }
+                },
+                scrollbar: { enabled: true },
+                credits: { enabled: false },
+                plotOptions: {
+                    candlestick: {
+                        color: '#ef4444',
+                        upColor: '#22c55e',
+                        lineColor: '#ef4444',
+                        upLineColor: '#22c55e',
+                        dataGrouping: {
+                            enabled: false
+                        }
+                    }
+                },
+                yAxis: [{
+                    labels: { style: { color: '#94a3b8' } },
+                    gridLineColor: '#1e293b'
+                }],
+                xAxis: [{
+                    type: 'datetime',
+                    ordinal: true,
+                    labels: { style: { color: '#94a3b8' } },
+                    gridLineColor: '#1e293b'
+                }],
+                series: [{
+                    type: 'candlestick',
+                    name: symbol,
+                    data: hcData,
+                    id: 'main-series',
+                    dataGrouping: {
+                        enabled: false
+                    }
+                }]
             });
-            candleSeries.setData(hcData);
-            
-            new ResizeObserver(entries => {
-                if (entries.length === 0 || entries[0].target !== lwContainer) return;
-                const newRect = entries[0].contentRect;
-                chart.applyOptions({ height: newRect.height, width: newRect.width });
-            }).observe(lwContainer);
             
             if (containerIndex === 1) {
                 lwChart = chart;
-                lwSeries = candleSeries;
+                lwSeries = chart.series[0];
                 lastLwCandle = localLastCandle;
             } else {
                 lwChart2 = chart;
-                lwSeries2 = candleSeries;
+                lwSeries2 = chart.series[0];
                 lastLwCandle2 = localLastCandle;
             }
-        } catch(e) { console.error("Option Chart Error:", e); }
-    }
-    
+            
+        } catch(e) {
+            console.error("Option Chart Error:", e);
+        }
     }
 
     
@@ -996,7 +1174,7 @@
         selectSymbol(symbol); // Now actually select it so the chart changes!
         
         var qtyInput = document.getElementById('qt-qty');
-        updateLotUI();
+updateLotUI();
         
         placeTrade(action);
         showToast(`Placing ${action} order for ${symbol}...`, 'success');
