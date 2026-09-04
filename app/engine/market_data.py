@@ -18,7 +18,7 @@ INSTRUMENTS: Dict[str, Dict[str, Any]] = {
         "spread": 1.5,
         "digits": 2,
         "pip_size": 0.05,
-        "contract_size": 50,
+        "contract_size": 25,
         "volatility": 15.0,
     },
     "BANKNIFTY": {
@@ -48,7 +48,7 @@ INSTRUMENTS: Dict[str, Dict[str, Any]] = {
         "spread": 1.2,
         "digits": 2,
         "pip_size": 0.05,
-        "contract_size": 25,
+        "contract_size": 65,
         "volatility": 18.0,
     },
     "MIDCPNIFTY": {
