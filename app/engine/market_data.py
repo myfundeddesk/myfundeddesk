@@ -265,20 +265,18 @@ class MarketDataEngine:
                 except Exception as e:
                     pass
                 time.sleep(1)
-
         def fetch_worker():
-            """Periodic 2-minute history refresher to keep long timeframe charts fresh."""
+            '''One-time history backfill on startup.'''
             import yfinance as yf
-            while True:
-                time.sleep(120)
-                try:
-                    tickers = list(YAHOO_MAP.values())
-                    data = yf.download(tickers, period="2d", interval="1m", progress=False, timeout=10)
-                    if data is not None and not data.empty:
-                        with self.lock:
-                            self._parse_and_store_yahoo_data(data)
-                except Exception:
-                    pass
+            try:
+                tickers = list(YAHOO_MAP.values())
+                data = yf.download(tickers, period="2d", interval="1m", progress=False, timeout=10)
+                if data is not None and not data.empty:
+                    with self.lock:
+                        self._parse_and_store_yahoo_data(data)
+            except Exception:
+                pass
+
 
         threading.Thread(target=fetch_worker, daemon=True).start()
         threading.Thread(target=angel_one_worker, daemon=True).start()
